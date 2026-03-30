@@ -1,0 +1,34 @@
+#!/bin/bash
+#
+# Pre-push hook to prevent direct pushes to main branch
+#
+
+# Colors for output
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Get the branch being pushed
+while read local_ref local_sha remote_ref remote_sha
+do
+    if [[ "$remote_ref" == "refs/heads/main" ]]; then
+        echo -e "${RED}❌ ERROR: Direct pushes to 'main' branch are not allowed!${NC}"
+        echo ""
+        echo -e "${YELLOW}Please use the following workflow:${NC}"
+        echo "  1. Create a feature branch: ${GREEN}git checkout -b feature/your-feature-name${NC}"
+        echo "  2. Make your changes on the feature branch"
+        echo "  3. Push the feature branch: ${GREEN}git push origin feature/your-feature-name${NC}"
+        echo "  4. Create a Pull Request to merge into main"
+        echo ""
+        echo -e "${YELLOW}If you've already pushed by mistake:${NC}"
+        echo "  1. Create a revert branch: ${GREEN}git checkout -b revert/main-push${NC}"
+        echo "  2. Reset to previous state: ${GREEN}git reset --hard origin/main@{1}${NC}"
+        echo "  3. Force push the revert: ${GREEN}git push origin revert/main-push --force${NC}"
+        echo "  4. Create a PR to revert the changes"
+        echo ""
+        exit 1
+    fi
+done
+
+exit 0

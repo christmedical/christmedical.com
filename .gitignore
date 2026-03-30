@@ -1,0 +1,254 @@
+# Operating System Files
+# =====================
+
+# Private Data
+data/
+legacy/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Editor and IDE Files
+# ====================
+
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains IDEs (IntelliJ, WebStorm, etc.)
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Vim
+*.swp
+*.swo
+*~
+.vim/
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Sublime Text
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+
+# Environment and Secrets
+# =======================
+
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+*.cert
+secrets/
+.secrets/
+
+# Node.js / JavaScript / TypeScript
+# ==================================
+
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+.npm
+.eslintcache
+.node_repl_history
+*.tsbuildinfo
+dist/
+build/
+.next/
+out/
+.nuxt/
+.cache/
+.parcel-cache/
+.turbo/
+coverage/
+*.log
+
+# Python
+# ======
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Ruby
+# ====
+
+*.gem
+*.rbc
+/.config
+/coverage/
+/InstalledFiles
+/pkg/
+/spec/reports/
+/spec/examples.txt
+/test/tmp/
+/test/version_tmp/
+/tmp/
+.bundle/
+vendor/bundle
+lib/bundler/man/
+.ruby-version
+.ruby-gemset
+.rvmrc
+
+# PHP
+# ===
+
+vendor/
+composer.lock
+.phpunit.result.cache
+
+# Go
+# ==
+
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Rust
+# ====
+
+target/
+Cargo.lock
+**/*.rs.bk
+
+# Build and Distribution
+# =======================
+
+*.min.js
+*.min.css
+*.map
+*.bundle.js
+*.bundle.css
+dist/
+build/
+out/
+release/
+*.tar.gz
+*.zip
+
+# Logs and Databases
+# ==================
+
+*.log
+logs/
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+
+# Temporary Files
+# ===============
+
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+*.swp
+*.swo
+*~
+
+# Testing
+# =======
+
+coverage/
+.nyc_output/
+*.lcov
+.jest/
+.pytest_cache/
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Misc
+# ====
+
+.cache/
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+*.orig
+*.rej

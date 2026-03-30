@@ -31,4 +31,4 @@ install-hooks: ## Install git hooks only (idempotent)
 
 convert: ## Convert the Access database to CSV format (idempotent)
 	@echo "$(BLUE)Converting access database to CSV...$(NC)"
-	@bash ./conversion/convert.sh
+	@bash ./conversion/extract.sh

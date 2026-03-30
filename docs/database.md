@@ -2,6 +2,44 @@
 title: Christ Medical Legacy (Staging Schema)
 ---
 
+### Data Relationship Flow
+
+```mermaid
+graph TD
+    %% Entities
+    P[Patients Table]
+    VG[visits_gen Hub]
+
+    %% Spokes
+    VC[visits_chiro]
+    VE[visits_eye]
+    VGY[visits_gyn]
+    VDX[visits_dx]
+    VRX[visits_rx]
+
+    %% Lookups
+    M[medications]
+    D[diagnosis]
+    PT[patienttypes]
+
+    %% Relationships
+    P -->|1:N| VG
+    PT -.->|Lookup| P
+
+    VG -->|1:1| VC
+    VG -->|1:1| VE
+    VG -->|1:1| VGY
+    VG -->|1:N| VDX
+    VG -->|1:N| VRX
+
+    D -.->|Lookup| VDX
+    M -.->|Lookup| VRX
+
+    %% Styling
+    style VG fill:#fff,stroke:#000,stroke-width:4px
+    style P fill:#fff,stroke:#000,stroke-width:2px
+```
+
 erDiagram
 %% Legend for clarity on data type icons used below
 LEGEND {

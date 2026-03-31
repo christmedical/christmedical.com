@@ -1,7 +1,3 @@
----
-title: Christ Medical Legacy (Staging Schema)
----
-
 ### Data Relationship Flow
 
 ```mermaid
@@ -23,20 +19,20 @@ graph TD
     PT[patienttypes]
 
     %% Relationships
-    P -->|1:N| VG
-    PT -.->|Lookup| P
+    P --> VG
+    PT -.-> P
 
-    VG -->|1:1| VC
-    VG -->|1:1| VE
-    VG -->|1:1| VGY
-    VG -->|1:N| VDX
-    VG -->|1:N| VRX
+    VG --> VC
+    VG --> VE
+    VG --> VGY
+    VG --> VDX
+    VG --> VRX
 
-    D -.->|Lookup| VDX
-    M -.->|Lookup| VRX
+    D -.-> VDX
+    M -.-> VRX
 
     %% Styling
-    style VG fill:#fff,stroke:#000,stroke-width:4px
+    style VG fill:#fff,stroke:#000,stroke-width:2px
     style P fill:#fff,stroke:#000,stroke-width:2px
 ```
 

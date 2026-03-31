@@ -18,15 +18,18 @@ The system is designed to support medical missions in Belize, where internet con
 | **Database**          | PostgreSQL                  | Railway               |
 | **Local Persistence** | IndexedDB (via Dexie.js)    | Browser/Electron      |
 
-## Datatabase
+---
 
-[Database Architecture Details](DATABASE.md "Database Architecture")
+## 3. Database & Persistence
 
-The database is hosted in at Railway in a Supabase instance. It has the ability to be ocasinnally connected.
+Detailed schema definitions and entity relationships are documented in [Database Architecture](DATABASE.md).
+
+- **Hosting:** The central PostgreSQL instance is hosted on **Railway**.
+- **Connectivity:** Designed for **"Local-First"** operation. The application remains fully functional during offline periods in the field, utilizing a store-and-forward synchronization pattern to reconcile data with the cloud once a connection is established.
 
 ---
 
-## 3. Data Migration Pipeline (ETL)
+## 4. Data Migration Pipeline (ETL)
 
 To move data from the legacy Access DB into the refactored schema, we use a three-stage process:
 
@@ -39,7 +42,7 @@ To move data from the legacy Access DB into the refactored schema, we use a thre
 
 ---
 
-## 4. Synchronization Strategy
+## 5. Synchronization Strategy
 
 ### "Store and Forward" Model
 
@@ -50,7 +53,7 @@ To move data from the legacy Access DB into the refactored schema, we use a thre
 
 ---
 
-## 5. Deployment & Infrastructure
+## 6. Deployment & Infrastructure
 
 - **Vercel:** Hosts the React PWA for easy access on mobile devices/iPads.
 - **Railway:** Hosts the C# API and the PostgreSQL instance.
@@ -58,14 +61,14 @@ To move data from the legacy Access DB into the refactored schema, we use a thre
 
 ---
 
-## 6. Security & Roles
+## 7. Security & Roles
 
 - [cite_start]**Admin:** Full access to Settings (Users, Locations, Diagnosis, Prescriptions)[cite: 12, 408].
 - [cite_start]**User:** Access to search, patient profiles, printing, and flagging treatments for spiritual/medical follow-up[cite: 13, 409].
 
 ---
 
-## 7. Authentication & Security
+## 8. Authentication & Security
 
 ### JWT Strategy
 
@@ -82,7 +85,7 @@ To move data from the legacy Access DB into the refactored schema, we use a thre
 
 ---
 
-## 8. Sync & Concurrency Control
+## 9. Sync & Concurrency Control
 
 To support "Occasionally Connected" operations, the production schema implements a multi-master metadata strategy:
 

@@ -32,3 +32,13 @@ install-hooks: ## Install git hooks only (idempotent)
 convert: ## Convert the Access database to CSV format (idempotent)
 	@echo "$(BLUE)Converting access database to CSV...$(NC)"
 	@bash ./conversion/extract.sh
+
+reset-db:
+	@echo "Wiping production tables..."
+	psql $(DATABASE_URL) -f ./conversion/V0__Reset_Schema.sql
+
+convert: reset-db
+	@echo "Starting extraction..."
+	./conversion/convert.sh
+	@echo "Running ETL via .NET..."
+	dotnet run --project ./EtlTool/EtlTool.csproj

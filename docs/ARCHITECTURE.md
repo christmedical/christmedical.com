@@ -22,7 +22,7 @@ The system is designed to support medical missions in Belize, where internet con
 
 ## 3. Database & Persistence
 
-Detailed schema definitions and entity relationships are documented in [Database Architecture](DATABASE.md).
+Detailed schema definitions and entity relationships are documented in [Database Architecture](DATABASE-DIAGRAM.md "Database Diagram").
 
 - **Hosting:** The central PostgreSQL instance is hosted on **Railway**.
 - **Connectivity:** Designed for **"Local-First"** operation. The application remains fully functional during offline periods in the field, utilizing a store-and-forward synchronization pattern to reconcile data with the cloud once a connection is established.

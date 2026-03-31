@@ -22,10 +22,13 @@ The system is designed to support medical missions in Belize, where internet con
 
 ## 3. Database & Persistence
 
-Detailed schema definitions and entity relationships are documented in [Database Architecture](DATABASE.md "Database Architecture").
+The application utilizes a **Local-First** persistence model to ensure reliability during medical missions in areas with intermittent internet connectivity.
 
-- **Hosting:** The central PostgreSQL instance is hosted on **Railway**.
-- **Connectivity:** Designed for **"Local-First"** operation. The application remains fully functional during offline periods in the field, utilizing a store-and-forward synchronization pattern to reconcile data with the cloud once a connection is established.
+- **Primary Store:** A centralized **PostgreSQL** instance hosted on **Railway**.
+- **Local Store:** **IndexedDB** (via Dexie.js) serves as the local cache on iPads (PWA) and Laptops (Electron).
+- **Synchronization:** Data is synchronized using a **Store and Forward** pattern. Records are authored locally with unique UUIDs and pushed to the Railway API during the "Finish Trip" phase when a connection is detected.
+
+> Detailed schema definitions, entity relationship diagrams (ERD), and data flow charts are documented in [Database Architecture](DATABASE.md).
 
 ---
 

@@ -1,4 +1,68 @@
-## Database Schema
+# Database Architecture
+
+This document details the persistence layer for the Christ Medical mission system. The architecture is built to support high-reliability data entry in low-connectivity environments through a local-first synchronization strategy.
+
+## Persistence Model
+
+- [**Primary Store (Cloud):** A centralized **PostgreSQL** instance hosted on **Railway** serves as the global source of truth[cite: 441, 443, 458].
+- **Local Store (Client):** **IndexedDB** (via Dexie.js) or **SQLite** provides high-performance local caching for iPads (PWA) and Laptops (Electron)[cite: 451, 452].
+- **Synchronization:** Implements a **Store and Forward** pattern. Data is authored locally with client-generated UUIDs and reconciled with the Railway API via a "Finish Trip" manual sync once a connection is detected[cite: 101, 440].
+
+---
+
+## Technical Schema
+
+### Data Relationship Flow
+
+The following diagram illustrates how entities move from the global mission context down to specific patient interventions[cite: 466].
+
+```mermaid
+graph TD
+    %% Global Mission Context
+    subgraph Mission_Context [Mission Context]
+        T[Trip]
+        WS[Workstation Log]
+    end
+
+    %% Central Entities
+    P[Patient]
+    V[Visit]
+
+    %% Clinical Observations
+    subgraph Observations [Clinical Observations]
+        VC[Vitals Core]
+        LR[Lab Results]
+    end
+
+    %% Clinical Interventions
+    subgraph Interventions [Interventions]
+        TR[Treatment]
+        RX[Prescription]
+        PD[Procedure Detail]
+    end
+
+    %% Relationships
+    T -->|monitors| WS
+    T -->|contains| V
+    P -->|undergoes| V
+    P -.->|self-reference| P
+
+    V -->|records| VC
+    V -->|records| LR
+    V -->|executes| TR
+
+    TR -->|details| RX
+    TR -->|details| PD
+
+    %% Styling
+    style V fill:#f9f,stroke:#333,stroke-width:2px
+    style P fill:#bbf,stroke:#333,stroke-width:2px
+    style T fill:#dfd,stroke:#333,stroke-width:2px
+```
+
+### Entity Relationship Diagram (ERD)
+
+This diagram defines the refactored production schema, including mandatory synchronization metadata for every table.
 
 ```mermaid
 erDiagram
@@ -144,7 +208,11 @@ PATIENT |o--o| PATIENT : "next_of_kin"
     }
 ```
 
-### Sync & Audit Metadata Fields
+## Synchronization Logic
+
+### Sync & Audit Metadata
+
+To support distributed data entry, every table in the production schema inherits the following audit and sync fields:
 
 | Field Name               | Data Type     | Purpose                                                               | Sync Logic                                                                                                                   |
 | :----------------------- | :------------ | :-------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------- |

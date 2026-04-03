@@ -2,8 +2,9 @@
 # =====================
 
 # Private Data
-data/
 legacy/
+/**/*.csv
+/**/*.accdb
 
 # macOS
 .DS_Store
@@ -212,7 +213,6 @@ release/
 
 *.log
 logs/
-*.sql
 *.sqlite
 *.sqlite3
 *.db

@@ -1033,7 +1033,7 @@
     ]
   },
   "packageFolders": {
-    "/Users/jameymcelveen/.nuget/packages/": {}
+    "/var/folders/2q/mc1c6zws4gq7g6yw_3xpydvm0000gn/T/cursor-sandbox-cache/0ea25a0735f9ece9b23e4958a4c3b91a/nuget": {}
   },
   "project": {
     "version": "1.0.0",
@@ -1041,7 +1041,7 @@
       "projectUniqueName": "/Users/jameymcelveen/Developer/christmedical.com/etl-tool/EtlTool.csproj",
       "projectName": "EtlTool",
       "projectPath": "/Users/jameymcelveen/Developer/christmedical.com/etl-tool/EtlTool.csproj",
-      "packagesPath": "/Users/jameymcelveen/.nuget/packages/",
+      "packagesPath": "/var/folders/2q/mc1c6zws4gq7g6yw_3xpydvm0000gn/T/cursor-sandbox-cache/0ea25a0735f9ece9b23e4958a4c3b91a/nuget",
       "outputPath": "/Users/jameymcelveen/Developer/christmedical.com/etl-tool/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [

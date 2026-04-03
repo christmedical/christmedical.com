@@ -81,7 +81,7 @@ public class PatientMigrationService
                 gynp              AS GynP,
                 age,
                 "spanish only"    AS SpanishOnly,
-                "ptupTEXTdon"     AS PtUpdatedOn,
+                ptupdatedon       AS PtUpdatedOn,
                 wherelive         AS WhereLive,
                 infonotes         AS InfoNotes,
                 heardgospel       AS HeardGospel,

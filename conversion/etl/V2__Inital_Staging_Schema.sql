@@ -1,217 +1,243 @@
 -- ----------------------------------------------------------
--- Christ Medical: Isolated Staging Schema
+-- Belize Medical Database Schema - Revision 5 B1
 -- ----------------------------------------------------------
 
 -- Create a clean workspace
 DROP SCHEMA IF EXISTS staging CASCADE;
 CREATE SCHEMA staging;
 
--- Set the path so we don't have to prefix every table manually
 SET search_path TO staging;
 SET client_encoding = 'UTF-8';
 
-CREATE TABLE "categories-meds" (
-    "categoryid"    INTEGER, 
-    "category"      VARCHAR (30), 
-    "type"          VARCHAR (255)
+CREATE TABLE IF NOT EXISTS "categories-meds"
+ (
+	"categoryid"			TEXT, 
+	"category"			TEXT, 
+	"type"			TEXT
 );
 
-CREATE TABLE "diagnosis" (
-    "dxid"          INTEGER, 
-    "dx code"       VARCHAR (255), 
-    "category"      VARCHAR (50), 
-    "diagnosis"     VARCHAR (255)
+
+CREATE TABLE IF NOT EXISTS "diagnosis"
+ (
+	"dxid"			TEXT, 
+	"dx code"			TEXT, 
+	"category"			TEXT, 
+	"diagnosis"			TEXT
 );
 
-CREATE TABLE "dosestrength" (
-    "dosestrength"  TEXT
+
+CREATE TABLE IF NOT EXISTS "dosestrength"
+ (
+	"dosestrength"			TEXT
 );
 
-CREATE TABLE "locations" (
-    "location"      VARCHAR (255), 
-    "locdesc"       VARCHAR (255)
+
+CREATE TABLE IF NOT EXISTS "locations"
+ (
+	"location"			TEXT, 
+	"locdesc"			TEXT
 );
 
-CREATE TABLE "medications" (
-    "medlistid"     INTEGER, 
-    "medcode"       VARCHAR (255), 
-    "medname"       VARCHAR (50), 
-    "category"      VARCHAR (50), 
-    "mednamealt"    VARCHAR (50), 
-    "strength"      TEXT, 
-    "discontinued"  BOOLEAN
+
+CREATE TABLE IF NOT EXISTS "medications"
+ (
+	"medlistid"			TEXT, 
+	"medcode"			TEXT, 
+	"medname"			TEXT, 
+	"category"			TEXT, 
+	"mednamealt"			TEXT, 
+	"strength"			TEXT, 
+	"discontinued"			TEXT
 );
 
-CREATE TABLE staging.patients (
-    "id"            TEXT,
-    "last name"     TEXT,
-    "first name"    TEXT,
-    "home phone"    TEXT,
-    "mobile phone"  TEXT,
-    "personalnotes" TEXT,
-    "church"        TEXT,
-    "hope"          TEXT,
-    "dob"           TEXT,
-    "ssno"          TEXT,
-    "allergies"     TEXT,
-    "medhist"       TEXT,
-    "surgeries"     TEXT,
-    "maritalstatus" TEXT,
-    "smoke"         TEXT,
-    "alcohol"       TEXT,
-    "famhist"       TEXT,
-    "gender"        TEXT,
-    "gyng"          TEXT,
-    "gynp"          TEXT,
-    "age"           TEXT,
-    "spanish only"  TEXT,
-    "ptupdatedon"   TEXT,
-    "ptimage"       TEXT,
-    "ptimage2"      TEXT,
-    "wherelive"     TEXT,
-    "infonotes"     TEXT,
-    "heardgospel"   TEXT,
-    "suffix"        TEXT,
-    "lastreaders"   TEXT,
-    "patienttype"   TEXT,
-    "pttype"        TEXT,
-    "junk_drawer"   TEXT -- NEW: This catches any "extra data" errors
+
+CREATE TABLE IF NOT EXISTS "patients"
+ (
+	"id"			TEXT, 
+	"last name"			TEXT, 
+	"first name"			TEXT, 
+	"home phone"			TEXT, 
+	"mobile phone"			TEXT, 
+	"personalnotes"			TEXT, 
+	"church"			TEXT, 
+	"hope"			TEXT, 
+	"dob"			TEXT, 
+	"ssno"			TEXT, 
+	"allergies"			TEXT, 
+	"medhist"			TEXT, 
+	"surgeries"			TEXT, 
+	"maritalstatus"			TEXT, 
+	"smoke"			TEXT, 
+	"alcohol"			TEXT, 
+	"famhist"			TEXT, 
+	"gender"			TEXT, 
+	"gyng"			TEXT, 
+	"gynp"			TEXT, 
+	"age"			TEXT, 
+	"spanish only"			TEXT, 
+	"ptupTEXTdon"			TEXT, 
+	"ptimage"			TEXT, 
+	"ptimage2"			TEXT, 
+	"wherelive"			TEXT, 
+	"infonotes"			TEXT, 
+	"heardgospel"			TEXT, 
+	"suffix"			TEXT, 
+	"lastreaders"			TEXT, 
+	"patienttype"			TEXT, 
+	"pttype"			TEXT
 );
 
-CREATE TABLE "visits_chiro" (
-    "chiroid"           INTEGER, 
-    "visitid"           INTEGER, 
-    "patientid"         INTEGER, 
-    "head"              BOOLEAN, 
-    "cervical"          BOOLEAN, 
-    "thoracic"          BOOLEAN, 
-    "lumbar"            BOOLEAN, 
-    "hand"              BOOLEAN, 
-    "elbow"             BOOLEAN, 
-    "shoulder"          BOOLEAN, 
-    "leg"               BOOLEAN, 
-    "knee"              BOOLEAN, 
-    "foot"              BOOLEAN, 
-    "painhead"          BOOLEAN, 
-    "painneck"          BOOLEAN, 
-    "painupback"        BOOLEAN, 
-    "painlwrback"       BOOLEAN, 
-    "painhand"          BOOLEAN, 
-    "painelbow"         BOOLEAN, 
-    "painshoulder"      BOOLEAN, 
-    "painleg"           BOOLEAN, 
-    "painknee"          BOOLEAN, 
-    "painfoot"          BOOLEAN, 
-    "osteoarthritis"    BOOLEAN, 
-    "musclespasm"       BOOLEAN, 
-    "jointdysfunction"  BOOLEAN, 
-    "sprainstrain"      BOOLEAN, 
-    "adjustment"        BOOLEAN, 
-    "massage"           BOOLEAN, 
-    "topicalanalgesic"  BOOLEAN, 
-    "therapyrehab"      BOOLEAN, 
-    "support"           BOOLEAN, 
-    "chironote"         TEXT, 
-    "subluxation"       BOOLEAN, 
-    "chiroupdatedon"    TIMESTAMP
+
+CREATE TABLE IF NOT EXISTS "visits_chiro"
+ (
+	"chiroid"			TEXT, 
+	"visitid"			TEXT, 
+	"patientid"			TEXT, 
+	"head"			TEXT, 
+	"cervical"			TEXT, 
+	"thoracic"			TEXT, 
+	"lumbar"			TEXT, 
+	"hand"			TEXT, 
+	"elbow"			TEXT, 
+	"shoulder"			TEXT, 
+	"leg"			TEXT, 
+	"knee"			TEXT, 
+	"foot"			TEXT, 
+	"painhead"			TEXT, 
+	"painneck"			TEXT, 
+	"painupback"			TEXT, 
+	"painlwrback"			TEXT, 
+	"painhand"			TEXT, 
+	"painelbow"			TEXT, 
+	"painshoulder"			TEXT, 
+	"painleg"			TEXT, 
+	"painknee"			TEXT, 
+	"painfoot"			TEXT, 
+	"osteoarthritis"			TEXT, 
+	"musclespasm"			TEXT, 
+	"jointdysfunction"			TEXT, 
+	"sprainstrain"			TEXT, 
+	"adjustment"			TEXT, 
+	"massage"			TEXT, 
+	"topicalanalgesic"			TEXT, 
+	"therapyrehab"			TEXT, 
+	"support"			TEXT, 
+	"chironote"			TEXT, 
+	"subluxation"			TEXT, 
+	"chiroupTEXTdon"			TEXT
 );
 
-CREATE TABLE "visits_dx" (
-    "visitdxid"         INTEGER, 
-    "visitid"           INTEGER, 
-    "dxcode"            VARCHAR (255), 
-    "addlinfo"          VARCHAR (255), 
-    "dxupdatedon"       TIMESTAMP
+
+CREATE TABLE IF NOT EXISTS "visits_dx"
+ (
+	"visitdxid"			TEXT, 
+	"visitid"			TEXT, 
+	"dxcode"			TEXT, 
+	"addlinfo"			TEXT, 
+	"dxupTEXTdon"			TEXT
 );
 
-CREATE TABLE "visits_eye" (
-    "eyeid"         INTEGER, 
-    "field1"        BOOLEAN, 
-    "patientid"     INTEGER, 
-    "visitid"       INTEGER, 
-    "va l"          VARCHAR (255), 
-    "va r"          VARCHAR (255), 
-    "tonr"          VARCHAR (255), 
-    "tonl"          VARCHAR (255), 
-    "impression"    VARCHAR (255), 
-    "plan"          VARCHAR (255), 
-    "readnear"      VARCHAR (255), 
-    "readdist"      VARCHAR (255), 
-    "eom"           VARCHAR (255), 
-    "pupils"        VARCHAR (255), 
-    "ar r"          VARCHAR (255), 
-    "ar l"          VARCHAR (255), 
-    "va"            VARCHAR (255), 
-    "l"             VARCHAR (255), 
-    "eyeupdatedon"  TIMESTAMP, 
-    "cataracts"     BOOLEAN, 
-    "dryeyes"       BOOLEAN, 
-    "glaucoma"      BOOLEAN, 
-    "ptergium"      BOOLEAN, 
-    "other"         VARCHAR (255), 
-    "readersgivendate"      TIMESTAMP, 
-    "readersgivenstrength"  TEXT
+
+CREATE TABLE IF NOT EXISTS "visits_eye"
+ (
+	"eyeid"			TEXT, 
+	"field1"			TEXT, 
+	"patientid"			TEXT, 
+	"visitid"			TEXT, 
+	"va l"			TEXT, 
+	"va r"			TEXT, 
+	"tonr"			TEXT, 
+	"tonl"			TEXT, 
+	"impression"			TEXT, 
+	"plan"			TEXT, 
+	"readnear"			TEXT, 
+	"readdist"			TEXT, 
+	"eom"			TEXT, 
+	"pupils"			TEXT, 
+	"ar r"			TEXT, 
+	"ar l"			TEXT, 
+	"va"			TEXT, 
+	"l"			TEXT, 
+	"eyeupTEXTdon"			TEXT, 
+	"cataracts"			TEXT, 
+	"dryeyes"			TEXT, 
+	"glaucoma"			TEXT, 
+	"ptergium"			TEXT, 
+	"other"			TEXT, 
+	"readersgivenTEXT"			TEXT, 
+	"readersgivenstrength"			TEXT
 );
 
-CREATE TABLE "visits_gen" (
-    "genid"         TEXT, 
-    "patientid"     TEXT, 
-    "datevisit"     TEXT, 
-    "height"        TEXT, 
-    "weight"        TEXT, 
-    "pulse"         DOUBLE PRECISION, 
-    "bp"            VARCHAR (255), 
-    "resp"          DOUBLE PRECISION, 
-    "temp"          TEXT, 
-    "glucoseblood"  DOUBLE PRECISION, 
-    "hemoglobin"    DOUBLE PRECISION, 
-    "diagnosis"     TEXT, 
-    "referral"      TEXT, 
-    "bloodh"        VARCHAR (5), 
-    "bloodn"        VARCHAR (5), 
-    "urobilin"      VARCHAR (5), 
-    "bilirubin"     VARCHAR (5), 
-    "protein"       VARCHAR (5), 
-    "nitrite"       VARCHAR (5), 
-    "ketones"       VARCHAR (5), 
-    "ascorbic"      VARCHAR (5), 
-    "glucoseurine"  VARCHAR (5), 
-    "ph"            VARCHAR (5), 
-    "spgrav"        VARCHAR (5), 
-    "leuk"          VARCHAR (5), 
-    "pregtest"      TEXT, 
-    "md"            BOOLEAN, 
-    "eye"           BOOLEAN, 
-    "gyn"           BOOLEAN, 
-    "ch"            BOOLEAN, 
-    "dnt"           BOOLEAN, 
-    "genupdatedon"  TIMESTAMP, 
-    "location"      TEXT, 
-    "oxygen"        VARCHAR (255)
+
+CREATE TABLE IF NOT EXISTS "visits_gen"
+ (
+	"genid"			TEXT, 
+	"patientid"			TEXT, 
+	"TEXTvisit"			TEXT, 
+	"height"			TEXT, 
+	"weight"			TEXT, 
+	"pulse"			TEXT, 
+	"bp"			TEXT, 
+	"resp"			TEXT, 
+	"temp"			TEXT, 
+	"glucoseblood"			TEXT, 
+	"hemoglobin"			TEXT, 
+	"diagnosis"			TEXT, 
+	"referral"			TEXT, 
+	"bloodh"			TEXT, 
+	"bloodn"			TEXT, 
+	"urobilin"			TEXT, 
+	"bilirubin"			TEXT, 
+	"protein"			TEXT, 
+	"nitrite"			TEXT, 
+	"ketones"			TEXT, 
+	"ascorbic"			TEXT, 
+	"glucoseurine"			TEXT, 
+	"ph"			TEXT, 
+	"spgrav"			TEXT, 
+	"leuk"			TEXT, 
+	"pregtest"			TEXT, 
+	"md"			TEXT, 
+	"eye"			TEXT, 
+	"gyn"			TEXT, 
+	"ch"			TEXT, 
+	"dnt"			TEXT, 
+	"genupTEXTdon"			TEXT, 
+	"location"			TEXT, 
+	"oxygen"			TEXT
 );
 
-CREATE TABLE "visits_gyn" (
-    "gynid"         INTEGER, 
-    "visitid"       INTEGER, 
-    "patientid"     INTEGER, 
-    "mam"           VARCHAR (255), 
-    "pap"           VARCHAR (255), 
-    "lmp"           VARCHAR (255), 
-    "gynnotes"      TEXT, 
-    "gynupdatedon"  TIMESTAMP
+
+CREATE TABLE IF NOT EXISTS "visits_gyn"
+ (
+	"gynid"			TEXT, 
+	"visitid"			TEXT, 
+	"patientid"			TEXT, 
+	"mam"			TEXT, 
+	"pap"			TEXT, 
+	"lmp"			TEXT, 
+	"gynnotes"			TEXT, 
+	"gynupTEXTdon"			TEXT
 );
 
-CREATE TABLE "visits_rx" (
-    "rxid"          INTEGER, 
-    "visitid"       INTEGER, 
-    "medid"         INTEGER, 
-    "directions"    VARCHAR (100), 
-    "dose"          VARCHAR (255), 
-    "dnd"           BOOLEAN, 
-    "rxupdatedon"   TIMESTAMP
+
+CREATE TABLE IF NOT EXISTS "visits_rx"
+ (
+	"rxid"			TEXT, 
+	"visitid"			TEXT, 
+	"medid"			TEXT, 
+	"directions"			TEXT, 
+	"dose"			TEXT, 
+	"dnd"			TEXT, 
+	"rxupTEXTdon"			TEXT
 );
 
-CREATE TABLE "patienttypes" (
-    "id"            INTEGER, 
-    "patienttype"   VARCHAR (255)
+
+CREATE TABLE IF NOT EXISTS "patienttypes"
+ (
+	"id"			TEXT, 
+	"patienttype"			TEXT
 );
+
+
+

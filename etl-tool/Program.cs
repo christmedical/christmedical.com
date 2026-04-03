@@ -1,35 +1,33 @@
-﻿var rawData = await stagingDb.Patients
-    .Where(p => p.FirstName != null) // Filter out junk
-    .Take(2000)
-    .ToListAsync();
+using EtlTool.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
-var demoData = rawData.Select(p => scrubber.Obfuscate(p)).ToList();
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+    .Build();
 
-// Save to Prod DB or export to a CSV for your GitHub repo
-productionDb.Patients.AddRange(demoData);
+var connectionString = configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException(
+        "DefaultConnection is missing from appsettings.json / environment.");
 
-await productionDb.SaveChangesAsync();
+using var loggerFactory = LoggerFactory.Create(builder =>
+    builder
+        .AddConsole()
+        .SetMinimumLevel(LogLevel.Information));
 
+var logger = loggerFactory.CreateLogger<PatientMigrationService>();
 
-// Example Mapping Loop
-// var legacyPatients = await stagingDb.Patients.ToListAsync();
+logger.LogInformation("Starting Patient Migration ETL…");
 
-// foreach (var oldPt in legacyPatients)
-// {
-//     var newPatient = new Patient
-//     {
-//         Id = Guid.NewGuid(), // NEW UUID
-//         FirstName = oldPt.FirstName,
-//         LastName = oldPt.LastName,
-//         DisplayId = GenerateDisplayId(oldPt), // Logic for Loc-Trip-Mach-Sync#
-
-//         // Sync Metadata
-//         DeviceId = "MIGRATION_ENV",
-//         ClientUpdatedAt = oldPt.PtUpdatedOn ?? DateTime.UtcNow,
-//         IsDeleted = false
-//     };
-
-//     productionDb.Patients.Add(newPatient);
-// }
-
-// await productionDb.SaveChangesAsync();
+try
+{
+    var service = new PatientMigrationService(connectionString, logger);
+    await service.RunAsync();
+    logger.LogInformation("ETL run finished successfully.");
+}
+catch (Exception ex)
+{
+    logger.LogCritical(ex, "ETL run failed with an unhandled exception.");
+    Environment.Exit(1);
+}

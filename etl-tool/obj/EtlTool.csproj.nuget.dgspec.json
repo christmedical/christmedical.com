@@ -49,9 +49,21 @@
               "target": "Package",
               "version": "[35.6.5, )"
             },
+            "Dapper": {
+              "target": "Package",
+              "version": "[2.1.72, )"
+            },
             "Microsoft.Extensions.Configuration.Json": {
               "target": "Package",
               "version": "[10.0.5, )"
+            },
+            "Microsoft.Extensions.Logging.Console": {
+              "target": "Package",
+              "version": "[10.0.5, )"
+            },
+            "Npgsql": {
+              "target": "Package",
+              "version": "[10.0.2, )"
             }
           },
           "imports": [

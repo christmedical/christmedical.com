@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EtlTool")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d8d410edd7e0c98a7f9f073d10731ba00e0df6d3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+22a594cc0bb10924a3811a93cde50fd3684fe5c9")]
 [assembly: System.Reflection.AssemblyProductAttribute("EtlTool")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EtlTool")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

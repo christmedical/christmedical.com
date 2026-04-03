@@ -16,18 +16,36 @@ using var loggerFactory = LoggerFactory.Create(builder =>
         .AddConsole()
         .SetMinimumLevel(LogLevel.Information));
 
-var logger = loggerFactory.CreateLogger<PatientMigrationService>();
-
-logger.LogInformation("Starting Patient Migration ETL…");
+// ---------------------------------------------------------------------------
+// Stage 1 — Patients
+// ---------------------------------------------------------------------------
+var patientLogger = loggerFactory.CreateLogger<PatientMigrationService>();
+patientLogger.LogInformation("=== Stage 1: Patient Migration ===");
 
 try
 {
-    var service = new PatientMigrationService(connectionString, logger);
-    await service.RunAsync();
-    logger.LogInformation("ETL run finished successfully.");
+    await new PatientMigrationService(connectionString, patientLogger).RunAsync();
 }
 catch (Exception ex)
 {
-    logger.LogCritical(ex, "ETL run failed with an unhandled exception.");
+    patientLogger.LogCritical(ex, "Patient migration failed with an unhandled exception.");
     Environment.Exit(1);
 }
+
+// ---------------------------------------------------------------------------
+// Stage 2 — Visits (test batch of 5,000)
+// ---------------------------------------------------------------------------
+var visitLogger = loggerFactory.CreateLogger<VisitMigrationService>();
+visitLogger.LogInformation("=== Stage 2: Visit Migration ===");
+
+try
+{
+    await new VisitMigrationService(connectionString, visitLogger).RunAsync();
+}
+catch (Exception ex)
+{
+    visitLogger.LogCritical(ex, "Visit migration failed with an unhandled exception.");
+    Environment.Exit(1);
+}
+
+loggerFactory.CreateLogger("ETL").LogInformation("All stages complete.");

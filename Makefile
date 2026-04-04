@@ -90,10 +90,10 @@ load-staging:
 	@echo "Streaming scrubbed data to Docker..."
 	psql $(DB_URL) -f $(SCHEMA_DIR)/V3__Load_Staging_Data.sql
 
-# - The ETL Logic (C#)
-run-etl:
+# - Execute the ETL Logic (C#)
+convert:
 	@echo "Starting C# ETL Conversion..."
-	cd EtlTool && dotnet run
+	cd etl-tool && dotnet run
 
 # - The "I messed up, start over" Command
 full-reset: db-up init-schema load-staging

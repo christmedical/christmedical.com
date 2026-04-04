@@ -1,4 +1,5 @@
 using Dapper;
+using EtlTool.Logging;
 using EtlTool.Mapping;
 using EtlTool.Models.Production;
 using EtlTool.Models.Staging;
@@ -21,7 +22,7 @@ public class VisitMigrationService
         _logger = logger;
     }
 
-    public async Task RunAsync(CancellationToken ct = default)
+    public async Task RunAsync(EtlProgress? progress = null, CancellationToken ct = default)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync(ct);
@@ -34,7 +35,7 @@ public class VisitMigrationService
         var stagingRows = await ExtractAsync(connection, ct);
         _logger.LogInformation("Extracted {Count} visits from staging.visits_gen.", stagingRows.Count);
 
-        await LoadAsync(connection, stagingRows, patientCache, ct);
+        await LoadAsync(connection, stagingRows, patientCache, progress, ct);
     }
 
     // -------------------------------------------------------------------------
@@ -139,11 +140,14 @@ public class VisitMigrationService
         NpgsqlConnection connection,
         List<StagingVisit> stagingRows,
         IReadOnlyDictionary<string, Guid> patientCache,
+        EtlProgress? progress,
         CancellationToken ct)
     {
-        // Transform all rows up-front; collect orphans without hitting the DB.
+        // --- Transform phase ---
         var mapped   = new List<ProductionVisit>(stagingRows.Count);
         int orphaned = 0;
+
+        progress?.BeginStep("Transforming visits ...", stagingRows.Count);
 
         foreach (var row in stagingRows)
         {
@@ -152,23 +156,28 @@ public class VisitMigrationService
             {
                 _logger.LogWarning(
                     "Orphaned visit — staging genid '{GenId}' references unknown legacy patient '{PatientId}'.",
-                    row.GenId   ?? "<null>",
+                    row.GenId     ?? "<null>",
                     row.PatientId ?? "<null>");
                 orphaned++;
-                continue;
             }
-            mapped.Add(visit);
+            else
+            {
+                mapped.Add(visit);
+            }
+            progress?.Advance();
         }
 
         _logger.LogInformation(
-            "Transform complete — Mapped: {Mapped} | Orphaned: {Orphaned}",
-            mapped.Count, orphaned);
+            "Transform complete — Mapped: {Mapped} | Orphaned: {Orphaned}", mapped.Count, orphaned);
+        progress?.StepDone($"Mapped: {mapped.Count:N0}  |  Orphaned: {orphaned:N0}");
 
-        // Chunk the mapped visits and insert each chunk inside its own transaction.
-        // If a chunk fails the whole chunk rolls back; other chunks are unaffected.
+        // --- Load phase ---
+        // Each chunk runs in its own transaction. A failed chunk rolls back only that chunk.
         // For 130k+ production runs, replace Dapper ExecuteAsync with NpgsqlBinaryImporter (COPY).
         int succeeded = 0;
         int failed    = 0;
+
+        progress?.BeginStep("Loading visits ...   ", mapped.Count);
 
         foreach (var chunk in mapped.Chunk(InsertChunkSize))
         {
@@ -191,11 +200,12 @@ public class VisitMigrationService
                     chunk[0].LegacyId ?? "<null>");
                 failed += chunk.Length;
             }
+            progress?.Advance(chunk.Length);
         }
 
-        _logger.LogInformation(
-            "Visit migration complete — Succeeded: {Succeeded} | Failed: {Failed} | Orphaned: {Orphaned} | Total extracted: {Total}",
-            succeeded, failed, orphaned, stagingRows.Count);
+        var summary = $"Succeeded: {succeeded:N0}  |  Failed: {failed:N0}  |  Orphaned: {orphaned:N0}  |  Extracted: {stagingRows.Count:N0}";
+        _logger.LogInformation("Visit migration complete — {Summary}", summary);
+        progress?.StepDone(summary);
     }
 
     // -------------------------------------------------------------------------

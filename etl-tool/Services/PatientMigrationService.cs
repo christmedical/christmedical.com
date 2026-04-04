@@ -1,4 +1,5 @@
 using Dapper;
+using EtlTool.Logging;
 using EtlTool.Mapping;
 using EtlTool.Models.Staging;
 using Microsoft.Extensions.Logging;
@@ -19,7 +20,7 @@ public class PatientMigrationService
         _logger = logger;
     }
 
-    public async Task RunAsync(CancellationToken cancellationToken = default)
+    public async Task RunAsync(EtlProgress? progress = null, CancellationToken cancellationToken = default)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync(cancellationToken);
@@ -29,7 +30,7 @@ public class PatientMigrationService
         var stagingRows = await ExtractAsync(connection, cancellationToken);
         _logger.LogInformation("Extracted {Count} patients from staging.patients.", stagingRows.Count);
 
-        await LoadAsync(connection, stagingRows, cancellationToken);
+        await LoadAsync(connection, stagingRows, progress, cancellationToken);
     }
 
     // -------------------------------------------------------------------------
@@ -107,6 +108,7 @@ public class PatientMigrationService
     private async Task LoadAsync(
         NpgsqlConnection connection,
         List<StagingPatient> stagingRows,
+        EtlProgress? progress,
         CancellationToken ct)
     {
         const string insertSql = """
@@ -167,6 +169,8 @@ public class PatientMigrationService
         int succeeded = 0;
         int failed = 0;
 
+        progress?.BeginStep("Inserting patients ...", stagingRows.Count);
+
         foreach (var stagingRow in stagingRows)
         {
             var savepoint = $"sp_{Guid.NewGuid():N}";
@@ -195,12 +199,14 @@ public class PatientMigrationService
 
                 failed++;
             }
+
+            progress?.Advance();
         }
 
         await transaction.CommitAsync(ct);
 
-        _logger.LogInformation(
-            "Patient migration complete — Succeeded: {Succeeded} | Failed: {Failed} | Total: {Total}",
-            succeeded, failed, stagingRows.Count);
+        var summary = $"Succeeded: {succeeded:N0}  |  Failed: {failed:N0}  |  Total: {stagingRows.Count:N0}";
+        _logger.LogInformation("Patient migration complete — {Summary}", summary);
+        progress?.StepDone(summary);
     }
 }

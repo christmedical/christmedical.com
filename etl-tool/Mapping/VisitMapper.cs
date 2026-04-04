@@ -21,9 +21,7 @@ public static class VisitMapper
             return null;
 
         var visitId  = Guid.NewGuid();
-        var clientTs = src.GenUpdatedOn.HasValue
-            ? DateTime.SpecifyKind(src.GenUpdatedOn.Value, DateTimeKind.Utc)
-            : DateTime.UtcNow;
+        var clientTs = ParseDate(src.GenUpdatedOn) ?? DateTime.UtcNow;
 
         var (systolic, diastolic) = SplitBp(src.Bp);
 
@@ -49,15 +47,15 @@ public static class VisitMapper
                 VisitId          = visitId,
                 Weight           = ParseDecimal(src.Weight),
                 Height           = ParseDecimal(src.Height),
-                Pulse            = src.Pulse.HasValue    ? (int?)Convert.ToInt32(src.Pulse.Value)    : null,
+                Pulse            = ParseInt(src.Pulse),
                 Bp               = CleanString(src.Bp),
                 Systolic         = systolic,
                 Diastolic        = diastolic,
-                Resp             = src.Resp.HasValue     ? (int?)Convert.ToInt32(src.Resp.Value)     : null,
+                Resp             = ParseInt(src.Resp),
                 TempF            = ParseDecimal(src.Temp),
                 OxygenSat        = ParseInt(src.Oxygen),
-                Glucose          = src.GlucoseBlood.HasValue ? (decimal?)Convert.ToDecimal(src.GlucoseBlood.Value) : null,
-                Hemoglobin       = src.Hemoglobin.HasValue   ? (decimal?)Convert.ToDecimal(src.Hemoglobin.Value)   : null,
+                Glucose          = ParseDecimal(src.GlucoseBlood),
+                Hemoglobin       = ParseDecimal(src.Hemoglobin),
                 DeviceId         = "MIGRATION_ETL",
                 ClientUpdatedAt  = clientTs,
                 ServerRestoredAt = null,

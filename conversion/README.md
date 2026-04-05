@@ -1,5 +1,7 @@
 # Christ Medical: Data Conversion Pipeline
 
+This directory is the **conversion** workspace (kept separate from the main application). It holds the ETL **.NET project** (`etl-tool/`), Access **extract** scripts (`etl/`), **data/**, and the **appliance** Docker stack (`docker-compose.yml` — run from `conversion/`).
+
 This directory contains the initial extraction layer for the Christ Medical legacy migration. We use a multi-stage ETL (Extract, Transform, Load) pattern to move data from a legacy Microsoft Access environment into a modern, refactored PostgreSQL architecture.
 
 ## The Migration Strategy

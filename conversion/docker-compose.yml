@@ -1,0 +1,39 @@
+# Christ Medical — Conversion stack only (ETL appliance + dedicated Postgres).
+# Run from this directory:
+#   cd conversion
+#   docker compose up --build
+#
+# Mounts (relative to conversion/):
+#   ./input_access     → /app/input
+#   ./output_archives  → /app/output
+#
+# Application / main app stack: use docker compose from repository root (docker-compose.yaml).
+
+services:
+  appliance_db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: christ_medical
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d christ_medical"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  conversion:
+    build:
+      context: ..
+      dockerfile: conversion/appliance/Dockerfile
+    depends_on:
+      appliance_db:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=appliance_db;Port=5432;Database=christ_medical;Username=postgres;Password=postgres"
+    volumes:
+      - ./input_access:/app/input:ro
+      - ./output_archives:/app/output
+      - ./etl-tool/conversion-config.json:/app/conversion/etl-tool/conversion-config.json:ro

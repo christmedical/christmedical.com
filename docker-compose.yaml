@@ -10,18 +10,49 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      # This ensures your staging data persists locally
       - postgres_data:/var/lib/postgresql/data
-      # Automatically run your schema scripts on first startup
       - ./conversion/etl/V1__Initial_Schema.sql:/docker-entrypoint-initdb.d/1.sql
       - ./conversion/etl/V2__Inital_Staging_Schema.sql:/docker-entrypoint-initdb.d/2.sql
+      - ./conversion/etl/V4__Patients_spiritual.sql:/docker-entrypoint-initdb.d/3.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d christ_medical"]
       interval: 5s
       timeout: 5s
       retries: 5
 
+  api:
+    build:
+      context: .
+      dockerfile: WebAPI/Dockerfile
+    container_name: christ_medical_api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=christ_medical;Username=postgres;Password=password
+    ports:
+      - "5050:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:5050/api
+    container_name: christ_medical_web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+  # Optional: `docker compose --profile etl run --rm etl-app` to run the ETL once.
   etl-app:
+    profiles:
+      - etl
     build:
       context: .
       dockerfile: Dockerfile
@@ -31,7 +62,6 @@ services:
     environment:
       - ConnectionStrings__DefaultConnection=Host=db;Database=christ_medical;Username=postgres;Password=password
     volumes:
-      # Mount your extracted CSVs so the ETL can see them
       - ./conversion/data/02_extracted:/app/data
 
 volumes:

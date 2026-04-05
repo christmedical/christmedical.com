@@ -25,7 +25,8 @@ DATA_DIR=$(ROOT_DIR)/conversion/data/02_extracted
 
 ##@ Development Setup
 
-all: help
+# Display help
+all:help
 
 help: ## Display this help message
 	@echo "$(BLUE)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"
@@ -36,10 +37,10 @@ help: ## Display this help message
 	@echo ""
 	@echo "Christ Medical Makefile Commands:"
 	@echo "  db-up         - Start the Postgres Docker container"
-	@echo "  db-down        - Stop the Postgres Docker container"
+	@echo "  db-down       - Stop the Postgres Docker container"
 	@echo "  init-schema   - Run V0, V1, and V2 SQL scripts (Reset & Build)"
 	@echo "  load-staging  - Load CSVs into staging via psql \copy"
-	@echo "  run-etl       - Run the .NET EtlTool"
+	@echo "  Convert       - Run the Conversion"
 	@echo "  full-reset    - Nuke DB, Rebuild Schema, and Reload Staging"
 
 setup: ## Run the full development setup (installs git hooks and verifies setup)
@@ -60,11 +61,11 @@ reset-db:
 	@echo "Wiping production tables..."
 	psql $(DATABASE_URL) -f ./conversion/V0__Reset_Schema.sql
 
-convert: reset-db
+convert-legacy: reset-db
 	@echo "Starting extraction..."
 	./conversion/convert.sh
 	@echo "Running ETL via .NET..."
-	dotnet run --project ./EtlTool/EtlTool.csproj
+	dotnet run --project ./conversion/etl-tool/EtlTool.csproj
 
 # - Infrastructure
 db-up:
@@ -90,10 +91,10 @@ load-staging:
 	@echo "Streaming scrubbed data to Docker..."
 	psql $(DB_URL) -f $(SCHEMA_DIR)/V3__Load_Staging_Data.sql
 
-# - Execute the ETL Logic (C#)
+# - Execute the ETL Logic (C#)  — project lives under conversion/
 convert:
-	@echo "Starting C# ETL Conversion..."
-	cd etl-tool && dotnet run
+	@echo "Starting Conversion..."
+	cd conversion/etl-tool && dotnet run --project ./EtlTool.csproj
 
 # - The "I messed up, start over" Command
 full-reset: db-up init-schema load-staging

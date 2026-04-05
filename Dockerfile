@@ -1,20 +1,13 @@
-# Build Stage
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# Legacy / optional image — primary ETL appliance is conversion/appliance/Dockerfile
+FROM mcr.microsoft.com/dotnet/sdk:10.0-preview-bookworm-slim AS build
 WORKDIR /app
-
-# Copy csproj and restore as distinct layers
-COPY ["EtlTool/EtlTool.csproj", "EtlTool/"]
-RUN dotnet restore "EtlTool/EtlTool.csproj"
-
-# Copy everything else and build
+COPY conversion/etl-tool/EtlTool.csproj conversion/etl-tool/
+RUN dotnet restore conversion/etl-tool/EtlTool.csproj
 COPY . .
-WORKDIR "/app/EtlTool"
-RUN dotnet build "EtlTool.csproj" -c Release -o /app/build
+WORKDIR /app/conversion/etl-tool
+RUN dotnet publish EtlTool.csproj -c Release -o /app/publish
 
-# Final Stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+FROM mcr.microsoft.com/dotnet/runtime:10.0-preview-bookworm-slim AS final
 WORKDIR /app
-COPY --from=build /app/build .
-
-# Entrypoint will vary based on if you are running API or ETL
+COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "EtlTool.dll"]

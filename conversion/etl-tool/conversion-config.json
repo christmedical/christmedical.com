@@ -1,0 +1,9 @@
+{
+  "TenantName": "Belize Central",
+  "TenantId": 1,
+  "CreateArchive": "no",
+  "KeepData": "yes",
+  "KeepStagingData": "yes",
+  "AccessDatabasePath": "",
+  "ArchiveOutputPath": ""
+}

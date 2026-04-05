@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS trips (
 
 CREATE TABLE IF NOT EXISTS patients (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id SMALLINT NOT NULL DEFAULT 1,
     display_id VARCHAR(50) UNIQUE, -- Format: Loc-Trip-Mach-Sync#
     first_name VARCHAR(100),
     last_name VARCHAR(100),
@@ -45,6 +46,7 @@ CREATE TABLE IF NOT EXISTS patients (
 
 CREATE TABLE IF NOT EXISTS visits (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id SMALLINT NOT NULL DEFAULT 1,
     trip_id UUID REFERENCES trips(id),
     patient_id UUID REFERENCES patients(id),
     visit_date TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
@@ -65,6 +67,7 @@ CREATE TABLE IF NOT EXISTS visits (
 
 CREATE TABLE IF NOT EXISTS vitals_core (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id SMALLINT NOT NULL DEFAULT 1,
     visit_id UUID REFERENCES visits(id),
     weight DECIMAL(5,2),
     height DECIMAL(5,2),
@@ -84,6 +87,7 @@ CREATE TABLE IF NOT EXISTS vitals_core (
 
 CREATE TABLE IF NOT EXISTS lab_results (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tenant_id SMALLINT NOT NULL DEFAULT 1,
     visit_id UUID REFERENCES visits(id),
     test_name VARCHAR(100), -- Protein, Nitrite, PH, etc.
     result_value VARCHAR(255),

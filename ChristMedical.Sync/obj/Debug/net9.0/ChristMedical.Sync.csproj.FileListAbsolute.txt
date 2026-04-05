@@ -1,0 +1,13 @@
+/Users/jameymcelveen/Developer/christmedical.com/ChristMedical.Sync/obj/Debug/net9.0/ChristMedical.Sync.csproj.AssemblyReference.cache
+/Users/jameymcelveen/Developer/christmedical.com/ChristMedical.Sync/obj/Debug/net9.0/ChristMedical.Sync.GeneratedMSBuildEditorConfig.editorconfig
+/Users/jameymcelveen/Developer/christmedical.com/ChristMedical.Sync/obj/Debug/net9.0/ChristMedical.Sync.AssemblyInfoInputs.cache
+/Users/jameymcelveen/Developer/christmedical.com/ChristMedical.Sync/obj/Debug/net9.0/ChristMedical.Sync.AssemblyInfo.cs
+/Users/jameymcelveen/Developer/christmedical.com/ChristMedical.Sync/obj/Debug/net9.0/ChristMedical.Sync.csproj.CoreCompileInputs.cache
+/Users/jameymcelveen/Developer/christmedical.com/ChristMedical.Sync/obj/Debug/net9.0/ChristMedical.Sync.sourcelink.json
+/Users/jameymcelveen/Developer/christmedical.com/ChristMedical.Sync/bin/Debug/net9.0/ChristMedical.Sync.deps.json
+/Users/jameymcelveen/Developer/christmedical.com/ChristMedical.Sync/bin/Debug/net9.0/ChristMedical.Sync.dll
+/Users/jameymcelveen/Developer/christmedical.com/ChristMedical.Sync/bin/Debug/net9.0/ChristMedical.Sync.pdb
+/Users/jameymcelveen/Developer/christmedical.com/ChristMedical.Sync/obj/Debug/net9.0/ChristMedical.Sync.dll
+/Users/jameymcelveen/Developer/christmedical.com/ChristMedical.Sync/obj/Debug/net9.0/refint/ChristMedical.Sync.dll
+/Users/jameymcelveen/Developer/christmedical.com/ChristMedical.Sync/obj/Debug/net9.0/ChristMedical.Sync.pdb
+/Users/jameymcelveen/Developer/christmedical.com/ChristMedical.Sync/obj/Debug/net9.0/ref/ChristMedical.Sync.dll

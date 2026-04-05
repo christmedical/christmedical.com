@@ -14,6 +14,7 @@ services:
       - ./conversion/etl/V1__Initial_Schema.sql:/docker-entrypoint-initdb.d/1.sql
       - ./conversion/etl/V2__Inital_Staging_Schema.sql:/docker-entrypoint-initdb.d/2.sql
       - ./conversion/etl/V4__Patients_spiritual.sql:/docker-entrypoint-initdb.d/3.sql
+      - ./conversion/etl/V5__Clinical_auxiliary.sql:/docker-entrypoint-initdb.d/4.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d christ_medical"]
       interval: 5s

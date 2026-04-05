@@ -1,4 +1,5 @@
 using Dapper;
+using EtlTool;
 using EtlTool.Logging;
 using EtlTool.Mapping;
 using EtlTool.Models.Production;
@@ -10,7 +11,6 @@ namespace EtlTool.Services;
 
 public class VisitMigrationService
 {
-    private const int TestBatchLimit  = 5_000;
     private const int InsertChunkSize = 1_000;
 
     private readonly string _connectionString;
@@ -35,7 +35,7 @@ public class VisitMigrationService
         var patientCache = await BuildPatientCacheAsync(connection, tenantId, ct);
         _logger.LogInformation("Patient cache loaded — {Count} entries.", patientCache.Count);
 
-        var stagingRows = await ExtractAsync(connection, ct);
+        var stagingRows = await ExtractAsync(connection, tenantId, ct);
         _logger.LogInformation("Extracted {Count} visits from staging.visits_gen.", stagingRows.Count);
 
         await LoadAsync(connection, stagingRows, patientCache, tenantId, progress, ct);
@@ -76,6 +76,7 @@ public class VisitMigrationService
             SELECT legacy_id AS LegacyId, id AS Id
             FROM   public.patients
             WHERE  legacy_id IS NOT NULL
+            AND    length(trim(legacy_id)) > 0
             AND    tenant_id = @TenantId
             """;
 
@@ -83,7 +84,7 @@ public class VisitMigrationService
             new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: ct));
 
         return rows.ToDictionary(
-            r => r.LegacyId,
+            r => LegacyIdKey.Normalize(r.LegacyId),
             r => r.Id,
             StringComparer.OrdinalIgnoreCase);
     }
@@ -93,50 +94,57 @@ public class VisitMigrationService
     // -------------------------------------------------------------------------
 
     private static async Task<List<StagingVisit>> ExtractAsync(
-        NpgsqlConnection conn, CancellationToken ct)
+        NpgsqlConnection conn, short tenantId, CancellationToken ct)
     {
-        string sql = $"""
+        const string sql = """
             SELECT
-                genid           AS GenId,
-                patientid       AS PatientId,
-                datevisit       AS DateVisit,
-                height,
-                weight,
-                pulse,
-                bp,
-                resp,
-                temp,
-                glucoseblood    AS GlucoseBlood,
-                hemoglobin,
-                diagnosis,
-                referral,
-                bloodh          AS BloodH,
-                bloodn          AS BloodN,
-                urobilin        AS Urobilin,
-                bilirubin       AS Bilirubin,
-                protein         AS Protein,
-                nitrite         AS Nitrite,
-                ketones         AS Ketones,
-                ascorbic        AS Ascorbic,
-                glucoseurine    AS GlucoseUrine,
-                ph              AS Ph,
-                spgrav          AS SpGrav,
-                leuk            AS Leuk,
-                pregtest        AS PregTest,
-                md,
-                eye,
-                gyn,
-                ch,
-                dnt,
-                genupdatedon    AS GenUpdatedOn,
-                location,
-                oxygen
-            FROM staging.visits_gen
-            LIMIT {TestBatchLimit}
+                g.genid           AS GenId,
+                g.patientid       AS PatientId,
+                g.datevisit       AS DateVisit,
+                g.height,
+                g.weight,
+                g.pulse,
+                g.bp,
+                g.resp,
+                g.temp,
+                g.glucoseblood    AS GlucoseBlood,
+                g.hemoglobin,
+                g.diagnosis,
+                g.referral,
+                g.bloodh          AS BloodH,
+                g.bloodn          AS BloodN,
+                g.urobilin        AS Urobilin,
+                g.bilirubin       AS Bilirubin,
+                g.protein         AS Protein,
+                g.nitrite         AS Nitrite,
+                g.ketones         AS Ketones,
+                g.ascorbic        AS Ascorbic,
+                g.glucoseurine    AS GlucoseUrine,
+                g.ph              AS Ph,
+                g.spgrav          AS SpGrav,
+                g.leuk            AS Leuk,
+                g.pregtest        AS PregTest,
+                g.md,
+                g.eye,
+                g.gyn,
+                g.ch,
+                g.dnt,
+                g.genupdatedon    AS GenUpdatedOn,
+                g.location,
+                g.oxygen
+            FROM staging.visits_gen AS g
+            WHERE EXISTS (
+                SELECT 1
+                FROM   public.patients AS p
+                WHERE  p.tenant_id = @TenantId
+                  AND  p.legacy_id IS NOT NULL
+                  AND  trim(both from p.legacy_id) = trim(both from coalesce(g.patientid, ''))
+            )
+            ORDER BY g.genid
             """;
 
         var rows = await conn.QueryAsync<StagingVisit>(
-            new CommandDefinition(sql, cancellationToken: ct));
+            new CommandDefinition(sql, new { TenantId = tenantId }, cancellationToken: ct));
 
         return rows.ToList();
     }

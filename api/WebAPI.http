@@ -4,3 +4,18 @@ GET {{WebAPI_HostAddress}}/api/v1/patients
 Accept: application/json
 
 ###
+
+PATCH {{WebAPI_HostAddress}}/api/v1/patients/11111111-1111-1111-1111-111111111111?tenantId=1
+Content-Type: application/json
+
+{
+  "spiritualNotes": "Updated in clinic",
+  "medicalHistory": null,
+  "surgicalHistory": null,
+  "familyHistory": null,
+  "drugAllergies": null,
+  "hopeGospel": false,
+  "heardGospelDate": null
+}
+
+###

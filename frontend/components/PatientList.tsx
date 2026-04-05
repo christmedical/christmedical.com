@@ -1,23 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { normalizeApiBaseUrl, patientsListUrl } from "@/lib/patientApi";
+import { reconcileSelectionAfterLoad } from "@/lib/patientSelection";
+import type { PatientDto } from "@/lib/patientTypes";
 import { spiritualStatusBadgeClass } from "@/lib/spiritualBadge";
 
-export type PatientDto = {
-  id: string;
-  legacyId: string | null;
-  displayNameMasked: string;
-  dateOfBirth: string | null;
-  hopeGospel: boolean;
-  heardGospelDate: string | null;
-  spiritualStatusLabel: string;
-  spiritualStatusKind: "heard" | "hope" | "none";
-  spiritualNotes: string | null;
-  medicalHistory: string | null;
-  surgicalHistory: string | null;
-  familyHistory: string | null;
-  drugAllergies: string | null;
-};
+export type { PatientDto } from "@/lib/patientTypes";
 
 export function PatientList() {
   const [patients, setPatients] = useState<PatientDto[]>([]);
@@ -26,7 +15,7 @@ export function PatientList() {
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+    const base = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL);
     if (!base) {
       setError("NEXT_PUBLIC_API_URL is not set.");
       setLoading(false);
@@ -35,16 +24,13 @@ export function PatientList() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${base}/v1/patients`, { cache: "no-store" });
+      const res = await fetch(patientsListUrl(base), { cache: "no-store" });
       if (!res.ok) {
         throw new Error(`API ${res.status} ${res.statusText}`);
       }
       const data = (await res.json()) as PatientDto[];
       setPatients(data);
-      setSelected((prev) => {
-        if (!prev) return data[0] ?? null;
-        return data.find((p) => p.id === prev.id) ?? data[0] ?? null;
-      });
+      setSelected((prev) => reconcileSelectionAfterLoad(prev, data));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load patients.");
       setPatients([]);
@@ -76,7 +62,7 @@ export function PatientList() {
             className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-800 shadow-sm hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
           >
             Refresh
-          </button> 
+          </button>
         </header>
 
         {loading && (

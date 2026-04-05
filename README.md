@@ -22,7 +22,7 @@
 | Mission sync | `sync/` | Dotmim sync helpers for laptop ↔ hub |
 | ETL | `conversion/etl-tool/` | Staging → Postgres clinical migration |
 | UI | `frontend/` | Next.js 15, deploys to **Vercel** |
-| Tests | `tests/` | `api.test`, `sync.test`, `etl.test` (+ frontend tests beside source) |
+| Tests | `tests/`, `frontend/**/*.test.*` | .NET xUnit under `tests/`; **Vitest** + **Testing Library** in `frontend/` (`PatientList`, URL helpers, badge styles) |
 
 ---
 
@@ -45,7 +45,9 @@ cd frontend && npm ci && npm run ci
 ```
 
 - **.NET**: `Directory.Build.props` turns on `EnforceCodeStyleInBuild`; `dotnet format` enforces `.editorconfig`.
-- **Frontend**: `npm run ci` → ESLint, Vitest, `next build`.
+- **Frontend**: `npm run ci` → ESLint, Vitest (including React component tests via Testing Library), `next build`.
+
+When you change behavior or tooling, keep **tests** and this **README** aligned (see `.cursor/rules/tests-and-readme.mdc`).
 
 ---
 

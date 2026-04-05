@@ -1,4 +1,5 @@
 using Dapper;
+using EtlTool;
 using EtlTool.Logging;
 using EtlTool.Mapping;
 using EtlTool.Models.Staging;
@@ -9,8 +10,6 @@ namespace EtlTool.Services;
 
 public class PatientMigrationService
 {
-    private const int BatchLimit = 2000;
-
     private readonly string _connectionString;
     private readonly ILogger<PatientMigrationService> _logger;
 
@@ -97,7 +96,7 @@ public class PatientMigrationService
                 patienttype       AS PatientType,
                 pttype            AS PtType
             FROM staging.patients
-            LIMIT {BatchLimit}
+            LIMIT {MigrationBatchLimits.Patients}
             """;
 
         var result = await connection.QueryAsync<StagingPatient>(

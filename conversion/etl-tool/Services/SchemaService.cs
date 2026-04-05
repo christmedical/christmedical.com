@@ -44,7 +44,7 @@ public class SchemaService
 
     public async Task RunAsync(EtlProgress? progress = null, CancellationToken ct = default)
     {
-        progress?.BeginStep("Resetting and initialising schema ...", 3);
+        progress?.BeginStep("Resetting and initialising schema ...", 4);
 
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync(ct);
@@ -59,6 +59,10 @@ public class SchemaService
 
         // V2 — staging schema (scrub raw mdb-schema output before executing)
         await ExecuteV2Async(connection, ct);
+        progress?.Advance();
+
+        // V5 — auxiliary clinical tables (medications / diagnoses / eye_exams)
+        await ExecuteSqlFileAsync(connection, "V5__Clinical_auxiliary.sql", ct);
         progress?.Advance();
 
         progress?.StepDone("Schema ready.");

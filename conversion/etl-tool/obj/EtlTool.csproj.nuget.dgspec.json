@@ -10,7 +10,7 @@
         "projectUniqueName": "/Users/jameymcelveen/Developer/christmedical.com/conversion/etl-tool/EtlTool.csproj",
         "projectName": "EtlTool",
         "projectPath": "/Users/jameymcelveen/Developer/christmedical.com/conversion/etl-tool/EtlTool.csproj",
-        "packagesPath": "/Users/jameymcelveen/.nuget/packages/",
+        "packagesPath": "/var/folders/2q/mc1c6zws4gq7g6yw_3xpydvm0000gn/T/cursor-sandbox-cache/5ceffb014f89ee153e4c82da0d3d45e8/nuget",
         "outputPath": "/Users/jameymcelveen/Developer/christmedical.com/conversion/etl-tool/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [

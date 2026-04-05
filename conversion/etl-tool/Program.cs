@@ -218,10 +218,10 @@ catch (Exception ex)
 }
 
 // ---------------------------------------------------------------------------
-// Stage 4 — Visits
+// Stage 4 — Visits (only for patients migrated in Stage 3)
 // ---------------------------------------------------------------------------
 
-progress.BeginStage("Stage 4: Visit Migration  (test batch: 5,000)");
+progress.BeginStage("Stage 4: Visit Migration");
 Log.Information("=== Stage 4: Visit Migration ===");
 
 try
@@ -237,13 +237,59 @@ catch (Exception ex)
 }
 
 // ---------------------------------------------------------------------------
-// Stage 5 — Optional portable archive
+// Stage 5–7 — Visit-linked clinical (Rx / Dx / Eye)
+// ---------------------------------------------------------------------------
+
+progress.BeginStage("Stage 5: Medications (visits_rx)");
+Log.Information("=== Stage 5: Medication Migration ===");
+try
+{
+    await new MedicationMigrationService(connectionString, loggerFactory.CreateLogger<MedicationMigrationService>())
+        .RunAsync(tenantId, progress);
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Medication migration failed.");
+    EtlProgress.Fatal($"Medication migration aborted — {ex.Message}");
+    Environment.Exit(1);
+}
+
+progress.BeginStage("Stage 6: Diagnoses (visits_dx)");
+Log.Information("=== Stage 6: Diagnosis Migration ===");
+try
+{
+    await new DiagnosisMigrationService(connectionString, loggerFactory.CreateLogger<DiagnosisMigrationService>())
+        .RunAsync(tenantId, progress);
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Diagnosis migration failed.");
+    EtlProgress.Fatal($"Diagnosis migration aborted — {ex.Message}");
+    Environment.Exit(1);
+}
+
+progress.BeginStage("Stage 7: Eye exams (visits_eye)");
+Log.Information("=== Stage 7: Eye Exam Migration ===");
+try
+{
+    await new EyeExamMigrationService(connectionString, loggerFactory.CreateLogger<EyeExamMigrationService>())
+        .RunAsync(tenantId, progress);
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Eye exam migration failed.");
+    EtlProgress.Fatal($"Eye exam migration aborted — {ex.Message}");
+    Environment.Exit(1);
+}
+
+// ---------------------------------------------------------------------------
+// Stage 8 — Optional portable archive
 // ---------------------------------------------------------------------------
 
 if (conversion.ShouldCreateArchive())
 {
-    progress.BeginStage("Stage 5: Create portable archive");
-    Log.Information("=== Stage 5: Archive ===");
+    progress.BeginStage("Stage 8: Create portable archive");
+    Log.Information("=== Stage 8: Archive ===");
 
     try
     {
@@ -266,7 +312,7 @@ if (conversion.ShouldCreateArchive())
 }
 
 // ---------------------------------------------------------------------------
-// Stage 6 — Optional DB revert (KeepData = no)
+// Stage 9 — Optional DB revert (KeepData = no)
 // ---------------------------------------------------------------------------
 
 if (!conversion.ShouldKeepData())
@@ -274,7 +320,7 @@ if (!conversion.ShouldKeepData())
     if (!conversion.ShouldKeepStagingData())
         Log.Information("KeepStagingData overridden by KeepData=no.");
 
-    progress.BeginStage("Stage: Revert database (KeepData=no)");
+    progress.BeginStage("Stage 9: Revert database (KeepData=no)");
     try
     {
         await new DatabaseCleanupService(

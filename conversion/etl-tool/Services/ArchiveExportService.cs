@@ -41,13 +41,19 @@ public sealed class ArchiveExportService
         _logger.LogInformation("Writing archive to {Root}", root);
 
         var schemaBody = await File.ReadAllTextAsync(v1SqlPath, ct);
+        var v5Path = Path.Combine(Path.GetDirectoryName(v1SqlPath)!, "V5__Clinical_auxiliary.sql");
+        if (File.Exists(v5Path))
+            schemaBody += "\n\n" + await File.ReadAllTextAsync(v5Path, ct);
+
         var extensions = """
 
-            -- ETL extensions (legacy linkage + phones + BP split columns)
+            -- ETL extensions (legacy linkage + phones + BP split columns + spiritual)
             ALTER TABLE public.patients
                 ADD COLUMN IF NOT EXISTS legacy_id    VARCHAR(50),
                 ADD COLUMN IF NOT EXISTS home_phone   VARCHAR(30),
-                ADD COLUMN IF NOT EXISTS mobile_phone VARCHAR(30);
+                ADD COLUMN IF NOT EXISTS mobile_phone VARCHAR(30),
+                ADD COLUMN IF NOT EXISTS heard_gospel_date DATE,
+                ADD COLUMN IF NOT EXISTS spiritual_notes   TEXT;
 
             ALTER TABLE public.visits
                 ADD COLUMN IF NOT EXISTS legacy_id VARCHAR(50);
@@ -97,6 +103,29 @@ public sealed class ArchiveExportService
             SELECT id, tenant_id, visit_id, test_name, result_value,
                    device_id, client_updated_at, server_restored_at, is_deleted
             FROM public.lab_results WHERE tenant_id = @tid
+            """, ct);
+
+        await ExportQueryToCsvAsync(conn, tid, Path.Combine(data, "medications.csv"), """
+            SELECT id, tenant_id, visit_id, legacy_id, catalog_medlist_id,
+                   medication_code, medication_name, strength, dose, directions,
+                   did_not_dispense, device_id, client_updated_at, server_restored_at, is_deleted
+            FROM public.medications WHERE tenant_id = @tid
+            """, ct);
+
+        await ExportQueryToCsvAsync(conn, tid, Path.Combine(data, "diagnoses.csv"), """
+            SELECT id, tenant_id, visit_id, legacy_id, dx_code, additional_info,
+                   device_id, client_updated_at, server_restored_at, is_deleted
+            FROM public.diagnoses WHERE tenant_id = @tid
+            """, ct);
+
+        await ExportQueryToCsvAsync(conn, tid, Path.Combine(data, "eye_exams.csv"), """
+            SELECT id, tenant_id, visit_id, legacy_id, legacy_patient_id, screening_flag,
+                   va_left, va_right, tonometry_r, tonometry_l, impression, plan,
+                   read_near, read_dist, eom, pupils, ar_r, ar_l, va_combined, l_field,
+                   cataracts, dry_eyes, glaucoma, pterygium, other_note,
+                   readers_given_at, readers_given_strength,
+                   device_id, client_updated_at, server_restored_at, is_deleted
+            FROM public.eye_exams WHERE tenant_id = @tid
             """, ct);
 
         var safeName = options.TenantName.Replace("'", "'\\''", StringComparison.Ordinal);
@@ -163,6 +192,9 @@ public sealed class ArchiveExportService
             \\copy public.visits (id, tenant_id, legacy_id, trip_id, patient_id, visit_date, location_name, chief_complaint, diagnosis_text, referral_notes, device_id, client_updated_at, server_restored_at, is_deleted) FROM '$PG_COPY_DIR/visits.csv' WITH (FORMAT csv, HEADER true, DELIMITER E'\\t', ENCODING 'UTF8');
             \\copy public.vitals_core (id, tenant_id, visit_id, weight, height, pulse, bp, systolic, diastolic, resp, temp_f, oxygen_sat, glucose, hemoglobin, device_id, client_updated_at, server_restored_at, is_deleted) FROM '$PG_COPY_DIR/vitals_core.csv' WITH (FORMAT csv, HEADER true, DELIMITER E'\\t', ENCODING 'UTF8');
             \\copy public.lab_results (id, tenant_id, visit_id, test_name, result_value, device_id, client_updated_at, server_restored_at, is_deleted) FROM '$PG_COPY_DIR/lab_results.csv' WITH (FORMAT csv, HEADER true, DELIMITER E'\\t', ENCODING 'UTF8');
+            \\copy public.medications (id, tenant_id, visit_id, legacy_id, catalog_medlist_id, medication_code, medication_name, strength, dose, directions, did_not_dispense, device_id, client_updated_at, server_restored_at, is_deleted) FROM '$PG_COPY_DIR/medications.csv' WITH (FORMAT csv, HEADER true, DELIMITER E'\\t', ENCODING 'UTF8');
+            \\copy public.diagnoses (id, tenant_id, visit_id, legacy_id, dx_code, additional_info, device_id, client_updated_at, server_restored_at, is_deleted) FROM '$PG_COPY_DIR/diagnoses.csv' WITH (FORMAT csv, HEADER true, DELIMITER E'\\t', ENCODING 'UTF8');
+            \\copy public.eye_exams (id, tenant_id, visit_id, legacy_id, legacy_patient_id, screening_flag, va_left, va_right, tonometry_r, tonometry_l, impression, plan, read_near, read_dist, eom, pupils, ar_r, ar_l, va_combined, l_field, cataracts, dry_eyes, glaucoma, pterygium, other_note, readers_given_at, readers_given_strength, device_id, client_updated_at, server_restored_at, is_deleted) FROM '$PG_COPY_DIR/eye_exams.csv' WITH (FORMAT csv, HEADER true, DELIMITER E'\\t', ENCODING 'UTF8');
             SQL
             psql "$DB_CONNECTION_STRING" -v ON_ERROR_STOP=1 -f "$ROOT/import_copy.sql"
             rm -f "$ROOT/import_copy.sql"
@@ -181,6 +213,9 @@ public sealed class ArchiveExportService
             \copy public.visits (id, tenant_id, legacy_id, trip_id, patient_id, visit_date, location_name, chief_complaint, diagnosis_text, referral_notes, device_id, client_updated_at, server_restored_at, is_deleted) FROM '/seed/visits.csv' WITH (FORMAT csv, HEADER true, DELIMITER E'\t', ENCODING 'UTF8');
             \copy public.vitals_core (id, tenant_id, visit_id, weight, height, pulse, bp, systolic, diastolic, resp, temp_f, oxygen_sat, glucose, hemoglobin, device_id, client_updated_at, server_restored_at, is_deleted) FROM '/seed/vitals_core.csv' WITH (FORMAT csv, HEADER true, DELIMITER E'\t', ENCODING 'UTF8');
             \copy public.lab_results (id, tenant_id, visit_id, test_name, result_value, device_id, client_updated_at, server_restored_at, is_deleted) FROM '/seed/lab_results.csv' WITH (FORMAT csv, HEADER true, DELIMITER E'\t', ENCODING 'UTF8');
+            \copy public.medications (id, tenant_id, visit_id, legacy_id, catalog_medlist_id, medication_code, medication_name, strength, dose, directions, did_not_dispense, device_id, client_updated_at, server_restored_at, is_deleted) FROM '/seed/medications.csv' WITH (FORMAT csv, HEADER true, DELIMITER E'\t', ENCODING 'UTF8');
+            \copy public.diagnoses (id, tenant_id, visit_id, legacy_id, dx_code, additional_info, device_id, client_updated_at, server_restored_at, is_deleted) FROM '/seed/diagnoses.csv' WITH (FORMAT csv, HEADER true, DELIMITER E'\t', ENCODING 'UTF8');
+            \copy public.eye_exams (id, tenant_id, visit_id, legacy_id, legacy_patient_id, screening_flag, va_left, va_right, tonometry_r, tonometry_l, impression, plan, read_near, read_dist, eom, pupils, ar_r, ar_l, va_combined, l_field, cataracts, dry_eyes, glaucoma, pterygium, other_note, readers_given_at, readers_given_strength, device_id, client_updated_at, server_restored_at, is_deleted) FROM '/seed/eye_exams.csv' WITH (FORMAT csv, HEADER true, DELIMITER E'\t', ENCODING 'UTF8');
             """;
 
         await File.WriteAllTextAsync(Path.Combine(nest, "docker-seed.sql"), seedSql, ct);

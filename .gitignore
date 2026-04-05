@@ -196,6 +196,12 @@ Cargo.lock
 # Build and Distribution
 # =======================
 
+# .NET local outputs (api / sync projects)
+api/bin/
+api/obj/
+sync/bin/
+sync/obj/
+
 *.min.js
 *.min.css
 *.map

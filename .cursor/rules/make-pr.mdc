@@ -1,0 +1,23 @@
+---
+description: GitHub PR workflow when user asks to make or open a PR
+alwaysApply: true
+---
+
+# Make a pull request
+
+When the user asks to **make a PR**, **open a pull request**, or similar (e.g. commit, push, and PR), do this in order:
+
+1. **Stage and commit**  
+   Run `git add -A` (or include only intended paths), then commit with a clear, conventional message that states what changed and why.
+
+2. **Push**  
+   Push the current branch to `origin` (set upstream with `-u` if needed).
+
+3. **Open the PR with GitHub CLI**  
+   Run `gh pr create` with a descriptive `--title` and `--body`. If the repo default branch is `main` and the user is on `develop`, use `--base main` so the PR targets the correct branch.
+
+4. **After the PR is created successfully**  
+   Ask whether the user wants to **merge** this PR. If they say yes, run `gh pr merge` using the merge style appropriate for the repo (use `--merge`, `--squash`, or `--rebase`; if unknown, prefer `--squash` or match existing repo settings from `gh repo view` / branch protections).
+
+5. **Failures**  
+   If `gh` is not installed, auth fails, or the branch is not pushed, report the error and what to fix instead of claiming the PR exists.

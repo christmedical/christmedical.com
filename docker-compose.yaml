@@ -24,7 +24,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: WebAPI/Dockerfile
+      dockerfile: api/Dockerfile
     container_name: christ_medical_api
     restart: unless-stopped
     environment:

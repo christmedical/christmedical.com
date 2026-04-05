@@ -18,32 +18,32 @@ public static class PatientMapper
     {
         return new Patient
         {
-            Id               = Guid.NewGuid(),
-            TenantId         = tenantId,
-            LegacyId         = src.Id,
-            FirstName        = CleanString(src.FirstName),
-            LastName         = CleanString(src.LastName),
-            Dob              = ParseDate(src.Dob),
-            CalculatedAge    = int.TryParse(src.Age?.Trim(), out int age) ? age : null,
-            Gender           = CleanString(src.Gender),
-            MaritalStatus    = CleanString(src.MaritalStatus),
-            GovId            = CleanString(src.SsNo),
-            NextOfKinId      = null,
-            MedicalHistory   = CleanString(src.MedHist),
-            SurgicalHistory  = CleanString(src.Surgeries),
-            FamilyHistory    = CleanString(src.FamHist),
-            DrugAllergies    = CleanString(src.Allergies),
-            Smoke            = ParseBool(src.Smoke),
-            Alcohol          = ParseBool(src.Alcohol),
-            HopeGospel       = ParseBool(src.Hope),
-            HeardGospelDate  = ParseDate(src.HeardGospel),
-            SpiritualNotes   = BuildSpiritualNotes(src),
-            HomePhone        = CleanPhone(src.HomePhone),
-            MobilePhone      = CleanPhone(src.MobilePhone),
-            DeviceId         = "MIGRATION_ETL",
-            ClientUpdatedAt  = DateTime.UtcNow,
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            LegacyId = src.Id,
+            FirstName = CleanString(src.FirstName),
+            LastName = CleanString(src.LastName),
+            Dob = ParseDate(src.Dob),
+            CalculatedAge = int.TryParse(src.Age?.Trim(), out int age) ? age : null,
+            Gender = CleanString(src.Gender),
+            MaritalStatus = CleanString(src.MaritalStatus),
+            GovId = CleanString(src.SsNo),
+            NextOfKinId = null,
+            MedicalHistory = CleanString(src.MedHist),
+            SurgicalHistory = CleanString(src.Surgeries),
+            FamilyHistory = CleanString(src.FamHist),
+            DrugAllergies = CleanString(src.Allergies),
+            Smoke = ParseBool(src.Smoke),
+            Alcohol = ParseBool(src.Alcohol),
+            HopeGospel = ParseBool(src.Hope),
+            HeardGospelDate = ParseDate(src.HeardGospel),
+            SpiritualNotes = BuildSpiritualNotes(src),
+            HomePhone = CleanPhone(src.HomePhone),
+            MobilePhone = CleanPhone(src.MobilePhone),
+            DeviceId = "MIGRATION_ETL",
+            ClientUpdatedAt = DateTime.UtcNow,
             ServerRestoredAt = null,
-            IsDeleted        = false,
+            IsDeleted = false,
         };
     }
 
@@ -77,7 +77,7 @@ public static class PatientMapper
         return value.Trim().ToLowerInvariant() switch
         {
             "-1" or "1" or "true" => true,
-            _                     => false,
+            _ => false,
         };
     }
 

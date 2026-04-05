@@ -21,7 +21,7 @@ public sealed class ArchiveExportService
     public ArchiveExportService(string connectionString, ILogger<ArchiveExportService> logger)
     {
         _connectionString = connectionString;
-        _logger           = logger;
+        _logger = logger;
     }
 
     public async Task WriteArchiveAsync(
@@ -32,9 +32,9 @@ public sealed class ArchiveExportService
         CancellationToken ct)
     {
         var snake = TenantNaming.ToSnakeCaseFolder(options.TenantName);
-        var root  = Path.Combine(archiveParentDirectory, snake);
-        var nest  = Path.Combine(root,  snake);
-        var data  = Path.Combine(nest,  "data");
+        var root = Path.Combine(archiveParentDirectory, snake);
+        var nest = Path.Combine(root, snake);
+        var data = Path.Combine(nest, "data");
 
         Directory.CreateDirectory(data);
 
@@ -129,7 +129,7 @@ public sealed class ArchiveExportService
             """, ct);
 
         var safeName = options.TenantName.Replace("'", "'\\''", StringComparison.Ordinal);
-        var csEsc    = _connectionString.Replace("'", "'\\''", StringComparison.Ordinal);
+        var csEsc = _connectionString.Replace("'", "'\\''", StringComparison.Ordinal);
         await File.WriteAllTextAsync(Path.Combine(root, ".env"), $"""
             TENANT_NAME='{safeName}'
             TENANT_ID={options.TenantId}

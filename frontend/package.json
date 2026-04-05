@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint .",
+    "test": "vitest run",
+    "ci": "npm run lint && npm run test && npm run build"
   },
   "dependencies": {
     "react": "19.1.0",
@@ -22,6 +24,11 @@
     "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.5.14",
-    "@eslint/eslintrc": "^3"
+    "@eslint/eslintrc": "^3",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^25.0.1",
+    "vitest": "^3.0.0"
   }
 }

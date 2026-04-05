@@ -9,20 +9,20 @@ namespace EtlTool.Models.Production;
 public class ProductionVisit
 {
     // --- public.visits ---
-    public Guid      Id              { get; set; }
-    public short     TenantId        { get; set; }
-    public string?   LegacyId        { get; set; }   // staging.visits_gen.genid — audit trail
-    public Guid?     TripId          { get; set; }   // null on initial migration; linked in a later pass
-    public Guid      PatientId       { get; set; }   // resolved from legacy_id lookup
-    public DateTime? VisitDate       { get; set; }
-    public string?   LocationName    { get; set; }
-    public string?   ChiefComplaint  { get; set; }
-    public string?   DiagnosisText   { get; set; }
-    public string?   ReferralNotes   { get; set; }
-    public string    DeviceId        { get; set; } = "MIGRATION_ETL";
-    public DateTime  ClientUpdatedAt { get; set; }
+    public Guid Id { get; set; }
+    public short TenantId { get; set; }
+    public string? LegacyId { get; set; }   // staging.visits_gen.genid — audit trail
+    public Guid? TripId { get; set; }   // null on initial migration; linked in a later pass
+    public Guid PatientId { get; set; }   // resolved from legacy_id lookup
+    public DateTime? VisitDate { get; set; }
+    public string? LocationName { get; set; }
+    public string? ChiefComplaint { get; set; }
+    public string? DiagnosisText { get; set; }
+    public string? ReferralNotes { get; set; }
+    public string DeviceId { get; set; } = "MIGRATION_ETL";
+    public DateTime ClientUpdatedAt { get; set; }
     public DateTime? ServerRestoredAt { get; set; }
-    public bool      IsDeleted       { get; set; }
+    public bool IsDeleted { get; set; }
 
     // --- Written to public.vitals_core ---
     public VitalsCore? Vitals { get; set; }

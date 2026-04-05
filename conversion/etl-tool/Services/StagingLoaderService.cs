@@ -38,7 +38,7 @@ public class StagingLoaderService
 
     // mdb-export now uses comma as delimiter (no -Q flag, so fields are properly
     // quoted when they contain commas or embedded newlines).
-    private const char CopyDelimiter  = ',';
+    private const char CopyDelimiter = ',';
 
     private readonly string _connectionString;
     private readonly string _csvDir;
@@ -47,8 +47,8 @@ public class StagingLoaderService
     public StagingLoaderService(string connectionString, string csvDir, ILogger<StagingLoaderService> logger)
     {
         _connectionString = connectionString;
-        _csvDir           = csvDir;
-        _logger           = logger;
+        _csvDir = csvDir;
+        _logger = logger;
     }
 
     public async Task RunAsync(EtlProgress? progress = null, CancellationToken ct = default)

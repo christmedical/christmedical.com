@@ -6,7 +6,7 @@ namespace ChristMedical.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/v1/patients")]
-public class PatientsController(PatientService patients) : ControllerBase
+public class PatientsController(IPatientService patients) : ControllerBase
 {
     /// <summary>First 50 Belize (tenant 1) patients with legacy id and spiritual / clinical notes.</summary>
     [HttpGet]

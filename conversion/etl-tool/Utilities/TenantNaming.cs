@@ -13,7 +13,7 @@ public static class TenantNaming
         if (string.IsNullOrWhiteSpace(tenantName)) return "tenant";
 
         var norm = tenantName.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormD);
-        var sb   = new StringBuilder(norm.Length);
+        var sb = new StringBuilder(norm.Length);
         bool lastUnder = false;
 
         foreach (var ch in norm)

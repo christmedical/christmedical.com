@@ -8,8 +8,8 @@ public static class JsonBool
 
         return raw.Trim().ToLowerInvariant() switch
         {
-            "yes" or "true"  or "1" or "y" => true,
-            "no"  or "false" or "0" or "n" => false,
+            "yes" or "true" or "1" or "y" => true,
+            "no" or "false" or "0" or "n" => false,
             _ => bool.TryParse(raw, out var b) ? b : defaultValue,
         };
     }

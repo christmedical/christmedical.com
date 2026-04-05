@@ -38,8 +38,8 @@ public class SchemaService
     public SchemaService(string connectionString, string sqlSchemaDir, ILogger<SchemaService> logger)
     {
         _connectionString = connectionString;
-        _sqlSchemaDir     = sqlSchemaDir;
-        _logger           = logger;
+        _sqlSchemaDir = sqlSchemaDir;
+        _logger = logger;
     }
 
     public async Task RunAsync(EtlProgress? progress = null, CancellationToken ct = default)

@@ -182,7 +182,7 @@ composer.lock
 *.dll
 *.so
 *.dylib
-*.test
+# Avoid *.test here: on case-insensitive FS it ignores Api.Test.csproj. Use Go-specific paths if needed.
 *.out
 go.work
 
@@ -201,6 +201,8 @@ api/bin/
 api/obj/
 sync/bin/
 sync/obj/
+tests/**/bin/
+tests/**/obj/
 
 *.min.js
 *.min.css

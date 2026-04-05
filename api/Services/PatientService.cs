@@ -5,7 +5,7 @@ using Npgsql;
 
 namespace ChristMedical.WebAPI.Services;
 
-public class PatientService(IConfiguration configuration)
+public sealed class PatientService(IConfiguration configuration) : IPatientService
 {
     /// <summary>Belize mission tenant (staging / prod align on SMALLINT 1).</summary>
     private const short BelizeTenantId = 1;

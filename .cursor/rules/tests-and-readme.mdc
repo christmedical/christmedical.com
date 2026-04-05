@@ -1,0 +1,13 @@
+---
+description: Keep automated tests and README aligned with code changes
+alwaysApply: true
+---
+
+# Tests and README stay current
+
+When you **change behavior, add features, fix bugs, or touch tooling/CI/deploy paths**, also:
+
+1. **Tests** — Update or add unit/integration tests for the affected projects (e.g. `tests/*.test`, `frontend/**/*.test.ts`, `frontend/**/*.test.tsx`). Run `make build` or the relevant `dotnet test` / `npm run ci` before finishing.
+2. **README.md** — If setup steps, project layout, scripts, env vars, badges, or deploy instructions change, update the root README in the same change set so newcomers and CI expectations match reality.
+
+Do not leave “docs-only-in-chat” guidance when the repo should reflect it.

@@ -1,29 +1,18 @@
-name: Branch Protection
+# Use GitHub branch protection rules to block direct pushes to main. This workflow
+# only reminds contributors; it never fails the build (CI is in ci.yml).
+
+name: Branch protection (reminder)
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
 
 jobs:
-  prevent-direct-push:
+  reminder:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
-      - name: Check if push is from pull request
+      - name: Merge via pull request
         run: |
-          echo "❌ ERROR: Direct pushes to main branch are not allowed!"
-          echo ""
-          echo "Please use the following workflow:"
-          echo "  1. Create a feature branch from main"
-          echo "  2. Make your changes on the feature branch"
-          echo "  3. Create a Pull Request to merge into main"
-          echo ""
-          echo "If you need to fix this push, you can:"
-          echo "  1. Create a new branch from the current state: git checkout -b fix/your-branch-name"
-          echo "  2. Reset main to the previous commit: git checkout main && git reset --hard origin/main"
-          echo "  3. Force push the fix branch and create a PR"
-          exit 1
+          echo "Thank you for opening a PR into main."
+          echo "Repo policy: prefer squash merge after CI passes (see ci.yml)."

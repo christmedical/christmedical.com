@@ -26,16 +26,65 @@ public sealed class PatientsControllerTests
 
         var service = new Mock<IPatientService>(MockBehavior.Strict);
         service
-            .Setup(s => s.ListBelizePatientsAsync(It.IsAny<CancellationToken>()))
+            .Setup(s => s.ListPatientsAsync(1, 50, It.IsAny<CancellationToken>()))
             .ReturnsAsync(patients);
 
         var controller = new PatientsController(service.Object);
 
-        var result = await controller.ListAsync(CancellationToken.None);
+        var result = await controller.ListAsync(1, 50, CancellationToken.None);
 
         var ok = Assert.IsType<ActionResult<IReadOnlyList<PatientResponse>>>(result);
         var list = Assert.IsAssignableFrom<IReadOnlyList<PatientResponse>>(Assert.IsType<OkObjectResult>(ok.Result!).Value);
         Assert.Single(list);
         Assert.Equal("A1", list[0].LegacyId);
+    }
+
+    [Fact]
+    public async Task PatchNotesAsync_Returns_Ok_When_Service_Updates()
+    {
+        var id = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        var updated = new PatientResponse
+        {
+            Id = id,
+            LegacyId = "A1",
+            DisplayNameMasked = "J*** S***",
+            SpiritualStatusLabel = "No spiritual record",
+            SpiritualStatusKind = "none",
+            SpiritualNotes = "saved",
+        };
+
+        var body = new UpdatePatientNotesRequest { SpiritualNotes = "saved" };
+
+        var service = new Mock<IPatientService>(MockBehavior.Strict);
+        service
+            .Setup(s => s.UpdatePatientNotesAsync(id, 1, body, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PatientNotesUpdateOutcome(PatientNotesUpdateStatus.Updated, updated));
+
+        var controller = new PatientsController(service.Object);
+
+        var result = await controller.PatchNotesAsync(id, 1, body, CancellationToken.None);
+
+        var ok = Assert.IsType<ActionResult<PatientResponse>>(result);
+        var pr = Assert.IsType<PatientResponse>(Assert.IsType<OkObjectResult>(ok.Result!).Value);
+        Assert.Equal("saved", pr.SpiritualNotes);
+    }
+
+    [Fact]
+    public async Task PatchNotesAsync_Returns_NotFound_When_Service_Misses()
+    {
+        var id = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        var body = new UpdatePatientNotesRequest();
+
+        var service = new Mock<IPatientService>(MockBehavior.Strict);
+        service
+            .Setup(s => s.UpdatePatientNotesAsync(id, 1, body, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PatientNotesUpdateOutcome(PatientNotesUpdateStatus.NotFound));
+
+        var controller = new PatientsController(service.Object);
+
+        var result = await controller.PatchNotesAsync(id, 1, body, CancellationToken.None);
+
+        var ar = Assert.IsType<ActionResult<PatientResponse>>(result);
+        Assert.IsType<NotFoundResult>(ar.Result);
     }
 }

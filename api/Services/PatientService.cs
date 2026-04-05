@@ -7,20 +7,18 @@ namespace ChristMedical.WebAPI.Services;
 
 public sealed class PatientService(IConfiguration configuration) : IPatientService
 {
-    /// <summary>Belize mission tenant (staging / prod align on SMALLINT 1).</summary>
-    private const short BelizeTenantId = 1;
-
     private string ConnectionString =>
         configuration.GetConnectionString("DefaultConnection")
         ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection is not configured.");
 
-    /// <summary>
-    /// Loads the first 50 patients for the Belize tenant using the requested <c>SELECT *</c>
-    /// shape; columns are projected in-line so Dapper maps reliably from PostgreSQL.
-    /// </summary>
-    public async Task<IReadOnlyList<PatientResponse>> ListBelizePatientsAsync(CancellationToken cancellationToken = default)
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<PatientResponse>> ListPatientsAsync(
+        short tenantId,
+        int limit,
+        CancellationToken cancellationToken = default)
     {
-        // Full patient row (same fields as SELECT *, aliased for Dapper ↔ PascalCase).
+        var cap = Math.Clamp(limit, 1, 2000);
+
         const string sql = """
             SELECT
                 id                  AS "Id",
@@ -54,14 +52,109 @@ public sealed class PatientService(IConfiguration configuration) : IPatientServi
             WHERE tenant_id = @tenantId
               AND NOT is_deleted
             ORDER BY legacy_id NULLS LAST, client_updated_at DESC
-            LIMIT 50;
+            LIMIT @take;
             """;
 
         await using var conn = new NpgsqlConnection(ConnectionString);
         var rows = await conn.QueryAsync<PatientRow>(
-            new CommandDefinition(sql, new { tenantId = BelizeTenantId }, cancellationToken: cancellationToken));
+            new CommandDefinition(sql, new { tenantId, take = cap }, cancellationToken: cancellationToken));
 
         return rows.Select(Map).ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<PatientNotesUpdateOutcome> UpdatePatientNotesAsync(
+        Guid id,
+        short tenantId,
+        UpdatePatientNotesRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        DateTime? heard = null;
+        if (!string.IsNullOrWhiteSpace(request.HeardGospelDate))
+        {
+            if (!DateOnly.TryParse(
+                    request.HeardGospelDate.Trim(),
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out var d))
+                return new PatientNotesUpdateOutcome(PatientNotesUpdateStatus.InvalidHeardGospelDate);
+
+            heard = DateTime.SpecifyKind(d.ToDateTime(TimeOnly.MinValue), DateTimeKind.Unspecified);
+        }
+
+        const string sql = """
+            UPDATE patients
+            SET
+                spiritual_notes     = @SpiritualNotes,
+                medical_history     = @MedicalHistory,
+                surgical_history    = @SurgicalHistory,
+                family_history      = @FamilyHistory,
+                drug_allergies      = @DrugAllergies,
+                hope_gospel         = @HopeGospel,
+                heard_gospel_date   = @HeardGospelDate,
+                client_updated_at   = CURRENT_TIMESTAMP
+            WHERE id = @Id
+              AND tenant_id = @TenantId
+              AND NOT is_deleted;
+            """;
+
+        await using var conn = new NpgsqlConnection(ConnectionString);
+        var affected = await conn.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    Id = id,
+                    TenantId = tenantId,
+                    request.SpiritualNotes,
+                    request.MedicalHistory,
+                    request.SurgicalHistory,
+                    request.FamilyHistory,
+                    request.DrugAllergies,
+                    request.HopeGospel,
+                    HeardGospelDate = heard,
+                },
+                cancellationToken: cancellationToken));
+
+        if (affected == 0)
+            return new PatientNotesUpdateOutcome(PatientNotesUpdateStatus.NotFound);
+
+        var row = await FetchPatientRowAsync(conn, id, tenantId, cancellationToken);
+        if (row is null)
+            return new PatientNotesUpdateOutcome(PatientNotesUpdateStatus.NotFound);
+
+        return new PatientNotesUpdateOutcome(PatientNotesUpdateStatus.Updated, Map(row));
+    }
+
+    private static async Task<PatientRow?> FetchPatientRowAsync(
+        NpgsqlConnection conn,
+        Guid id,
+        short tenantId,
+        CancellationToken cancellationToken)
+    {
+        const string sql = """
+            SELECT
+                id                  AS "Id",
+                tenant_id           AS "TenantId",
+                legacy_id           AS "LegacyId",
+                first_name          AS "FirstName",
+                last_name           AS "LastName",
+                dob                 AS "Dob",
+                hope_gospel         AS "HopeGospel",
+                heard_gospel_date   AS "HeardGospelDate",
+                spiritual_notes     AS "SpiritualNotes",
+                medical_history     AS "MedicalHistory",
+                surgical_history    AS "SurgicalHistory",
+                family_history      AS "FamilyHistory",
+                drug_allergies      AS "DrugAllergies"
+            FROM patients
+            WHERE id = @id
+              AND tenant_id = @tenantId
+              AND NOT is_deleted;
+            """;
+
+        return await conn.QuerySingleOrDefaultAsync<PatientRow>(
+            new CommandDefinition(sql, new { id, tenantId }, cancellationToken: cancellationToken));
     }
 
     private static PatientResponse Map(PatientRow r)

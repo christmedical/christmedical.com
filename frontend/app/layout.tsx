@@ -1,5 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { PwaHead } from "@/components/PwaHead";
+import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,8 +15,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Christ Medical — Belize patients",
-  description: "Sanitized mission patient list",
+  title: "Christ Medical",
+  description: "Multi-tenant mission clinical workspace (PWA)",
+  applicationName: "Christ Medical",
+  formatDetection: { telephone: false },
+};
+
+/** Default until `PwaHead` sets tenant theme client-side. */
+export const viewport: Viewport = {
+  themeColor: "#0d9488",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -27,7 +39,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <PwaHead />
         {children}
+        <PwaInstallPrompt />
       </body>
     </html>
   );

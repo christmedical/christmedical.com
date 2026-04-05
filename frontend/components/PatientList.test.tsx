@@ -3,9 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PatientDto } from "@/lib/patientTypes";
 import { PatientList } from "./PatientList";
 
+const P1 = "11111111-1111-1111-1111-111111111111";
+const P2 = "22222222-2222-2222-2222-222222222222";
+
 function patient(partial: Partial<PatientDto> & Pick<PatientDto, "id" | "displayNameMasked">): PatientDto {
   return {
-    legacyId: partial.id,
+    legacyId: partial.legacyId ?? "LEG",
     dateOfBirth: null,
     hopeGospel: false,
     heardGospelDate: null,
@@ -53,7 +56,9 @@ describe("PatientList", () => {
 
     render(<PatientList />);
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
-    expect(fetchMock.mock.calls[0]?.[0]).toBe("http://localhost:5050/api/v1/patients");
+    expect(fetchMock.mock.calls[0]?.[0]).toBe(
+      "http://localhost:5050/api/v1/patients?tenantId=1&limit=2000",
+    );
   });
 
   it("renders patient rows after successful fetch", async () => {
@@ -62,9 +67,9 @@ describe("PatientList", () => {
       status: 200,
       statusText: "OK",
       json: async () => [
-        patient({ id: "1", displayNameMasked: "A***" }),
+        patient({ id: P1, displayNameMasked: "A***" }),
         patient({
-          id: "2",
+          id: P2,
           displayNameMasked: "B***",
           spiritualStatusKind: "heard",
           heardGospelDate: "2024-01-01",
@@ -80,7 +85,7 @@ describe("PatientList", () => {
       expect(within(table).getByText("B***")).toBeInTheDocument();
     });
     expect(
-      screen.getByRole("heading", { name: /Belize mission patients/i }),
+      screen.getByRole("heading", { name: /Belize — patients/i }),
     ).toBeInTheDocument();
   });
 
@@ -120,8 +125,8 @@ describe("PatientList", () => {
       status: 200,
       statusText: "OK",
       json: async () => [
-        patient({ id: "1", displayNameMasked: "A***", spiritualNotes: "Note one" }),
-        patient({ id: "2", displayNameMasked: "B***", spiritualNotes: "Note two" }),
+        patient({ id: P1, displayNameMasked: "A***", spiritualNotes: "Note one" }),
+        patient({ id: P2, displayNameMasked: "B***", spiritualNotes: "Note two" }),
       ],
     }) as typeof fetch;
 
@@ -129,5 +134,53 @@ describe("PatientList", () => {
     const bCell = await screen.findByRole("cell", { name: "B***" });
     fireEvent.click(bCell.closest("tr")!);
     await waitFor(() => expect(screen.getByText("Note two")).toBeInTheDocument());
+  });
+
+  it("sends PATCH when Save is clicked", async () => {
+    const updated = patient({
+      id: P2,
+      displayNameMasked: "B***",
+      spiritualNotes: "Saved note",
+      spiritualStatusKind: "none",
+      spiritualStatusLabel: "No spiritual record",
+    });
+
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        json: async () => [
+          patient({ id: P1, displayNameMasked: "A***" }),
+          patient({
+            id: P2,
+            displayNameMasked: "B***",
+            spiritualNotes: "Note two",
+          }),
+        ],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        json: async () => updated,
+      });
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    render(<PatientList />);
+    const bCell = await screen.findByRole("cell", { name: "B***" });
+    fireEvent.click(bCell.closest("tr")!);
+
+    const spiritual = await screen.findByLabelText(/Spiritual check-up notes/i);
+    fireEvent.change(spiritual, { target: { value: "Saved note" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    const patchCall = fetchMock.mock.calls[1];
+    expect(patchCall?.[0]).toBe(
+      `http://localhost:5050/api/v1/patients/${P2}?tenantId=1`,
+    );
+    expect((patchCall?.[1] as RequestInit)?.method).toBe("PATCH");
   });
 });

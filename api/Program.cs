@@ -3,6 +3,7 @@ using ChristMedical.WebAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddResponseCaching();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IPatientService, PatientService>();
@@ -34,6 +35,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("dev");
+app.UseResponseCaching();
 app.UseAuthorization();
 app.MapControllers();
 

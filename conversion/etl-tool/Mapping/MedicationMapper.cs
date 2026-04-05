@@ -19,21 +19,21 @@ public static class MedicationMapper
 
         return new MedicationRow
         {
-            Id               = Guid.NewGuid(),
-            TenantId         = tenantId,
-            VisitId          = visitId,
-            LegacyId         = ClinicalParse.CleanString(src.Rxid),
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            VisitId = visitId,
+            LegacyId = ClinicalParse.CleanString(src.Rxid),
             CatalogMedlistId = ClinicalParse.CleanString(src.MedId),
-            MedicationCode   = ClinicalParse.CleanString(src.MedCode),
-            MedicationName   = ClinicalParse.CleanString(src.MedName),
-            Strength         = ClinicalParse.CleanString(src.MedStrength),
-            Dose             = ClinicalParse.CleanString(src.Dose),
-            Directions       = ClinicalParse.CleanString(src.Directions),
-            DidNotDispense   = ClinicalParse.ParseBool(src.Dnd),
-            DeviceId         = "MIGRATION_ETL",
-            ClientUpdatedAt  = ts,
+            MedicationCode = ClinicalParse.CleanString(src.MedCode),
+            MedicationName = ClinicalParse.CleanString(src.MedName),
+            Strength = ClinicalParse.CleanString(src.MedStrength),
+            Dose = ClinicalParse.CleanString(src.Dose),
+            Directions = ClinicalParse.CleanString(src.Directions),
+            DidNotDispense = ClinicalParse.ParseBool(src.Dnd),
+            DeviceId = "MIGRATION_ETL",
+            ClientUpdatedAt = ts,
             ServerRestoredAt = null,
-            IsDeleted        = false,
+            IsDeleted = false,
         };
     }
 

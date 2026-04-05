@@ -17,9 +17,9 @@ public class ExtractionService
 
     public ExtractionService(string repoRoot, string scriptRelativePath, ILogger<ExtractionService> logger)
     {
-        _repoRoot   = repoRoot;
+        _repoRoot = repoRoot;
         _scriptPath = Path.GetFullPath(Path.Combine(repoRoot, scriptRelativePath));
-        _logger     = logger;
+        _logger = logger;
     }
 
     public async Task RunAsync(EtlProgress? progress = null, CancellationToken ct = default)
@@ -34,10 +34,10 @@ public class ExtractionService
 
         var psi = new ProcessStartInfo("bash", $"\"{_scriptPath}\"")
         {
-            WorkingDirectory       = _repoRoot,
+            WorkingDirectory = _repoRoot,
             RedirectStandardOutput = true,
-            RedirectStandardError  = true,
-            UseShellExecute        = false,
+            RedirectStandardError = true,
+            UseShellExecute = false,
         };
 
         using var proc = Process.Start(psi)
@@ -75,7 +75,7 @@ public class ExtractionService
             using var which = Process.Start(new ProcessStartInfo("which", tool)
             {
                 RedirectStandardOutput = true,
-                UseShellExecute        = false,
+                UseShellExecute = false,
             });
 
             which?.WaitForExit();

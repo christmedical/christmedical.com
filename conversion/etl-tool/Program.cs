@@ -34,16 +34,16 @@ string ResolveEtl(string key) =>
         configuration[$"Etl:RepoRoot"] ?? "..",
         configuration[$"Etl:{key}"] ?? throw new InvalidOperationException($"Etl:{key} missing")));
 
-var repoRoot      = Path.GetFullPath(Path.Combine(baseDir, configuration["Etl:RepoRoot"] ?? ".."));
-var csvDir        = ResolveEtl("CsvOutputDir");
-var sqlSchemaDir  = ResolveEtl("SqlSchemaDir");
+var repoRoot = Path.GetFullPath(Path.Combine(baseDir, configuration["Etl:RepoRoot"] ?? ".."));
+var csvDir = ResolveEtl("CsvOutputDir");
+var sqlSchemaDir = ResolveEtl("SqlSchemaDir");
 var extractScript = configuration["Etl:ExtractScript"] ?? "etl/Extract_Access_DB.sh";
-var v1SchemaPath  = Path.Combine(sqlSchemaDir, "V1__Initial_Schema.sql");
+var v1SchemaPath = Path.Combine(sqlSchemaDir, "V1__Initial_Schema.sql");
 
 // Access DB resolution: conversion-config → /app/input (Docker) → input_access/*.accdb → appsettings path
 var defaultAccess = ResolveEtl("AccessDb");
 var inputAccessDir = Path.Combine(repoRoot, configuration["Etl:InputAccessDir"] ?? "input_access");
-const string dockerInputDir  = "/app/input";
+const string dockerInputDir = "/app/input";
 const string dockerOutputDir = "/app/output";
 
 string accessDbPath;

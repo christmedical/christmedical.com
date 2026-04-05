@@ -21,48 +21,48 @@ public static class VisitMapper
         if (!patientCache.TryGetValue(src.PatientId ?? string.Empty, out Guid patientId))
             return null;
 
-        var visitId  = Guid.NewGuid();
+        var visitId = Guid.NewGuid();
         var clientTs = ParseDate(src.GenUpdatedOn) ?? DateTime.UtcNow;
 
         var (systolic, diastolic) = SplitBp(src.Bp);
 
         return new ProductionVisit
         {
-            Id               = visitId,
-            TenantId         = tenantId,
-            LegacyId         = src.GenId,
-            TripId           = null,
-            PatientId        = patientId,
-            VisitDate        = ParseDate(src.DateVisit),
-            LocationName     = CleanString(src.Location),
-            ChiefComplaint   = null,
-            DiagnosisText    = CleanString(src.Diagnosis),
-            ReferralNotes    = CleanString(src.Referral),
-            DeviceId         = "MIGRATION_ETL",
-            ClientUpdatedAt  = clientTs,
+            Id = visitId,
+            TenantId = tenantId,
+            LegacyId = src.GenId,
+            TripId = null,
+            PatientId = patientId,
+            VisitDate = ParseDate(src.DateVisit),
+            LocationName = CleanString(src.Location),
+            ChiefComplaint = null,
+            DiagnosisText = CleanString(src.Diagnosis),
+            ReferralNotes = CleanString(src.Referral),
+            DeviceId = "MIGRATION_ETL",
+            ClientUpdatedAt = clientTs,
             ServerRestoredAt = null,
-            IsDeleted        = false,
+            IsDeleted = false,
 
             Vitals = new VitalsCore
             {
-                Id               = Guid.NewGuid(),
-                TenantId         = tenantId,
-                VisitId          = visitId,
-                Weight           = ParseDecimal(src.Weight),
-                Height           = ParseDecimal(src.Height),
-                Pulse            = ParseInt(src.Pulse),
-                Bp               = CleanString(src.Bp),
-                Systolic         = systolic,
-                Diastolic        = diastolic,
-                Resp             = ParseInt(src.Resp),
-                TempF            = ParseDecimal(src.Temp),
-                OxygenSat        = ParseInt(src.Oxygen),
-                Glucose          = ParseDecimal(src.GlucoseBlood),
-                Hemoglobin       = ParseDecimal(src.Hemoglobin),
-                DeviceId         = "MIGRATION_ETL",
-                ClientUpdatedAt  = clientTs,
+                Id = Guid.NewGuid(),
+                TenantId = tenantId,
+                VisitId = visitId,
+                Weight = ParseDecimal(src.Weight),
+                Height = ParseDecimal(src.Height),
+                Pulse = ParseInt(src.Pulse),
+                Bp = CleanString(src.Bp),
+                Systolic = systolic,
+                Diastolic = diastolic,
+                Resp = ParseInt(src.Resp),
+                TempF = ParseDecimal(src.Temp),
+                OxygenSat = ParseInt(src.Oxygen),
+                Glucose = ParseDecimal(src.GlucoseBlood),
+                Hemoglobin = ParseDecimal(src.Hemoglobin),
+                DeviceId = "MIGRATION_ETL",
+                ClientUpdatedAt = clientTs,
                 ServerRestoredAt = null,
-                IsDeleted        = false,
+                IsDeleted = false,
             },
 
             LabResults = BuildLabResults(visitId, clientTs, src, tenantId),
@@ -109,31 +109,31 @@ public static class VisitMapper
 
             results.Add(new LabResult
             {
-                Id               = Guid.NewGuid(),
-                TenantId         = tenantId,
-                VisitId          = visitId,
-                TestName         = testName,
-                ResultValue      = value,
-                DeviceId         = "MIGRATION_ETL",
-                ClientUpdatedAt  = clientTs,
+                Id = Guid.NewGuid(),
+                TenantId = tenantId,
+                VisitId = visitId,
+                TestName = testName,
+                ResultValue = value,
+                DeviceId = "MIGRATION_ETL",
+                ClientUpdatedAt = clientTs,
                 ServerRestoredAt = null,
-                IsDeleted        = false,
+                IsDeleted = false,
             });
         }
 
-        AddIfPresent("BloodH",       src.BloodH);
-        AddIfPresent("BloodN",       src.BloodN);
-        AddIfPresent("Urobilin",     src.Urobilin);
-        AddIfPresent("Bilirubin",    src.Bilirubin);
-        AddIfPresent("Protein",      src.Protein);
-        AddIfPresent("Nitrite",      src.Nitrite);
-        AddIfPresent("Ketones",      src.Ketones);
-        AddIfPresent("Ascorbic",     src.Ascorbic);
+        AddIfPresent("BloodH", src.BloodH);
+        AddIfPresent("BloodN", src.BloodN);
+        AddIfPresent("Urobilin", src.Urobilin);
+        AddIfPresent("Bilirubin", src.Bilirubin);
+        AddIfPresent("Protein", src.Protein);
+        AddIfPresent("Nitrite", src.Nitrite);
+        AddIfPresent("Ketones", src.Ketones);
+        AddIfPresent("Ascorbic", src.Ascorbic);
         AddIfPresent("GlucoseUrine", src.GlucoseUrine);
-        AddIfPresent("Ph",           src.Ph);
-        AddIfPresent("SpGrav",       src.SpGrav);
-        AddIfPresent("Leuk",         src.Leuk);
-        AddIfPresent("PregTest",     src.PregTest);
+        AddIfPresent("Ph", src.Ph);
+        AddIfPresent("SpGrav", src.SpGrav);
+        AddIfPresent("Leuk", src.Leuk);
+        AddIfPresent("PregTest", src.PregTest);
 
         return results;
     }

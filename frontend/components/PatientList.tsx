@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { spiritualStatusBadgeClass } from "@/lib/spiritualBadge";
 
 export type PatientDto = {
   id: string;
@@ -17,17 +18,6 @@ export type PatientDto = {
   familyHistory: string | null;
   drugAllergies: string | null;
 };
-
-function statusBadgeClass(kind: PatientDto["spiritualStatusKind"]) {
-  switch (kind) {
-    case "heard":
-      return "bg-emerald-100 text-emerald-900 ring-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-200 dark:ring-emerald-800";
-    case "hope":
-      return "bg-amber-100 text-amber-900 ring-amber-200 dark:bg-amber-950/50 dark:text-amber-100 dark:ring-amber-800";
-    default:
-      return "bg-zinc-100 text-zinc-700 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700";
-  }
-}
 
 export function PatientList() {
   const [patients, setPatients] = useState<PatientDto[]>([]);
@@ -134,7 +124,7 @@ export function PatientList() {
                       </td>
                       <td className="px-4 py-3">
                         <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${statusBadgeClass(p.spiritualStatusKind)}`}
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${spiritualStatusBadgeClass(p.spiritualStatusKind)}`}
                         >
                           {p.heardGospelDate
                             ? `Heard · ${p.heardGospelDate}`
@@ -186,7 +176,7 @@ export function PatientList() {
                 </dt>
                 <dd>
                   <span
-                    className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${statusBadgeClass(selected.spiritualStatusKind)}`}
+                    className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${spiritualStatusBadgeClass(selected.spiritualStatusKind)}`}
                   >
                     {selected.spiritualStatusLabel}
                   </span>

@@ -20,6 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Etl.Test" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="conversion-config.json" CopyToOutputDirectory="PreserveNewest" />
     <None Update="..\appliance\convert_archive_csv_for_pg.py" Link="convert_archive_csv_for_pg.py" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

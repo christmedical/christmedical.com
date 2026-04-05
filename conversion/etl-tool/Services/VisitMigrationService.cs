@@ -162,7 +162,7 @@ public class VisitMigrationService
         CancellationToken ct)
     {
         // --- Transform phase ---
-        var mapped   = new List<ProductionVisit>(stagingRows.Count);
+        var mapped = new List<ProductionVisit>(stagingRows.Count);
         int orphaned = 0;
 
         progress?.BeginStep("Transforming visits ...", stagingRows.Count);
@@ -174,7 +174,7 @@ public class VisitMigrationService
             {
                 _logger.LogWarning(
                     "Orphaned visit — staging genid '{GenId}' references unknown legacy patient '{PatientId}'.",
-                    row.GenId     ?? "<null>",
+                    row.GenId ?? "<null>",
                     row.PatientId ?? "<null>");
                 orphaned++;
             }
@@ -193,7 +193,7 @@ public class VisitMigrationService
         // Each chunk runs in its own transaction. A failed chunk rolls back only that chunk.
         // For 130k+ production runs, replace Dapper ExecuteAsync with NpgsqlBinaryImporter (COPY).
         int succeeded = 0;
-        int failed    = 0;
+        int failed = 0;
 
         progress?.BeginStep("Loading visits ...   ", mapped.Count);
 

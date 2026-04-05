@@ -2,9 +2,9 @@
 
 This document explains how to configure branch protection rules for the `main` branch on GitHub.
 
-## Automatic Protection (Recommended)
+## PR reminder workflow
 
-The GitHub Actions workflow in `.github/workflows/branch-protection.yml` will automatically fail and alert when direct pushes to `main` are detected. However, this runs *after* the push, so it serves as a warning rather than a blocker.
+The workflow in `.github/workflows/branch-protection.yml` runs on pull requests into `main` as a lightweight reminder. **Enforcement** is done with GitHub branch protection rules (below) and optional required status checks from `ci.yml`.
 
 ## Manual Branch Protection (Required for Full Protection)
 

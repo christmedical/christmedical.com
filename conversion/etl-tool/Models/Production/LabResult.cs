@@ -6,13 +6,13 @@ namespace EtlTool.Models.Production;
 /// </summary>
 public class LabResult
 {
-    public Guid      Id              { get; set; }
-    public short     TenantId        { get; set; }
-    public Guid      VisitId         { get; set; }
-    public string    TestName        { get; set; } = string.Empty;
-    public string?   ResultValue     { get; set; }
-    public string    DeviceId        { get; set; } = "MIGRATION_ETL";
-    public DateTime  ClientUpdatedAt { get; set; }
+    public Guid Id { get; set; }
+    public short TenantId { get; set; }
+    public Guid VisitId { get; set; }
+    public string TestName { get; set; } = string.Empty;
+    public string? ResultValue { get; set; }
+    public string DeviceId { get; set; } = "MIGRATION_ETL";
+    public DateTime ClientUpdatedAt { get; set; }
     public DateTime? ServerRestoredAt { get; set; }
-    public bool      IsDeleted       { get; set; }
+    public bool IsDeleted { get; set; }
 }

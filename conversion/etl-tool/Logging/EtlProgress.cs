@@ -23,7 +23,7 @@ public sealed class EtlProgress
     /// Records the step label and total item count, then renders the initial 0% line.
     public void BeginStep(string label, int total)
     {
-        _total   = total;
+        _total = total;
         _current = 0;
         Console.Write($"  {label}");
         Render();

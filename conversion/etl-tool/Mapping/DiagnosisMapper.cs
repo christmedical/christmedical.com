@@ -19,16 +19,16 @@ public static class DiagnosisMapper
 
         return new DiagnosisRow
         {
-            Id               = Guid.NewGuid(),
-            TenantId         = tenantId,
-            VisitId          = visitId,
-            LegacyId         = ClinicalParse.CleanString(src.VisitDxId),
-            DxCode           = ClinicalParse.CleanString(src.DxCode),
-            AdditionalInfo   = ClinicalParse.CleanString(src.AddlInfo),
-            DeviceId         = "MIGRATION_ETL",
-            ClientUpdatedAt  = ts,
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            VisitId = visitId,
+            LegacyId = ClinicalParse.CleanString(src.VisitDxId),
+            DxCode = ClinicalParse.CleanString(src.DxCode),
+            AdditionalInfo = ClinicalParse.CleanString(src.AddlInfo),
+            DeviceId = "MIGRATION_ETL",
+            ClientUpdatedAt = ts,
             ServerRestoredAt = null,
-            IsDeleted        = false,
+            IsDeleted = false,
         };
     }
 }

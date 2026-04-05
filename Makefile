@@ -1,4 +1,4 @@
-.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down
+.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down build ci
 
 # Default target
 .DEFAULT_GOAL := help
@@ -27,6 +27,19 @@ DATA_DIR=$(ROOT_DIR)/conversion/data/02_extracted
 
 # Display help
 all:help
+
+build: ## Full local CI: dotnet format, build, test; frontend lint, test, build
+	@echo "$(BLUE)dotnet format (verify)...$(NC)"
+	dotnet restore "$(ROOT_DIR)/christmedical.com.sln"
+	dotnet format "$(ROOT_DIR)/christmedical.com.sln" --verify-no-changes --no-restore
+	@echo "$(BLUE).NET build + test...$(NC)"
+	dotnet build "$(ROOT_DIR)/christmedical.com.sln" -c Release --no-restore
+	dotnet test "$(ROOT_DIR)/christmedical.com.sln" -c Release --no-build
+	@echo "$(BLUE)frontend npm ci + lint + test + build...$(NC)"
+	cd "$(ROOT_DIR)/frontend" && npm ci && npm run ci
+	@echo "$(GREEN)All checks passed.$(NC)"
+
+ci: build ## Alias for build (CI parity)
 
 help: ## Display this help message
 	@echo "$(BLUE)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"

@@ -1,77 +1,131 @@
 # Christ Medical
 
-## Development Setup
+**Mission clinic data stack** — .NET API & ETL, Next.js dashboard, Postgres, and offline sync.
 
-### Initial Setup
+<p align="center">
 
-Run the development setup to configure your local environment:
+[![CI](https://github.com/christmedical/christmedical.com/actions/workflows/ci.yml/badge.svg)](https://github.com/christmedical/christmedical.com/actions/workflows/ci.yml)
+[![Branch reminder](https://github.com/christmedical/christmedical.com/actions/workflows/branch-protection.yml/badge.svg)](https://github.com/christmedical/christmedical.com/actions/workflows/branch-protection.yml)
+[![.NET](https://img.shields.io/badge/.NET-9%20%2F%2010-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-data-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 
-**Using Make (Recommended - Unix/Mac/Linux):**
+</p>
+
+---
+
+## What's in the repo
+
+| Area | Path | Notes |
+|------|------|--------|
+| HTTP API | `api/` | ASP.NET Core 9, Railway-ready (`Dockerfile`) |
+| Mission sync | `sync/` | Dotmim sync helpers for laptop ↔ hub |
+| ETL | `conversion/etl-tool/` | Staging → Postgres clinical migration |
+| UI | `frontend/` | Next.js 15, deploys to **Vercel** |
+| Tests | `tests/` | `api.test`, `sync.test`, `etl.test` (+ frontend tests beside source) |
+
+---
+
+## Local CI (what GitHub runs)
+
+One command matches **lint + build + test** for .NET and the frontend:
+
+```bash
+make build
+```
+
+Or manually:
+
+```bash
+dotnet restore christmedical.com.sln
+dotnet format christmedical.com.sln --verify-no-changes --no-restore
+dotnet build christmedical.com.sln -c Release --no-restore
+dotnet test christmedical.com.sln -c Release --no-build
+cd frontend && npm ci && npm run ci
+```
+
+- **.NET**: `Directory.Build.props` turns on `EnforceCodeStyleInBuild`; `dotnet format` enforces `.editorconfig`.
+- **Frontend**: `npm run ci` → ESLint, Vitest, `next build`.
+
+---
+
+## Development setup
+
+### One-time setup (hooks + checks)
+
+**Make (macOS / Linux):**
+
 ```bash
 make setup
 ```
 
-**Or run the script directly:**
+**Or the script:**
 
-**Unix/Mac/Linux:**
 ```bash
 ./scripts/dev-setup.sh
 ```
 
-**Windows:**
-```cmd
-scripts\dev-setup.bat
-```
+**Windows:** `scripts\dev-setup.bat`
 
-**Available Make targets:**
-- `make setup` - Run full development setup (installs hooks and verifies)
-- `make install-hooks` - Install git hooks only
-- `make help` - Show all available targets
+### Handy Make targets
 
-This will install git hooks that protect the `main` branch from direct commits and pushes.
+| Target | What it does |
+|--------|----------------|
+| `make help` | Lists targets |
+| `make setup` | Dev environment setup |
+| `make build` | Full lint/build/test (CI parity) |
+| `make db-up` / `make db-down` | Postgres via Docker Compose |
 
-### Branch Protection
+---
 
-The `main` branch is protected both locally and remotely:
+## GitHub Actions — CI and deploy
 
-- **Local Protection**: Git hooks prevent direct commits and pushes to `main`
-- **Remote Protection**: GitHub Actions workflow enforces branch protection rules
+- **`ci.yml`**: On every push/PR to `main` or `develop` — restore, **verify formatting**, build all solution projects, run **xUnit** + **Vitest**, production **Next.js** build. On pushes to **`main`** only, also runs deploy jobs (below).
+- **`branch-protection.yml`**: Lightweight PR reminder (no failing “gotcha” on merges).
 
-#### Working with Protected Branches
+### Deploy secrets (organization or repo)
 
-Always work on feature branches:
+Configure these in **GitHub → Settings → Secrets and variables → Actions**:
+
+**Railway (API)** — job *Deploy API (Railway)*  
+Link the service once locally (`railway link`) if you use a `railway.toml`, or set CLI environment equivalents in the service dashboard. CI expects the token:
+
+| Secret | Purpose |
+|--------|---------|
+| `RAILWAY_TOKEN` | [Railway account token](https://docs.railway.com/guides/cli#authenticating-with-the-cli) for `railway up` |
+
+In the Railway project, set the **root directory** to the GitHub repo root and the **Dockerfile** to `api/Dockerfile` so `COPY api/ ...` matches this repo layout. Link the service with `railway link` from the machine where you develop, or mirror those settings in the dashboard.
+
+**Vercel (frontend)** — job *Deploy frontend (Vercel)*
+
+| Secret | Purpose |
+|--------|---------|
+| `VERCEL_TOKEN` | Vercel → Settings → Tokens |
+| `VERCEL_ORG_ID` | Team / user id (`vercel whoami` / project settings) |
+| `VERCEL_PROJECT_ID` | Project id from Vercel |
+
+Set the **production** build command in Vercel to match local checks, e.g. `npm run ci` (or `npm run lint && npm run test && npm run build`).
+
+---
+
+## Branching
+
+Work on feature branches and open PRs into `main`. Prefer **squash merge** so WIP commits collapse into one clear message.
+
+If you need to undo a local commit on `main`:
 
 ```bash
-# Create a feature branch
-git checkout -b feature/your-feature-name
-
-# Make your changes and commit
-git add .
-git commit -m "Your commit message"
-
-# Push the feature branch
-git push origin feature/your-feature-name
-
-# Create a Pull Request to merge into main
+git reset --soft HEAD~1   # keep changes
+git checkout -b feature/my-fix
 ```
 
-#### If You Make a Mistake
+---
 
-If you accidentally commit to `main`:
+## Project layout (quick)
 
-1. **Undo the commit (keeps changes)**: `git reset --soft HEAD~1`
-2. **Or undo the commit (discards changes)**: `git reset --hard HEAD~1`
-3. **Create a feature branch**: `git checkout -b feature/your-feature-name`
-4. **Commit again on the feature branch**
+- `scripts/` — setup and maintenance  
+- `.github/workflows/` — CI/CD  
+- `conversion/` — SQL, staging load, ETL, appliance images  
+- `docs/` — extra documentation  
 
-If you accidentally push to `main`:
-
-1. Create a revert branch: `git checkout -b revert/main-push`
-2. Reset to previous state: `git reset --hard origin/main@{1}`
-3. Force push the revert: `git push origin revert/main-push --force`
-4. Create a PR to revert the changes
-
-## Project Structure
-
-- `scripts/` - Development setup and maintenance scripts
-- `.github/workflows/` - GitHub Actions workflows for CI/CD and branch protection
+Questions or improvements — open an issue or PR.

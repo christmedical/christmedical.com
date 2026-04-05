@@ -20,8 +20,8 @@ public class DatabaseCleanupService
         ILogger<DatabaseCleanupService> logger)
     {
         _connectionString = connectionString;
-        _sqlSchemaDir     = sqlSchemaDir;
-        _logger           = logger;
+        _sqlSchemaDir = sqlSchemaDir;
+        _logger = logger;
     }
 
     public async Task RevertConversionAsync(CancellationToken ct = default)

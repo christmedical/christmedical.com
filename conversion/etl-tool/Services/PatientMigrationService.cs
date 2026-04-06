@@ -43,13 +43,16 @@ public class PatientMigrationService
         NpgsqlConnection connection, CancellationToken ct)
     {
         const string ddl = """
+            CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
             ALTER TABLE public.patients
                 ADD COLUMN IF NOT EXISTS tenant_id         SMALLINT NOT NULL DEFAULT 1,
                 ADD COLUMN IF NOT EXISTS legacy_id         VARCHAR(50),
                 ADD COLUMN IF NOT EXISTS home_phone        VARCHAR(30),
                 ADD COLUMN IF NOT EXISTS mobile_phone      VARCHAR(30),
                 ADD COLUMN IF NOT EXISTS heard_gospel_date DATE,
-                ADD COLUMN IF NOT EXISTS spiritual_notes   TEXT;
+                ADD COLUMN IF NOT EXISTS spiritual_notes   TEXT,
+                ADD COLUMN IF NOT EXISTS first_name_phonetic VARCHAR(32),
+                ADD COLUMN IF NOT EXISTS last_name_phonetic  VARCHAR(32);
             """;
 
         await connection.ExecuteAsync(new CommandDefinition(ddl, cancellationToken: ct));
@@ -124,6 +127,8 @@ public class PatientMigrationService
                 legacy_id,
                 first_name,
                 last_name,
+                first_name_phonetic,
+                last_name_phonetic,
                 dob,
                 calculated_age,
                 gender,
@@ -151,6 +156,8 @@ public class PatientMigrationService
                 @LegacyId,
                 @FirstName,
                 @LastName,
+                dmetaphone(lower(trim(coalesce(@FirstName, '')))),
+                dmetaphone(lower(trim(coalesce(@LastName, '')))),
                 @Dob,
                 @CalculatedAge,
                 @Gender,

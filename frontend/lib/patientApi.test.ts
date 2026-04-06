@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { normalizeApiBaseUrl, patientsListUrl, patientsPatchUrl } from "./patientApi";
+import {
+  dashboardSummaryUrl,
+  normalizeApiBaseUrl,
+  patientsListUrl,
+  patientsPatchUrl,
+  patientsSearchUrl,
+} from "./patientApi";
 
 describe("normalizeApiBaseUrl", () => {
   it("returns empty for undefined", () => {
@@ -51,6 +57,35 @@ describe("patientsPatchUrl", () => {
       ),
     ).toBe(
       "http://localhost:5050/api/v1/patients/11111111-1111-1111-1111-111111111111?tenantId=2",
+    );
+  });
+});
+
+describe("patientsSearchUrl", () => {
+  it("builds query string with q, spiritual, limit", () => {
+    expect(
+      patientsSearchUrl("http://localhost:5050/api", {
+        tenantId: 1,
+        q: "jon smith",
+        spiritual: "heard",
+        limit: 25,
+      }),
+    ).toBe(
+      "http://localhost:5050/api/v1/patients/search?tenantId=1&q=jon+smith&spiritual=heard&limit=25",
+    );
+  });
+
+  it("allows spiritual-only query", () => {
+    const u = patientsSearchUrl("http://x/api", { tenantId: 2, spiritual: "hope", limit: 10 });
+    expect(u).toContain("spiritual=hope");
+    expect(u).not.toContain("q=");
+  });
+});
+
+describe("dashboardSummaryUrl", () => {
+  it("includes tenantId", () => {
+    expect(dashboardSummaryUrl("http://localhost:5050/api", 3)).toBe(
+      "http://localhost:5050/api/v1/dashboard/summary?tenantId=3",
     );
   });
 });

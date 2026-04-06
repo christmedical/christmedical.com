@@ -21,8 +21,9 @@
 | HTTP API | `api/` | ASP.NET Core 9, Railway-ready (`Dockerfile`) |
 | Mission sync | `sync/` | Dotmim sync helpers for laptop ↔ hub |
 | ETL | `conversion/etl-tool/` | Staging → Postgres clinical migration |
-| UI | `frontend/` | Next.js 15, deploys to **Vercel** |
-| Tests | `tests/`, `frontend/**/*.test.*` | .NET xUnit under `tests/`; **Vitest** + **Testing Library** in `frontend/` (`PatientList`, URL helpers, badge styles) |
+| UI | `frontend/` | Next.js 15, deploys to **Vercel** — **Home** dashboard, **Patient search** (phonetic + filters), **Patient list** |
+| Tests | `tests/`, `frontend/**/*.test.*` | .NET xUnit under `tests/`; **Vitest** + **Testing Library** in `frontend/` |
+| Help (draft) | `docs/HELP_MANUAL.md` | Staff-facing help; keep updated as features ship |
 
 ---
 
@@ -128,6 +129,15 @@ git checkout -b feature/my-fix
 - `scripts/` — setup and maintenance  
 - `.github/workflows/` — CI/CD  
 - `conversion/` — SQL, staging load, ETL, appliance images  
-- `docs/` — extra documentation  
+- `docs/` — architecture, database notes, **`HELP_MANUAL.md`** (draft user help)
+
+### Dashboard and search (API)
+
+- `GET /api/v1/dashboard/summary?tenantId=` — spiritual and medical documentation aggregates.
+- `GET /api/v1/patients/search?q=&spiritual=all|heard|hope|none&limit=` — name / legacy id search with **Double Metaphone** (`fuzzystrmatch`) on `first_name_phonetic` / `last_name_phonetic` (populated by ETL and backfilled on API startup).
+
+Phonetic columns are added in **`conversion/etl/V6__patients_phonetic.sql`** and **`EnsurePatientsPhoneticColumnsAsync`** in the API.
+
+---
 
 Questions or improvements — open an issue or PR.

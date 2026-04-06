@@ -1,5 +1,5 @@
-import { PatientList } from "@/components/PatientList";
+import { DashboardHome } from "@/components/DashboardHome";
 
 export default function Home() {
-  return <PatientList />;
+  return <DashboardHome />;
 }

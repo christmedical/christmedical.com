@@ -3,6 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PatientDto } from "@/lib/patientTypes";
 import { PatientList } from "./PatientList";
 
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 const P1 = "11111111-1111-1111-1111-111111111111";
 const P2 = "22222222-2222-2222-2222-222222222222";
 

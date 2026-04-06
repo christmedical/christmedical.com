@@ -44,7 +44,7 @@ public class SchemaService
 
     public async Task RunAsync(EtlProgress? progress = null, CancellationToken ct = default)
     {
-        progress?.BeginStep("Resetting and initialising schema ...", 4);
+        progress?.BeginStep("Resetting and initialising schema ...", 5);
 
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync(ct);
@@ -63,6 +63,10 @@ public class SchemaService
 
         // V5 — auxiliary clinical tables (medications / diagnoses / eye_exams)
         await ExecuteSqlFileAsync(connection, "V5__Clinical_auxiliary.sql", ct);
+        progress?.Advance();
+
+        // V6 — phonetic name columns for search (fuzzystrmatch / dmetaphone)
+        await ExecuteSqlFileAsync(connection, "V6__patients_phonetic.sql", ct);
         progress?.Advance();
 
         progress?.StepDone("Schema ready.");

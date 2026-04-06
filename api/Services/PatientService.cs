@@ -1,5 +1,6 @@
 using System.Globalization;
 using ChristMedical.WebAPI.Models;
+using ChristMedical.WebAPI.Utilities;
 using Dapper;
 using Npgsql;
 
@@ -60,6 +61,123 @@ public sealed class PatientService(IConfiguration configuration) : IPatientServi
             new CommandDefinition(sql, new { tenantId, take = cap }, cancellationToken: cancellationToken));
 
         return rows.Select(Map).ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<PatientResponse>> SearchPatientsAsync(
+        short tenantId,
+        string? query,
+        string spiritualFilter,
+        int limit,
+        CancellationToken cancellationToken = default)
+    {
+        var cap = Math.Clamp(limit, 1, 200);
+        var tokens = PatientSearchTokenizer.Tokenize(query);
+        var spiritualClause = SpiritualSqlClause(spiritualFilter);
+        var (searchClause, dp) = BuildSearchClause(tokens);
+
+        var sql = $"""
+            SELECT
+                id                  AS "Id",
+                tenant_id           AS "TenantId",
+                legacy_id           AS "LegacyId",
+                display_id          AS "DisplayId",
+                first_name          AS "FirstName",
+                last_name           AS "LastName",
+                dob                 AS "Dob",
+                calculated_age      AS "CalculatedAge",
+                gender              AS "Gender",
+                marital_status      AS "MaritalStatus",
+                gov_id              AS "GovId",
+                next_of_kin_id      AS "NextOfKinId",
+                medical_history     AS "MedicalHistory",
+                surgical_history    AS "SurgicalHistory",
+                family_history      AS "FamilyHistory",
+                drug_allergies      AS "DrugAllergies",
+                smoke               AS "Smoke",
+                alcohol             AS "Alcohol",
+                hope_gospel         AS "HopeGospel",
+                heard_gospel_date   AS "HeardGospelDate",
+                spiritual_notes     AS "SpiritualNotes",
+                home_phone          AS "HomePhone",
+                mobile_phone        AS "MobilePhone",
+                device_id           AS "DeviceId",
+                client_updated_at   AS "ClientUpdatedAt",
+                server_restored_at  AS "ServerRestoredAt",
+                is_deleted          AS "IsDeleted"
+            FROM patients
+            WHERE tenant_id = @tenantId
+              AND NOT is_deleted
+              {spiritualClause}
+              AND ({searchClause})
+            ORDER BY legacy_id NULLS LAST, client_updated_at DESC
+            LIMIT @take;
+            """;
+
+        dp.Add("tenantId", tenantId);
+        dp.Add("take", cap);
+
+        await using var conn = new NpgsqlConnection(ConnectionString);
+        var rows = await conn.QueryAsync<PatientRow>(
+            new CommandDefinition(sql, dp, cancellationToken: cancellationToken));
+
+        return rows.Select(Map).ToList();
+    }
+
+    private static string SpiritualSqlClause(string spiritualFilter)
+    {
+        return spiritualFilter.ToLowerInvariant() switch
+        {
+            "heard" => " AND heard_gospel_date IS NOT NULL ",
+            "hope" => " AND hope_gospel AND heard_gospel_date IS NULL ",
+            "none" => " AND NOT hope_gospel AND heard_gospel_date IS NULL ",
+            _ => "",
+        };
+    }
+
+    private static (string Clause, DynamicParameters Params) BuildSearchClause(IReadOnlyList<string> tokens)
+    {
+        var dp = new DynamicParameters();
+        if (tokens.Count == 0)
+            return ("TRUE", dp);
+
+        if (tokens.Count == 1)
+        {
+            dp.Add("t0", tokens[0]);
+            return ("""
+                (
+                       first_name ILIKE '%' || @t0 || '%'
+                    OR last_name ILIKE '%' || @t0 || '%'
+                    OR legacy_id ILIKE '%' || @t0 || '%'
+                    OR first_name_phonetic = dmetaphone(lower(trim(@t0)))
+                    OR last_name_phonetic = dmetaphone(lower(trim(@t0)))
+                )
+                """, dp);
+        }
+
+        dp.Add("t0", tokens[0]);
+        dp.Add("t1", tokens[1]);
+        return ("""
+            (
+                   (
+                       first_name ILIKE '%' || @t0 || '%'
+                   AND last_name ILIKE '%' || @t1 || '%'
+                   )
+                OR (
+                       last_name ILIKE '%' || @t0 || '%'
+                   AND first_name ILIKE '%' || @t1 || '%'
+                   )
+                OR (
+                       first_name_phonetic = dmetaphone(lower(trim(@t0)))
+                   AND last_name_phonetic = dmetaphone(lower(trim(@t1)))
+                   )
+                OR (
+                       first_name_phonetic = dmetaphone(lower(trim(@t1)))
+                   AND last_name_phonetic = dmetaphone(lower(trim(@t0)))
+                   )
+                OR legacy_id ILIKE '%' || @t0 || '%' || @t1 || '%'
+            )
+            """, dp);
     }
 
     /// <inheritdoc />

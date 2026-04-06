@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import {
   normalizeApiBaseUrl,
@@ -48,6 +49,7 @@ function emptyToNull(s: string): string | null {
 }
 
 export function PatientList() {
+  const searchParams = useSearchParams();
   const tenantId = getTenantId();
   const branding = getTenantBranding(tenantId);
 
@@ -107,6 +109,13 @@ export function PatientList() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    const pid = searchParams.get("patientId");
+    if (!pid || patients.length === 0) return;
+    const match = patients.find((p) => p.id === pid);
+    if (match) setSelected(match);
+  }, [searchParams, patients]);
 
   useEffect(() => {
     if (!selected) {

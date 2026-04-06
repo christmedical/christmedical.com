@@ -7,6 +7,7 @@ builder.Services.AddResponseCaching();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 builder.Services.AddCors(options =>
 {
@@ -25,6 +26,11 @@ var app = builder.Build();
 
 var startupLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
 await DbSchemaInitializer.EnsurePatientsSpiritualColumnsAsync(
+    app.Configuration,
+    startupLogger,
+    CancellationToken.None);
+
+await DbSchemaInitializer.EnsurePatientsPhoneticColumnsAsync(
     app.Configuration,
     startupLogger,
     CancellationToken.None);

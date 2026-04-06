@@ -16,4 +16,15 @@ public interface IPatientService
         short tenantId,
         UpdatePatientNotesRequest request,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Name / legacy id search with Double Metaphone on stored phonetic columns.
+    /// <paramref name="spiritualFilter"/>: all | heard | hope | none.
+    /// </summary>
+    Task<IReadOnlyList<PatientResponse>> SearchPatientsAsync(
+        short tenantId,
+        string? query,
+        string spiritualFilter,
+        int limit,
+        CancellationToken cancellationToken = default);
 }

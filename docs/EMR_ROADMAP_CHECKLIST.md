@@ -55,8 +55,8 @@ Living checklist for the **electronic medical records** and **spiritual / gospel
 - [x] Phonetic search columns + API/schema alignment
 - [ ] **Data validation rules** — required fields per context, duplicate detection hooks
 - [ ] **Backup / restore runbooks** for Postgres *(demo remains ephemeral; prod needs clarity)*
-- [ ] **Environment matrix** — local, demo compose, staging, production parity notes
-- [ ] **Integration tests** (API + DB) for critical paths; E2E when ready
+- [x] **Environment matrix** — local / demo / CI / deploy paths documented *(root **README**: `make build`, `make demo-up`, `ci.yml`, Railway + Vercel + Docker Hub secrets; explicit “staging” env name still TBD)*
+- [ ] **Integration tests** (API + DB) for critical paths; E2E when ready *(today: xUnit + mocked API; DB-backed tests still open)*
 
 ---
 
@@ -66,7 +66,7 @@ Living checklist for the **electronic medical records** and **spiritual / gospel
 - [ ] **Read-back / confirm** for high-risk actions (if/when added)
 - [ ] **Accessibility** — keyboard, contrast, screen reader passes on key flows
 - [ ] **Localization** — Spanish (and others) if field teams need it
-- [ ] **Help & training** — keep `docs/HELP_MANUAL.md` in sync with shipped behavior
+- [x] **Help & training** — draft `docs/HELP_MANUAL.md` covers shipped **Home**, **Patient search**, **Patient list** (notes + offline + **encounters / vitals**); refresh when behavior changes
 
 ---
 
@@ -95,4 +95,4 @@ Living checklist for the **electronic medical records** and **spiritual / gospel
 
 ---
 
-*Last updated: 2026-05-08 — section B encounters + vitals v1 (API + patient UI); trend/charts still open.*
+*Last updated: 2026-05-08 — section D environment matrix marked done (README); section E help manual marked aligned with current UI; ETL tool `bin/obj` gitignored on develop; B encounters/vitals v1 still the baseline (no flowsheet/trends yet).*

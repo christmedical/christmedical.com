@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   dashboardSummaryUrl,
   normalizeApiBaseUrl,
+  patientVisitsCreateUrl,
+  patientVisitsListUrl,
   patientsListUrl,
   patientsPatchUrl,
   patientsSearchUrl,
@@ -86,6 +88,33 @@ describe("dashboardSummaryUrl", () => {
   it("includes tenantId", () => {
     expect(dashboardSummaryUrl("http://localhost:5050/api", 3)).toBe(
       "http://localhost:5050/api/v1/dashboard/summary?tenantId=3",
+    );
+  });
+});
+
+describe("patientVisitsListUrl", () => {
+  it("returns empty when base is empty", () => {
+    expect(patientVisitsListUrl("", "abc", 1)).toBe("");
+  });
+
+  it("includes path and tenantId", () => {
+    expect(
+      patientVisitsListUrl(
+        "http://localhost:5050/api",
+        "11111111-1111-1111-1111-111111111111",
+        2,
+      ),
+    ).toBe(
+      "http://localhost:5050/api/v1/patients/11111111-1111-1111-1111-111111111111/visits?tenantId=2",
+    );
+  });
+});
+
+describe("patientVisitsCreateUrl", () => {
+  it("matches list URL path with tenant query", () => {
+    const pid = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
+    expect(patientVisitsCreateUrl("http://x/api", pid, 1)).toBe(
+      `http://x/api/v1/patients/${pid}/visits?tenantId=1`,
     );
   });
 });

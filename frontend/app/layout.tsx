@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppNav } from "@/components/AppNav";
+import { ConnectivityBanner } from "@/components/ConnectivityBanner";
 import { PwaHead } from "@/components/PwaHead";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import "./globals.css";
@@ -42,6 +43,7 @@ export default function RootLayout({
       >
         <PwaHead />
         <AppNav />
+        <ConnectivityBanner />
         {children}
         <PwaInstallPrompt />
       </body>

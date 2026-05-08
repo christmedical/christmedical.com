@@ -8,6 +8,11 @@
 
 SET client_encoding = 'UTF-8';
 
+-- Access-export shape lives in staging.* so it does not collide with public.patients (V1 clinical).
+-- V3 load script and ETL use search_path / staging.patients.
+CREATE SCHEMA IF NOT EXISTS staging;
+SET search_path TO staging;
+
 CREATE TABLE IF NOT EXISTS "categories-meds"
  (
 	"categoryid"			SERIAL, 
@@ -87,14 +92,15 @@ CREATE TABLE IF NOT EXISTS "patients"
 	"age"			INTEGER, 
 	"spanish only"			BOOLEAN NOT NULL, 
 	"ptupdatedon"			TIMESTAMP WITHOUT TIME ZONE, 
-	"ptimage"			BYTEA, 
-	"ptimage2"			Unknown_0012, 
+	"ptimage"			BYTEA,
+	-- mdbtools emitted Unknown_0012; use TEXT so CSV \copy and Postgres both work.
+	"ptimage2"			TEXT,
 	"wherelive"			VARCHAR (255), 
 	"infonotes"			VARCHAR (255), 
 	"heardgospel"			DATE, 
 	"suffix"			VARCHAR (255), 
-	"lastreaders"			VARCHAR (25), 
-	"patienttype"			Unknown_0012, 
+	"lastreaders"			VARCHAR (25),
+	"patienttype"			TEXT,
 	"pttype"			VARCHAR (255)
 );
 COMMENT ON COLUMN "patients"."ssno" IS 'Social Security # (only if Pap is being performed)';

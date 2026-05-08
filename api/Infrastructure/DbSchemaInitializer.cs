@@ -33,6 +33,34 @@ public static class DbSchemaInitializer
     }
 
     /// <summary>
+    /// Legacy id + phone columns (ETL adds these; fresh V1-only DBs need them for list/search API).
+    /// </summary>
+    public static async Task EnsurePatientsLegacyAndContactColumnsAsync(
+        IConfiguration configuration,
+        ILogger logger,
+        CancellationToken cancellationToken = default)
+    {
+        var cs = configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrWhiteSpace(cs))
+        {
+            logger.LogWarning("Skipping legacy/contact schema patch: DefaultConnection is not set.");
+            return;
+        }
+
+        const string ddl = """
+            ALTER TABLE public.patients
+                ADD COLUMN IF NOT EXISTS legacy_id VARCHAR(50),
+                ADD COLUMN IF NOT EXISTS home_phone VARCHAR(30),
+                ADD COLUMN IF NOT EXISTS mobile_phone VARCHAR(30);
+            """;
+
+        await using var conn = new NpgsqlConnection(cs);
+        await conn.OpenAsync(cancellationToken);
+        await conn.ExecuteAsync(new CommandDefinition(ddl, cancellationToken: cancellationToken));
+        logger.LogInformation("Ensured patients.legacy_id, home_phone, and mobile_phone exist.");
+    }
+
+    /// <summary>
     /// Phonetic name columns + fuzzystrmatch for dmetaphone search; backfills existing rows.
     /// </summary>
     public static async Task EnsurePatientsPhoneticColumnsAsync(

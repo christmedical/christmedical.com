@@ -203,11 +203,13 @@ Cargo.lock
 # Build and Distribution
 # =======================
 
-# .NET local outputs (api / sync projects)
+# .NET local outputs (api / sync / ETL tool projects)
 api/bin/
 api/obj/
 sync/bin/
 sync/obj/
+conversion/etl-tool/bin/
+conversion/etl-tool/obj/
 tests/**/bin/
 tests/**/obj/
 

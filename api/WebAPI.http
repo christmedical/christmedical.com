@@ -19,3 +19,26 @@ Content-Type: application/json
 }
 
 ###
+
+GET {{WebAPI_HostAddress}}/api/v1/patients/11111111-1111-1111-1111-111111111111/visits?tenantId=1
+Accept: application/json
+
+###
+
+POST {{WebAPI_HostAddress}}/api/v1/patients/11111111-1111-1111-1111-111111111111/visits?tenantId=1
+Content-Type: application/json
+
+{
+  "locationName": "Clinic tent",
+  "chiefComplaint": "Headache",
+  "diagnosisText": "Tension headache",
+  "referralNotes": "Return PRN",
+  "vitals": {
+    "bp": "122/78",
+    "pulse": 72,
+    "tempF": 98.4,
+    "oxygenSat": 98
+  }
+}
+
+###

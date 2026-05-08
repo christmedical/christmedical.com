@@ -165,6 +165,13 @@ Secrets required:
 
 **Namespaces on free Docker Hub:** your **username** is one namespace; you can also create a **free organization** (separate name) and push there if your user is a member with write access. `DOCKERHUB_NAMESPACE` in `.env` should match that namespace (username or org). `DOCKER_USERNAME` / `DOCKER_PASSWORD` are the **account** you authenticate with (often your user + an access token), which may differ from the org name.
 
+**`docker login` succeeds but `docker push` is denied** — usually one of:
+
+1. **Read-only access token** — create a new PAT with **Read & Write** (or full) scope; read-only can still authenticate.
+2. **Wrong Hub username** — use your **Docker Hub ID** from [hub.docker.com → Account settings](https://hub.docker.com/settings/general) (`-u`), not an email or display name. For a personal namespace, `DOCKER_USERNAME` and `DOCKERHUB_NAMESPACE` are normally the same string.
+3. **Stale credentials** — `make deploy` now runs `docker logout docker.io` before a token login. Or sign out of **Docker Desktop** if it keeps logging you in as another user.
+4. **`.env` and `$` in passwords** — GNU Make expands `$` in variables; if your token contains `$`, export the password in the shell instead of putting it in `.env`.
+
 ---
 
 ## Branching

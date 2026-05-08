@@ -127,11 +127,17 @@ demo-down: ## Stop and remove demo stack (ephemeral DB data is discarded)
 # otherwise use existing ~/.docker/config.json or run interactive docker login once.
 deploy-login:
 	@if [ -n "$(DOCKER_USERNAME)" ] && [ -n "$(DOCKER_PASSWORD)" ]; then \
-		printf '%s' '$(DOCKER_PASSWORD)' | docker login -u '$(DOCKER_USERNAME)' --password-stdin; \
+		echo "$(BLUE)Logging in to docker.io as $(DOCKER_USERNAME)$(NC)"; \
+		if [ "$(DOCKER_USERNAME)" != "$(DOCKERHUB_NAMESPACE)" ]; then \
+			echo "$(YELLOW)Note: DOCKER_USERNAME ($(DOCKER_USERNAME)) != DOCKERHUB_NAMESPACE ($(DOCKERHUB_NAMESPACE)).$(NC)"; \
+			echo "$(YELLOW)  Push only works if this account can write to that namespace (org membership, etc.).$(NC)"; \
+		fi; \
+		docker logout docker.io 2>/dev/null || true; \
+		printf '%s' '$(DOCKER_PASSWORD)' | docker login docker.io -u '$(DOCKER_USERNAME)' --password-stdin; \
 	elif [ -f "$(HOME)/.docker/config.json" ] && grep -q 'index.docker.io' "$(HOME)/.docker/config.json" 2>/dev/null; then \
 		echo "$(GREEN)Using existing Docker Hub auth in ~/.docker/config.json$(NC)"; \
 	else \
-		echo "$(YELLOW)No DOCKER_USERNAME/DOCKER_PASSWORD in Makefile env — run: docker login$(NC)"; \
+		echo "$(YELLOW)No DOCKER_USERNAME/DOCKER_PASSWORD in Makefile env — run: docker login docker.io$(NC)"; \
 		docker login docker.io; \
 	fi
 

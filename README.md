@@ -81,6 +81,38 @@ make setup
 
 ---
 
+## Demo (ephemeral, preloaded DB via Docker Compose)
+
+This repo includes a demo compose override that:
+
+- uses an **ephemeral Postgres** (tmpfs-backed) so the database is **discarded** when containers stop
+- includes a **small preloaded dataset** (patients + visits) for a “works immediately” demo
+
+Run (or use Make):
+
+```bash
+export DOCKERHUB_NAMESPACE=<your-dockerhub-username-or-org>
+export IMAGE_TAG=v0.1.0
+
+make demo-up
+# equivalent:
+# docker compose -f docker-compose.yaml -f docker-compose.demo.yaml up -d
+```
+
+Then open:
+
+- UI: `http://localhost:3000`
+- API: `http://localhost:5050/api`
+
+Stop and discard:
+
+```bash
+make demo-down
+# or: docker compose -f docker-compose.yaml -f docker-compose.demo.yaml down
+```
+
+---
+
 ## GitHub Actions — CI and deploy
 
 - **`ci.yml`**: On every push/PR to `main` or `develop` — restore, **verify formatting**, build all solution projects, run **xUnit** + **Vitest**, production **Next.js** build. On pushes to **`main`** only, also runs deploy jobs (below).
@@ -108,6 +140,21 @@ In the Railway project, set the **root directory** to the GitHub repo root and t
 | `VERCEL_PROJECT_ID` | Project id from Vercel |
 
 Set the **production** build command in Vercel to match local checks, e.g. `npm run ci` (or `npm run lint && npm run test && npm run build`).
+
+### Docker Hub (demo images)
+
+When you push a git tag like `v0.1.0`, the workflow **Publish demo images (Docker Hub)** builds and pushes:
+
+- `${DOCKERHUB_USERNAME}/christmedical-api:<tag>`
+- `${DOCKERHUB_USERNAME}/christmedical-web:<tag>`
+- `${DOCKERHUB_USERNAME}/christmedical-demo-db:<tag>`
+
+Secrets required:
+
+| Secret | Purpose |
+|--------|---------|
+| `DOCKERHUB_USERNAME` | Docker Hub username (or org) |
+| `DOCKERHUB_TOKEN` | Docker Hub access token |
 
 ---
 

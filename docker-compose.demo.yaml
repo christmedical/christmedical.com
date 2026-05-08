@@ -1,0 +1,40 @@
+services:
+  # Demo override: ephemeral DB + preloaded sample data.
+  db:
+    build:
+      context: .
+      dockerfile: demo/db/Dockerfile
+    image: ${DOCKERHUB_NAMESPACE:-christmedical}/christmedical-demo-db:${IMAGE_TAG:-latest}
+    container_name: christ_medical_db_demo
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: christ_medical
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    # Ephemeral: DB disappears when the container stops.
+    tmpfs:
+      - /var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  api:
+    image: ${DOCKERHUB_NAMESPACE:-christmedical}/christmedical-api:${IMAGE_TAG:-latest}
+    container_name: christ_medical_api_demo
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=christ_medical;Username=postgres;Password=password
+    ports:
+      - "5050:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    image: ${DOCKERHUB_NAMESPACE:-christmedical}/christmedical-web:${IMAGE_TAG:-latest}
+    container_name: christ_medical_web_demo
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+

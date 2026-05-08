@@ -1,4 +1,4 @@
-.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down build ci
+.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down demo-up demo-down build ci
 
 # Default target
 .DEFAULT_GOAL := help
@@ -20,6 +20,16 @@ DB_URL=postgresql://$(DB_USER):$(DB_PASS)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)
 # Paths
 ROOT_DIR=$(shell pwd)
 ETL_DIR=$(ROOT_DIR)/conversion/etl
+
+# Docker Compose (v2 plugin). Override: make demo-up COMPOSE="docker-compose"
+COMPOSE ?= docker compose
+# Demo stack: ephemeral Postgres + pre-seeded DB; api/web from registry unless you build locally.
+# Optional: export DOCKERHUB_NAMESPACE=myorg IMAGE_TAG=v0.1.0
+DOCKERHUB_NAMESPACE ?= christmedical
+IMAGE_TAG ?= latest
+export DOCKERHUB_NAMESPACE
+export IMAGE_TAG
+COMPOSE_DEMO=-f $(ROOT_DIR)/docker-compose.yaml -f $(ROOT_DIR)/docker-compose.demo.yaml
 EXTRACT_SCRIPT=$(ETL_DIR)/Extract_Access_DB.sh
 DATA_DIR=$(ROOT_DIR)/conversion/data/02_extracted
 
@@ -86,6 +96,17 @@ db-up:
 
 db-down:
 	docker-compose stop db
+
+demo-up: ## Start demo stack (db + api + web) in background; UI http://localhost:3000 API http://localhost:5050/api
+	@echo "$(BLUE)Starting demo stack (DOCKERHUB_NAMESPACE=$(DOCKERHUB_NAMESPACE) IMAGE_TAG=$(IMAGE_TAG))...$(NC)"
+	cd "$(ROOT_DIR)" && $(COMPOSE) $(COMPOSE_DEMO) up -d
+	@echo "$(GREEN)Demo running.$(NC)  Web: http://localhost:3000  API: http://localhost:5050/api"
+	@echo "$(YELLOW)Stop with: make demo-down$(NC)"
+
+demo-down: ## Stop and remove demo stack (ephemeral DB data is discarded)
+	@echo "$(BLUE)Stopping demo stack...$(NC)"
+	cd "$(ROOT_DIR)" && $(COMPOSE) $(COMPOSE_DEMO) down
+	@echo "$(GREEN)Demo stopped.$(NC)"
 
 # - Database Schema Setup
 ## psql $(DB_URL) -f $(SCHEMA_DIR)/V0__Reset_Schema.sql

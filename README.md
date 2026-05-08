@@ -187,7 +187,7 @@ git checkout -b feature/my-fix
 - `GET /api/v1/patients/search?q=&spiritual=all|heard|hope|none&limit=` — name / legacy id search with **Double Metaphone** (`fuzzystrmatch`) on `first_name_phonetic` / `last_name_phonetic` (populated by ETL and backfilled on API startup).
 - `GET|POST /api/v1/patients/{patientId}/visits?tenantId=` — list encounters (newest first) and create a visit with optional `vitals` payload (maps to `visits` + `vitals_core` in Postgres).
 
-Phonetic columns are added in **`conversion/etl/V6__patients_phonetic.sql`** and **`EnsurePatientsPhoneticColumnsAsync`** in the API.
+Phonetic columns are in **`conversion/etl/V6__patients_phonetic.sql`**; legacy id and phone fields for list/search are in **`V7__patients_legacy_contact.sql`** (also applied on API startup via **`EnsurePatientsLegacyAndContactColumnsAsync`** for older DB volumes).
 
 ---
 

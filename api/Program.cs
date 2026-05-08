@@ -31,6 +31,11 @@ await DbSchemaInitializer.EnsurePatientsSpiritualColumnsAsync(
     startupLogger,
     CancellationToken.None);
 
+await DbSchemaInitializer.EnsurePatientsLegacyAndContactColumnsAsync(
+    app.Configuration,
+    startupLogger,
+    CancellationToken.None);
+
 await DbSchemaInitializer.EnsurePatientsPhoneticColumnsAsync(
     app.Configuration,
     startupLogger,

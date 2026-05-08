@@ -8,6 +8,7 @@ COPY conversion/etl/V2__Inital_Staging_Schema.sql /docker-entrypoint-initdb.d/02
 COPY conversion/etl/V4__Patients_spiritual.sql /docker-entrypoint-initdb.d/04_patients_spiritual.sql
 COPY conversion/etl/V5__Clinical_auxiliary.sql /docker-entrypoint-initdb.d/05_clinical_aux.sql
 COPY conversion/etl/V6__patients_phonetic.sql /docker-entrypoint-initdb.d/06_patients_phonetic.sql
+COPY conversion/etl/V7__patients_legacy_contact.sql /docker-entrypoint-initdb.d/07_patients_legacy_contact.sql
 
 COPY demo/db/99_demo_seed.sql /docker-entrypoint-initdb.d/99_demo_seed.sql
 

@@ -8,6 +8,11 @@
 
 SET client_encoding = 'UTF-8';
 
+-- Access-export shape lives in staging.* so it does not collide with public.patients (V1 clinical).
+-- V3 load script and ETL use search_path / staging.patients.
+CREATE SCHEMA IF NOT EXISTS staging;
+SET search_path TO staging;
+
 CREATE TABLE IF NOT EXISTS "categories-meds"
  (
 	"categoryid"			SERIAL, 

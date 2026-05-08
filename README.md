@@ -95,6 +95,7 @@ export DOCKERHUB_NAMESPACE=<your-dockerhub-username-or-org>
 export IMAGE_TAG=v0.1.0
 
 make demo-up
+# or: make docker-up   (same as demo-up)
 # equivalent:
 # docker compose -f docker-compose.demo.yaml up -d
 ```

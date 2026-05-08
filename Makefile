@@ -1,4 +1,4 @@
-.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down demo-up demo-down build ci
+.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down demo-up demo-down docker-up build ci
 
 # Default target
 .DEFAULT_GOAL := help
@@ -97,6 +97,8 @@ db-up:
 
 db-down:
 	docker-compose stop db
+
+docker-up: demo-up ## Alias for demo-up (Docker web + API + ephemeral DB)
 
 demo-up: ## Start demo stack (db + api + web) in background; UI http://localhost:3000 API http://localhost:5050/api
 	@echo "$(BLUE)Starting demo stack (DOCKERHUB_NAMESPACE=$(DOCKERHUB_NAMESPACE) IMAGE_TAG=$(IMAGE_TAG))...$(NC)"

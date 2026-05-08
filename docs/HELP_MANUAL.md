@@ -54,7 +54,8 @@ These numbers help leadership see **gospel engagement** and **chart completeness
 **Navigation:** **Patient list**.
 
 - Loads up to **2,000** patients for the tenant (for offline cache on device).
-- **Save** pushes note and spiritual field changes to the server (**last write wins** if two people edit the same patient).
+- A **global banner** appears at the top when you are offline. You can keep reading and editing, but saving is paused.
+- **Save** pushes note and spiritual field changes to the server (**last write wins** if two people edit the same patient). When offline, **saving is paused** until you reconnect.
 - **Refresh** reloads from the API; offline fallback may show cached data (yellow banner).
 
 ---

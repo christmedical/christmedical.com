@@ -13,6 +13,7 @@ import {
   loadPatientsOffline,
   savePatientsOffline,
 } from "@/lib/offlinePatientsDb";
+import { useOnlineStatus } from "@/lib/onlineStatus";
 import { spiritualStatusBadgeClass } from "@/lib/spiritualBadge";
 import { getTenantBranding } from "@/lib/tenantConfig";
 import { getTenantId } from "@/lib/tenantRuntime";
@@ -52,6 +53,7 @@ export function PatientList() {
   const searchParams = useSearchParams();
   const tenantId = getTenantId();
   const branding = getTenantBranding(tenantId);
+  const online = useOnlineStatus();
 
   const [patients, setPatients] = useState<PatientDto[]>([]);
   const [selected, setSelected] = useState<PatientDto | null>(null);
@@ -128,6 +130,12 @@ export function PatientList() {
 
   const saveDraft = useCallback(async () => {
     if (!selected || draft == null) return;
+    if (!online) {
+      setSaveError(
+        "Offline — saving is paused. Your edits are kept on this device until you reconnect.",
+      );
+      return;
+    }
     const base = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL);
     const tid = getTenantId();
     if (!base) {
@@ -173,7 +181,7 @@ export function PatientList() {
     } finally {
       setSaving(false);
     }
-  }, [draft, selected]);
+  }, [draft, online, selected]);
 
   return (
     <div className="flex min-h-screen flex-col gap-0 md:flex-row">
@@ -279,8 +287,9 @@ export function PatientList() {
         ) : draft == null ? null : (
           <div className="mt-4 space-y-5 text-sm">
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Edits save to the server immediately (last write wins if two people
-              edit the same patient).
+              Edits save to the server (last write wins if two people edit the
+              same patient). If you’re offline, saving is paused until you
+              reconnect.
             </p>
             <dl className="space-y-2">
               <div>
@@ -413,8 +422,11 @@ export function PatientList() {
               <button
                 type="button"
                 disabled={saving}
+                aria-disabled={saving || !online}
                 onClick={() => void saveDraft()}
-                className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-teal-700 disabled:opacity-50"
+                className={`rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-teal-700 disabled:opacity-50 ${
+                  saving || !online ? "cursor-not-allowed opacity-50" : ""
+                }`}
               >
                 {saving ? "Saving…" : "Save"}
               </button>

@@ -1,6 +1,6 @@
 # Christ Medical
 
-**Mission clinic data stack** — .NET API & ETL, Next.js dashboard, Postgres, and offline sync.
+**Mission clinic data stack** — .NET API & ETL, Next.js dashboard, Postgres, and connectivity-aware UX.
 
 <p align="center">
 

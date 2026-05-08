@@ -1,10 +1,17 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PatientDto } from "@/lib/patientTypes";
+import { useOnlineStatus } from "@/lib/onlineStatus";
 import { PatientList } from "./PatientList";
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("@/lib/onlineStatus", () => ({
+  getIsOnline: () => true,
+  subscribeOnlineStatus: () => () => {},
+  useOnlineStatus: vi.fn(() => true),
 }));
 
 const P1 = "11111111-1111-1111-1111-111111111111";
@@ -186,5 +193,41 @@ describe("PatientList", () => {
       `http://localhost:5050/api/v1/patients/${P2}?tenantId=1`,
     );
     expect((patchCall?.[1] as RequestInit)?.method).toBe("PATCH");
+  });
+
+  it("does not PATCH when offline and shows offline save error", async () => {
+    vi.mocked(useOnlineStatus).mockReturnValue(false);
+
+    const fetchMock = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      json: async () => [
+        patient({ id: P1, displayNameMasked: "A***" }),
+        patient({
+          id: P2,
+          displayNameMasked: "B***",
+          spiritualNotes: "Note two",
+        }),
+      ],
+    });
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    render(<PatientList />);
+    const bCell = await screen.findByRole("cell", { name: "B***" });
+    fireEvent.click(bCell.closest("tr")!);
+
+    const spiritual = await screen.findByLabelText(/Spiritual check-up notes/i);
+    fireEvent.change(spiritual, { target: { value: "Offline edit" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() =>
+      expect(
+        screen.getByText(
+          /Offline — saving is paused\. Your edits are kept on this device until you reconnect\./,
+        ),
+      ).toBeInTheDocument(),
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

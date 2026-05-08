@@ -175,6 +175,12 @@ describe("PatientList", () => {
         ok: true,
         status: 200,
         statusText: "OK",
+        json: async () => [],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        statusText: "OK",
         json: async () => updated,
       });
     globalThis.fetch = fetchMock as typeof fetch;
@@ -187,8 +193,8 @@ describe("PatientList", () => {
     fireEvent.change(spiritual, { target: { value: "Saved note" } });
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
-    const patchCall = fetchMock.mock.calls[1];
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    const patchCall = fetchMock.mock.calls[2];
     expect(patchCall?.[0]).toBe(
       `http://localhost:5050/api/v1/patients/${P2}?tenantId=1`,
     );
@@ -198,19 +204,27 @@ describe("PatientList", () => {
   it("does not PATCH when offline and shows offline save error", async () => {
     vi.mocked(useOnlineStatus).mockReturnValue(false);
 
-    const fetchMock = vi.fn().mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      statusText: "OK",
-      json: async () => [
-        patient({ id: P1, displayNameMasked: "A***" }),
-        patient({
-          id: P2,
-          displayNameMasked: "B***",
-          spiritualNotes: "Note two",
-        }),
-      ],
-    });
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        json: async () => [
+          patient({ id: P1, displayNameMasked: "A***" }),
+          patient({
+            id: P2,
+            displayNameMasked: "B***",
+            spiritualNotes: "Note two",
+          }),
+        ],
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        json: async () => [],
+      });
     globalThis.fetch = fetchMock as typeof fetch;
 
     render(<PatientList />);
@@ -228,6 +242,9 @@ describe("PatientList", () => {
         ),
       ).toBeInTheDocument(),
     );
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const patchCalls = fetchMock.mock.calls.filter(
+      (c) => (c[1] as RequestInit | undefined)?.method === "PATCH",
+    );
+    expect(patchCalls).toHaveLength(0);
   });
 });

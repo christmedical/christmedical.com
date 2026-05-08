@@ -176,12 +176,13 @@ git checkout -b feature/my-fix
 - `scripts/` — setup and maintenance  
 - `.github/workflows/` — CI/CD  
 - `conversion/` — SQL, staging load, ETL, appliance images  
-- `docs/` — architecture, database notes, **`HELP_MANUAL.md`** (draft user help)
+- `docs/` — architecture, database notes, **`HELP_MANUAL.md`** (draft user help), **`EMR_ROADMAP_CHECKLIST.md`** (EMR + spiritual roadmap)
 
 ### Dashboard and search (API)
 
 - `GET /api/v1/dashboard/summary?tenantId=` — spiritual and medical documentation aggregates.
 - `GET /api/v1/patients/search?q=&spiritual=all|heard|hope|none&limit=` — name / legacy id search with **Double Metaphone** (`fuzzystrmatch`) on `first_name_phonetic` / `last_name_phonetic` (populated by ETL and backfilled on API startup).
+- `GET|POST /api/v1/patients/{patientId}/visits?tenantId=` — list encounters (newest first) and create a visit with optional `vitals` payload (maps to `visits` + `vitals_core` in Postgres).
 
 Phonetic columns are added in **`conversion/etl/V6__patients_phonetic.sql`** and **`EnsurePatientsPhoneticColumnsAsync`** in the API.
 

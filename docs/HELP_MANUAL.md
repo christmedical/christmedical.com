@@ -2,7 +2,7 @@
 
 Living document for clinic staff and developers. We will refine this into official documentation and/or seed a help chat assistant.
 
-**Last reviewed:** 2026-04-05 (dashboard, patient search, phonetic names).
+**Last reviewed:** 2026-05-08 (encounters + vitals on patient chart).
 
 ---
 
@@ -57,6 +57,7 @@ These numbers help leadership see **gospel engagement** and **chart completeness
 - A **global banner** appears at the top when you are offline. You can keep reading and editing, but saving is paused.
 - **Save** pushes note and spiritual field changes to the server (**last write wins** if two people edit the same patient). When offline, **saving is paused** until you reconnect.
 - **Refresh** reloads from the API; offline fallback may show cached data (yellow banner).
+- **Encounters** (under the longitudinal notes): add a dated visit with **chief complaint, assessment/diagnosis, plan/referral**, optional **vitals**, and **site + encounter time**. The form is ordered for a typical **physician → nursing → staff** flow; saving an encounter requires an online API (unlike cached patient list browsing).
 
 ---
 

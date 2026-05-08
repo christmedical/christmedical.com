@@ -7,6 +7,7 @@ builder.Services.AddResponseCaching();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IVisitService, VisitService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 builder.Services.AddCors(options =>

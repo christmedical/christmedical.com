@@ -55,3 +55,25 @@ export function dashboardSummaryUrl(base: string, tenantId: number): string {
   if (!base) return "";
   return `${base}/v1/dashboard/summary?tenantId=${tenantId}`;
 }
+
+/** GET /v1/patients/{patientId}/visits */
+export function patientVisitsListUrl(
+  base: string,
+  patientId: string,
+  tenantId: number,
+): string {
+  if (!base) return "";
+  const q = new URLSearchParams({ tenantId: String(tenantId) });
+  return `${base}/v1/patients/${encodeURIComponent(patientId)}/visits?${q}`;
+}
+
+/** POST /v1/patients/{patientId}/visits */
+export function patientVisitsCreateUrl(
+  base: string,
+  patientId: string,
+  tenantId: number,
+): string {
+  if (!base) return "";
+  const q = new URLSearchParams({ tenantId: String(tenantId) });
+  return `${base}/v1/patients/${encodeURIComponent(patientId)}/visits?${q}`;
+}

@@ -29,7 +29,8 @@ DOCKERHUB_NAMESPACE ?= christmedical
 IMAGE_TAG ?= latest
 export DOCKERHUB_NAMESPACE
 export IMAGE_TAG
-COMPOSE_DEMO=-f $(ROOT_DIR)/docker-compose.yaml -f $(ROOT_DIR)/docker-compose.demo.yaml
+# Standalone file (avoids merge with base db volumes + tmpfs conflict on older Compose).
+COMPOSE_DEMO=-f $(ROOT_DIR)/docker-compose.demo.yaml
 EXTRACT_SCRIPT=$(ETL_DIR)/Extract_Access_DB.sh
 DATA_DIR=$(ROOT_DIR)/conversion/data/02_extracted
 
@@ -100,8 +101,17 @@ db-down:
 demo-up: ## Start demo stack (db + api + web) in background; UI http://localhost:3000 API http://localhost:5050/api
 	@echo "$(BLUE)Starting demo stack (DOCKERHUB_NAMESPACE=$(DOCKERHUB_NAMESPACE) IMAGE_TAG=$(IMAGE_TAG))...$(NC)"
 	cd "$(ROOT_DIR)" && $(COMPOSE) $(COMPOSE_DEMO) up -d
-	@echo "$(GREEN)Demo running.$(NC)  Web: http://localhost:3000  API: http://localhost:5050/api"
-	@echo "$(YELLOW)Stop with: make demo-down$(NC)"
+	@echo ""
+	@echo "$(GREEN)Demo containers are up.$(NC)"
+	@echo "$(GREEN)  → Open the app:$(NC)  http://localhost:3000"
+	@echo "$(GREEN)  → API base:$(NC)       http://localhost:5050/api"
+	@echo "$(GREEN)  → Example:$(NC)        http://localhost:5050/api/v1/patients?tenantId=1"
+	@echo ""
+	@cd "$(ROOT_DIR)" && $(COMPOSE) $(COMPOSE_DEMO) ps
+	@echo ""
+	@echo "$(YELLOW)Logs (if a page is blank):$(NC) $(COMPOSE) $(COMPOSE_DEMO) logs -f web"
+	@echo "$(YELLOW)Stop:$(NC) make demo-down"
+	@echo ""
 
 demo-down: ## Stop and remove demo stack (ephemeral DB data is discarded)
 	@echo "$(BLUE)Stopping demo stack...$(NC)"

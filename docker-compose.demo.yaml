@@ -1,5 +1,8 @@
+# Standalone demo stack (do not merge with docker-compose.yaml — older Compose merges
+# kept a postgres_data volume on top of tmpfs and broke the DB).
+# Optional: export DOCKERHUB_NAMESPACE=myorg IMAGE_TAG=v0.1.0
+
 services:
-  # Demo override: ephemeral DB + preloaded sample data.
   db:
     build:
       context: .
@@ -11,15 +14,23 @@ services:
       POSTGRES_DB: christ_medical
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-    # Ephemeral: DB disappears when the container stops.
     tmpfs:
       - /var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d christ_medical"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
     image: ${DOCKERHUB_NAMESPACE:-christmedical}/christmedical-api:${IMAGE_TAG:-latest}
     container_name: christ_medical_api_demo
+    restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
@@ -31,10 +42,15 @@ services:
         condition: service_healthy
 
   web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:5050/api
     image: ${DOCKERHUB_NAMESPACE:-christmedical}/christmedical-web:${IMAGE_TAG:-latest}
     container_name: christ_medical_web_demo
+    restart: unless-stopped
     ports:
       - "3000:3000"
     depends_on:
       - api
-

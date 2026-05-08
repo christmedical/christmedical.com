@@ -96,19 +96,21 @@ export IMAGE_TAG=v0.1.0
 
 make demo-up
 # equivalent:
-# docker compose -f docker-compose.yaml -f docker-compose.demo.yaml up -d
+# docker compose -f docker-compose.demo.yaml up -d
 ```
 
-Then open:
+Then open in a browser (Compose does not open a window for you):
 
-- UI: `http://localhost:3000`
-- API: `http://localhost:5050/api`
+- **UI:** http://localhost:3000  
+- **API:** http://localhost:5050/api (try http://localhost:5050/api/v1/patients?tenantId=1)
+
+`make demo-up` prints these URLs again after `docker compose up` finishes. If the UI is blank or errors, check `docker compose -f docker-compose.demo.yaml ps` and `docker compose -f docker-compose.demo.yaml logs web` (or `api`).
 
 Stop and discard:
 
 ```bash
 make demo-down
-# or: docker compose -f docker-compose.yaml -f docker-compose.demo.yaml down
+# or: docker compose -f docker-compose.demo.yaml down
 ```
 
 ---

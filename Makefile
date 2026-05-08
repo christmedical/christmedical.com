@@ -1,7 +1,10 @@
-.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down demo-up demo-down docker-up build ci
+.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down demo-up demo-down docker-up deploy deploy-login build ci
 
 # Default target
 .DEFAULT_GOAL := help
+
+# Optional local overrides (copy .env.example → .env). Keeps secrets out of git.
+-include .env
 
 # Colors for output (if terminal supports it)
 BLUE := \033[0;34m
@@ -24,7 +27,7 @@ ETL_DIR=$(ROOT_DIR)/conversion/etl
 # Docker Compose (v2 plugin). Override: make demo-up COMPOSE="docker-compose"
 COMPOSE ?= docker compose
 # Demo stack: ephemeral Postgres + pre-seeded DB; api/web from registry unless you build locally.
-# Optional: export DOCKERHUB_NAMESPACE=myorg IMAGE_TAG=v0.1.0
+# Defaults apply when .env is missing; .env overrides via include above.
 DOCKERHUB_NAMESPACE ?= christmedical
 IMAGE_TAG ?= latest
 export DOCKERHUB_NAMESPACE
@@ -119,6 +122,38 @@ demo-down: ## Stop and remove demo stack (ephemeral DB data is discarded)
 	@echo "$(BLUE)Stopping demo stack...$(NC)"
 	cd "$(ROOT_DIR)" && $(COMPOSE) $(COMPOSE_DEMO) down
 	@echo "$(GREEN)Demo stopped.$(NC)"
+
+# Docker Hub: non-interactive login when DOCKER_USERNAME + DOCKER_PASSWORD are set (e.g. from .env);
+# otherwise use existing ~/.docker/config.json or run interactive docker login once.
+deploy-login:
+	@if [ -n "$(DOCKER_USERNAME)" ] && [ -n "$(DOCKER_PASSWORD)" ]; then \
+		printf '%s' '$(DOCKER_PASSWORD)' | docker login -u '$(DOCKER_USERNAME)' --password-stdin; \
+	elif [ -f "$(HOME)/.docker/config.json" ] && grep -q 'index.docker.io' "$(HOME)/.docker/config.json" 2>/dev/null; then \
+		echo "$(GREEN)Using existing Docker Hub auth in ~/.docker/config.json$(NC)"; \
+	else \
+		echo "$(YELLOW)No DOCKER_USERNAME/DOCKER_PASSWORD in Makefile env — run: docker login$(NC)"; \
+		docker login docker.io; \
+	fi
+
+deploy: deploy-login ## Build and push christmedical-api, christmedical-web, christmedical-demo-db to Docker Hub
+	@echo "$(BLUE)Building and pushing $(DOCKERHUB_NAMESPACE)/*:$(IMAGE_TAG) ...$(NC)"
+	cd "$(ROOT_DIR)" && docker build -f api/Dockerfile \
+		-t "$(DOCKERHUB_NAMESPACE)/christmedical-api:$(IMAGE_TAG)" \
+		-t "$(DOCKERHUB_NAMESPACE)/christmedical-api:latest" .
+	cd "$(ROOT_DIR)" && docker build -f frontend/Dockerfile \
+		--build-arg NEXT_PUBLIC_API_URL=http://localhost:5050/api \
+		-t "$(DOCKERHUB_NAMESPACE)/christmedical-web:$(IMAGE_TAG)" \
+		-t "$(DOCKERHUB_NAMESPACE)/christmedical-web:latest" .
+	cd "$(ROOT_DIR)" && docker build -f demo/db/Dockerfile \
+		-t "$(DOCKERHUB_NAMESPACE)/christmedical-demo-db:$(IMAGE_TAG)" \
+		-t "$(DOCKERHUB_NAMESPACE)/christmedical-demo-db:latest" .
+	docker push "$(DOCKERHUB_NAMESPACE)/christmedical-api:$(IMAGE_TAG)"
+	docker push "$(DOCKERHUB_NAMESPACE)/christmedical-api:latest"
+	docker push "$(DOCKERHUB_NAMESPACE)/christmedical-web:$(IMAGE_TAG)"
+	docker push "$(DOCKERHUB_NAMESPACE)/christmedical-web:latest"
+	docker push "$(DOCKERHUB_NAMESPACE)/christmedical-demo-db:$(IMAGE_TAG)"
+	docker push "$(DOCKERHUB_NAMESPACE)/christmedical-demo-db:latest"
+	@echo "$(GREEN)Published.$(NC) Pull with: DOCKERHUB_NAMESPACE=$(DOCKERHUB_NAMESPACE) IMAGE_TAG=$(IMAGE_TAG) make docker-up"
 
 # - Database Schema Setup
 ## psql $(DB_URL) -f $(SCHEMA_DIR)/V0__Reset_Schema.sql

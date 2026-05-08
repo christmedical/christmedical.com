@@ -91,6 +91,8 @@ This repo includes a demo compose override that:
 Run (or use Make):
 
 ```bash
+# Either set variables inline, or copy .env.example → .env (gitignored) with
+# DOCKERHUB_NAMESPACE, IMAGE_TAG, and optional DOCKER_* for `make deploy`.
 export DOCKERHUB_NAMESPACE=<your-dockerhub-username-or-org>
 export IMAGE_TAG=v0.1.0
 
@@ -99,6 +101,8 @@ make demo-up
 # equivalent:
 # docker compose -f docker-compose.demo.yaml up -d
 ```
+
+**Publish images from your machine:** with `.env` filled in, run `make deploy` (logs in to Docker Hub when `DOCKER_USERNAME` and `DOCKER_PASSWORD` are set, otherwise reuses `~/.docker/config.json` or runs interactive `docker login`). See **`.env.example`** for the full variable list.
 
 Then open in a browser (Compose does not open a window for you):
 
@@ -159,6 +163,8 @@ Secrets required:
 | `DOCKERHUB_USERNAME` | Docker Hub username (or org) |
 | `DOCKERHUB_TOKEN` | Docker Hub access token |
 
+**Namespaces on free Docker Hub:** your **username** is one namespace; you can also create a **free organization** (separate name) and push there if your user is a member with write access. `DOCKERHUB_NAMESPACE` in `.env` should match that namespace (username or org). `DOCKER_USERNAME` / `DOCKER_PASSWORD` are the **account** you authenticate with (often your user + an access token), which may differ from the org name.
+
 ---
 
 ## Branching
@@ -179,7 +185,8 @@ git checkout -b feature/my-fix
 - `scripts/` — setup and maintenance  
 - `.github/workflows/` — CI/CD  
 - `conversion/` — SQL, staging load, ETL, appliance images  
-- `docs/` — architecture, database notes, **`HELP_MANUAL.md`** (draft user help), **`EMR_ROADMAP_CHECKLIST.md`** (EMR + spiritual roadmap)
+- `docs/` — architecture, database notes, **`HELP_MANUAL.md`** (draft user help), **`EMR_ROADMAP_CHECKLIST.md`** (EMR + spiritual roadmap)  
+- **`.env.example`** — template for local Docker Hub demo/push vars (copy to **`.env`**, gitignored)
 
 ### Dashboard and search (API)
 

@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Christ Medical EMR — Wireframes (Review)</title>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+        :root {
+            --purple:      #3C3489;
+            --purple-mid:  #534AB7;
+            --purple-lt:   #EEEDFE;
+            --purple-dim:  #CECBF6;
+            --red-bg:      #FCEBEB;
+            --red-txt:     #A32D2D;
+            --red-brd:     #E24B4A;
+            --amber-bg:    #FAEEDA;
+            --amber-txt:   #854F0B;
+            --amber-brd:   #BA7517;
+            --green-bg:    #EAF3DE;
+            --green-txt:   #3B6D11;
+            --green-brd:   #639922;
+            --blue-bg:     #E6F1FB;
+            --blue-txt:    #0C447C;
+            --blue-brd:    #378ADD;
+            --pink-bg:     #FBEAF0;
+            --pink-txt:    #72243E;
+            --pink-brd:    #D4537E;
+            --bg:          #FAFAFA;
+            --bg2:         #F4F4F6;
+            --bg3:         #EDECF2;
+            --brd:         rgba(0,0,0,.08);
+            --brd2:        rgba(0,0,0,.05);
+            --txt1:        #111118;
+            --txt2:        #44444F;
+            --txt3:        #888898;
+            --txt4:        #BCBCCC;
+            --radius:      10px;
+            --radius-sm:   6px;
+            --sans:        'DM Sans', system-ui, sans-serif;
+            --mono:        'DM Mono', monospace;
+            --shadow:      0 1px 3px rgba(0,0,0,.06), 0 0 0 0.5px rgba(0,0,0,.07);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--sans);
+            background: #E8E7F0;
+            min-height: 100vh;
+            padding: 16px;
+            color: var(--txt1);
+        }
+
+        /* ── Page header ── */
+        .page-header {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap;
+        }
+        .page-header .cross { font-size: 22px; color: var(--purple); }
+        .page-header h1 { font-size: 17px; font-weight: 600; color: var(--purple); }
+        .page-header p  { font-size: 11px; color: var(--txt3); margin-top: 1px; }
+        .page-header .version {
+            margin-left: auto; font-size: 10px; font-family: var(--mono);
+            color: var(--txt3); background: var(--bg2); padding: 3px 8px;
+            border-radius: 20px; border: 0.5px solid var(--brd);
+        }
+
+        /* ── Reviewer bar ── */
+        .reviewer-bar {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+            background: white; border-radius: var(--radius-sm); padding: 10px 14px;
+            border: 0.5px solid var(--brd); flex-wrap: wrap;
+        }
+        .reviewer-bar label { font-size: 11px; font-weight: 500; color: var(--txt2); }
+        .reviewer-bar input {
+            border: 0.5px solid var(--brd); border-radius: var(--radius-sm);
+            padding: 5px 10px; font-size: 12px; font-family: var(--sans);
+            color: var(--txt1); background: var(--bg2); width: 180px;
+        }
+        .reviewer-bar input:focus { outline: none; border-color: var(--purple); background: white; }
+        .mode-toggle {
+            display: flex; gap: 4px; margin-left: auto;
+        }
+        .mode-btn {
+            padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 500;
+            cursor: pointer; border: 0.5px solid var(--brd); background: white;
+            color: var(--txt2); transition: all .12s; user-select: none;
+        }
+        .mode-btn.active { background: var(--purple); color: white; border-color: var(--purple); }
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: #ccc;
+            flex-shrink: 0; transition: background .3s;
+        }
+        .status-dot.connected { background: #52C878; }
+        .status-label { font-size: 10px; color: var(--txt3); }
+
+        /* ── Screen nav pills ── */
+        .screen-nav {
+            display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px;
+        }
+        .snav {
+            padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 500;
+            cursor: pointer; border: 0.5px solid var(--brd); background: white;
+            color: var(--txt2); transition: all .15s; user-select: none;
+            min-height: 36px; display: flex; align-items: center;
+        }
+        .snav:hover { background: var(--purple-lt); color: var(--purple); border-color: var(--purple-dim); }
+        .snav.active { background: var(--purple); color: white; border-color: var(--purple); }
+        .snav .pin-count {
+            margin-left: 5px; background: rgba(255,255,255,.25); color: inherit;
+            border-radius: 10px; font-size: 9px; padding: 1px 5px; font-weight: 600;
+        }
+        .snav:not(.active) .pin-count { background: var(--purple-lt); color: var(--purple); }
+
+        /* ── App frame ── */
+        .app-wrap { position: relative; }
+        .app {
+            display: flex; background: white; border-radius: var(--radius);
+            box-shadow: var(--shadow), 0 8px 32px rgba(60,52,137,.08);
+            overflow: hidden; min-height: 600px; border: 0.5px solid var(--brd);
+            position: relative;
+        }
+
+        /* ── Annotation overlay ── */
+        #anno-layer {
+            position: absolute; inset: 0; z-index: 100;
+            pointer-events: none;
+        }
+        body.annotating #anno-layer { pointer-events: all; cursor: crosshair; }
+        body.annotating .app { cursor: crosshair; }
+
+        /* ── Pins ── */
+        .pin {
+            position: absolute; width: 28px; height: 28px;
+            border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; pointer-events: all;
+            box-shadow: 0 2px 6px rgba(0,0,0,.25);
+            transition: transform .15s;
+            border: 2px solid rgba(255,255,255,.7);
+        }
+        .pin:hover { transform: rotate(-45deg) scale(1.15); }
+        .pin .pin-num {
+            transform: rotate(45deg); font-size: 10px; font-weight: 700;
+            color: white; line-height: 1;
+        }
+        .pin.resolved { opacity: 0.45; }
+
+        /* Pin colors per reviewer */
+        .pin-color-0 { background: #E24B4A; }
+        .pin-color-1 { background: #534AB7; }
+        .pin-color-2 { background: #0F7B5A; }
+        .pin-color-3 { background: #B07820; }
+        .pin-color-4 { background: #C4508A; }
+
+        /* ── Comment popup ── */
+        .pin-popup {
+            position: absolute; background: white; border-radius: var(--radius);
+            box-shadow: 0 4px 20px rgba(0,0,0,.18), 0 0 0 0.5px rgba(0,0,0,.08);
+            padding: 12px 14px; width: 260px; z-index: 200; pointer-events: all;
+        }
+        .pin-popup .pop-header {
+            display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
+        }
+        .pop-avatar {
+            width: 22px; height: 22px; border-radius: 50%;
+            font-size: 8px; font-weight: 700; color: white;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .pop-meta { flex: 1; }
+        .pop-name { font-size: 11px; font-weight: 600; color: var(--txt1); }
+        .pop-screen { font-size: 9px; color: var(--txt3); }
+        .pop-close {
+            width: 20px; height: 20px; border-radius: 50%; background: var(--bg2);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 12px; color: var(--txt3); flex-shrink: 0;
+        }
+        .pop-close:hover { background: var(--red-bg); color: var(--red-txt); }
+        .pin-popup textarea {
+            width: 100%; border: 0.5px solid var(--brd); border-radius: var(--radius-sm);
+            background: var(--bg2); padding: 8px 10px; font-size: 12px;
+            font-family: var(--sans); color: var(--txt1); resize: none;
+            min-height: 72px; line-height: 1.5;
+        }
+        .pin-popup textarea:focus { outline: none; border-color: var(--purple); background: white; }
+        .pin-popup textarea[readonly] {
+            background: var(--bg2); color: var(--txt2); cursor: default;
+        }
+        .pop-actions { display: flex; gap: 6px; margin-top: 8px; }
+        .pop-btn {
+            padding: 5px 12px; border-radius: var(--radius-sm); font-size: 11px;
+            font-weight: 500; cursor: pointer; border: 0.5px solid var(--brd);
+            color: var(--txt2); background: white; font-family: var(--sans);
+        }
+        .pop-btn.pri { background: var(--purple); color: white; border-color: var(--purple); }
+        .pop-btn.danger { background: var(--red-bg); color: var(--red-txt); border-color: var(--red-brd); }
+        .pop-btn.resolve { background: var(--green-bg); color: var(--green-txt); border-color: var(--green-brd); }
+        .pop-time { font-size: 9px; color: var(--txt3); margin-top: 6px; }
+
+        /* ── Comments panel ── */
+        #comments-panel {
+            position: fixed; right: 0; top: 0; bottom: 0; width: 300px;
+            background: white; border-left: 0.5px solid var(--brd);
+            box-shadow: -4px 0 20px rgba(0,0,0,.08);
+            display: flex; flex-direction: column; z-index: 500;
+            transform: translateX(100%); transition: transform .25s ease;
+        }
+        #comments-panel.open { transform: translateX(0); }
+        .panel-header {
+            padding: 14px 16px; border-bottom: 0.5px solid var(--brd);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .panel-header h2 { font-size: 14px; font-weight: 600; color: var(--txt1); flex: 1; }
+        .panel-close {
+            width: 28px; height: 28px; border-radius: 50%; background: var(--bg2);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 16px; color: var(--txt3);
+        }
+        .panel-close:hover { background: var(--red-bg); color: var(--red-txt); }
+        .panel-filters {
+            padding: 10px 16px; border-bottom: 0.5px solid var(--brd);
+            display: flex; gap: 6px; flex-wrap: wrap;
+        }
+        .filter-pill {
+            padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 500;
+            cursor: pointer; border: 0.5px solid var(--brd); background: var(--bg2);
+            color: var(--txt3); user-select: none;
+        }
+        .filter-pill.active { background: var(--purple); color: white; border-color: var(--purple); }
+        .panel-list { flex: 1; overflow-y: auto; padding: 10px 14px; }
+        .comment-card {
+            background: var(--bg2); border-radius: var(--radius-sm); padding: 10px 12px;
+            margin-bottom: 8px; border: 0.5px solid var(--brd); cursor: pointer;
+            transition: border-color .12s;
+        }
+        .comment-card:hover { border-color: var(--purple-dim); }
+        .comment-card.resolved { opacity: 0.5; }
+        .cc-header { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+        .cc-avatar {
+            width: 20px; height: 20px; border-radius: 50%; font-size: 7px;
+            font-weight: 700; color: white;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .cc-name { font-size: 10px; font-weight: 600; color: var(--txt1); flex: 1; }
+        .cc-screen {
+            font-size: 8.5px; color: white; background: var(--purple);
+            padding: 1px 6px; border-radius: 10px; font-weight: 500;
+        }
+        .cc-text { font-size: 11px; color: var(--txt2); line-height: 1.4; }
+        .cc-time { font-size: 9px; color: var(--txt3); margin-top: 4px; }
+        .cc-resolved { font-size: 9px; color: var(--green-txt); margin-top: 2px; font-weight: 500; }
+        .panel-empty {
+            text-align: center; padding: 40px 20px; color: var(--txt3); font-size: 12px;
+        }
+
+        /* ── Floating toggle button ── */
+        #panel-toggle {
+            position: fixed; right: 16px; bottom: 24px; z-index: 400;
+            background: var(--purple); color: white; border: none;
+            border-radius: 28px; padding: 12px 18px; font-size: 13px; font-weight: 600;
+            font-family: var(--sans); cursor: pointer; display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 16px rgba(60,52,137,.35);
+            transition: all .15s;
+        }
+        #panel-toggle:hover { background: #2e2870; transform: translateY(-1px); }
+        #panel-toggle .count {
+            background: white; color: var(--purple); border-radius: 10px;
+            padding: 1px 7px; font-size: 11px; font-weight: 700;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: 158px; flex-shrink: 0; background: var(--bg2);
+            border-right: 0.5px solid var(--brd); display: flex; flex-direction: column;
+        }
+        .s-logo { padding: 14px 12px 12px; border-bottom: 0.5px solid var(--brd); }
+        .s-logo-row { display: flex; align-items: center; gap: 7px; }
+        .s-logo-cross { font-size: 18px; color: var(--purple-mid); }
+        .s-logo-name { font-size: 12px; font-weight: 600; color: var(--txt1); }
+        .s-logo-tag  { font-size: 8.5px; color: var(--txt3); margin-top: 1px; }
+        .s-section {
+            font-size: 8px; font-weight: 600; letter-spacing: .08em;
+            text-transform: uppercase; color: var(--txt4); padding: 10px 12px 3px;
+        }
+        .nav-item {
+            display: flex; align-items: center; gap: 8px; padding: 7px 12px;
+            font-size: 11px; color: var(--txt2); cursor: pointer;
+            border-left: 2px solid transparent; transition: all .12s; user-select: none;
+        }
+        .nav-item:hover { background: rgba(83,74,183,.06); color: var(--txt1); }
+        .nav-item.on { color: var(--purple); border-left-color: var(--purple); font-weight: 500; background: rgba(83,74,183,.07); }
+        .nav-item .icon { font-size: 15px; flex-shrink: 0; }
+        .s-foot { margin-top: auto; border-top: 0.5px solid var(--brd); padding: 11px 12px; }
+        .prov-row { display: flex; align-items: center; gap: 7px; }
+        .prov-av {
+            width: 26px; height: 26px; border-radius: 50%; background: var(--purple-lt);
+            color: var(--purple); font-size: 9px; font-weight: 600;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .prov-name { font-size: 10px; font-weight: 500; color: var(--txt1); }
+        .prov-role { font-size: 8.5px; color: var(--txt3); }
+
+        /* ── Main area ── */
+        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .topbar {
+            padding: 10px 16px; border-bottom: 0.5px solid var(--brd);
+            display: flex; align-items: center; gap: 8px; flex-shrink: 0; background: white;
+        }
+        .tb-title { font-size: 14px; font-weight: 600; color: var(--txt1); flex: 1; }
+        .badge { padding: 2px 8px; border-radius: 20px; font-size: 9.5px; font-weight: 500; }
+        .b-info   { background: var(--blue-bg);   color: var(--blue-txt); }
+        .b-wait   { background: var(--amber-bg);  color: var(--amber-txt); }
+        .b-seen   { background: var(--green-bg);  color: var(--green-txt); }
+        .b-urg    { background: var(--red-bg);    color: var(--red-txt); }
+        .b-pray   { background: var(--purple-lt); color: var(--purple-mid); }
+        .content { flex: 1; padding: 14px 16px; overflow: auto; background: var(--bg); }
+
+        .screen { display: none; }
+        .screen.on { display: block; }
+        .row2 { display: flex; gap: 12px; margin-bottom: 10px; }
+        .col  { flex: 1; min-width: 0; }
+
+        .card {
+            background: white; border: 0.5px solid var(--brd); border-radius: var(--radius-sm);
+            padding: 10px 12px; margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,.03);
+        }
+        .ct {
+            font-size: 9.5px; font-weight: 600; color: var(--txt2);
+            margin-bottom: 7px; padding-bottom: 5px; border-bottom: 0.5px solid var(--brd2);
+            display: flex; align-items: center; gap: 5px;
+        }
+        .ct .icon { font-size: 14px; }
+        .stats { display: flex; gap: 6px; margin-bottom: 10px; }
+        .stat {
+            flex: 1; background: white; border-radius: var(--radius-sm);
+            padding: 9px 10px; text-align: center; border: 0.5px solid var(--brd);
+            box-shadow: 0 1px 2px rgba(0,0,0,.03);
+        }
+        .sn { font-size: 22px; font-weight: 600; color: var(--txt1); }
+        .sl { font-size: 8.5px; color: var(--txt3); margin-top: 2px; }
+        .f {
+            height: 30px; border: 0.5px solid var(--brd); border-radius: var(--radius-sm);
+            background: var(--bg2); display: flex; align-items: center; padding: 0 9px; margin-bottom: 5px;
+        }
+        .fl { font-size: 9.5px; color: var(--txt3); }
+        .frow { display: flex; gap: 5px; }
+        .frow .f { flex: 1; }
+        .fta {
+            min-height: 52px; border: 0.5px solid var(--brd); border-radius: var(--radius-sm);
+            background: var(--bg2); padding: 7px 9px; margin-bottom: 5px;
+            font-size: 9.5px; color: var(--txt3);
+        }
+        .btn {
+            padding: 6px 12px; border-radius: var(--radius-sm); font-size: 10.5px; font-weight: 500;
+            display: inline-block; cursor: pointer; border: 0.5px solid var(--brd);
+            color: var(--txt2); background: white; transition: all .12s; font-family: var(--sans);
+        }
+        .btn:hover { background: var(--bg2); }
+        .btn.pri { background: var(--purple); color: white; border-color: var(--purple); }
+        .btn.pri:hover { background: #2e2870; }
+        .btn.ghost { color: var(--txt3); border-style: dashed; background: transparent; }
+        .btn.ghost:hover { background: var(--bg2); color: var(--txt2); }
+        .btn.sm { padding: 3px 8px; font-size: 9px; }
+        .btn.full { width: 100%; text-align: center; display: block; margin-top: 5px; }
+        .btn.danger { background: var(--red-bg); color: var(--red-txt); border-color: var(--red-brd); }
+        .li {
+            display: flex; align-items: center; gap: 8px; padding: 7px 0;
+            border-bottom: 0.5px solid var(--brd2); font-size: 10.5px; color: var(--txt2);
+        }
+        .li:last-child { border-bottom: none; }
+        .li-name { font-size: 11px; font-weight: 500; color: var(--txt1); }
+        .li-sub  { font-size: 8.5px; color: var(--txt3); margin-top: 1px; }
+        .av {
+            width: 28px; height: 28px; border-radius: 50%; background: var(--purple-lt);
+            color: var(--purple); font-size: 9px; font-weight: 600;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .av.red  { background: var(--red-bg);   color: var(--red-txt); }
+        .av.grn  { background: var(--green-bg); color: var(--green-txt); }
+        .av.amb  { background: var(--amber-bg); color: var(--amber-txt); }
+        .av.pink { background: var(--pink-bg);  color: var(--pink-txt); }
+        .av.lg   { width: 36px; height: 36px; font-size: 11px; }
+        .soap { padding: 7px 10px; margin-bottom: 5px; font-size: 9.5px; }
+        .soap.s { background: var(--blue-bg);   border-left: 2.5px solid var(--blue-brd);  color: var(--blue-txt); }
+        .soap.o { background: var(--green-bg);  border-left: 2.5px solid var(--green-brd); color: var(--green-txt); }
+        .soap.a { background: var(--amber-bg);  border-left: 2.5px solid var(--amber-brd); color: var(--amber-txt); }
+        .soap.p { background: var(--purple-lt); border-left: 2.5px solid var(--purple-mid);color: var(--purple); }
+        .soap.pr{ background: var(--pink-bg);   border-left: 2.5px solid var(--pink-brd);  color: var(--pink-txt); }
+        .soap-lbl { font-size: 8px; font-weight: 600; margin-bottom: 3px; opacity: .7; text-transform: uppercase; letter-spacing: .04em; }
+        .faux { height: 11px; background: currentColor; opacity: .12; border-radius: 3px; margin-top: 4px; }
+        .faux.w80 { width: 80%; } .faux.w60 { width: 60%; } .faux.w45 { width: 45%; }
+        .vitals { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 6px 0; }
+        .vit { background: var(--bg2); border-radius: var(--radius-sm); padding: 6px 8px; }
+        .vit-v { font-size: 16px; font-weight: 600; color: var(--txt1); }
+        .vit-l { font-size: 8px; color: var(--txt3); margin-top: 1px; }
+        .allergy {
+            background: var(--red-bg); color: var(--red-txt); font-size: 9.5px;
+            padding: 5px 9px; border-left: 2.5px solid var(--red-brd); margin-bottom: 6px;
+        }
+        .chk-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; font-size: 10px; color: var(--txt2); }
+        .chk {
+            width: 13px; height: 13px; border: 0.5px solid var(--brd); border-radius: 3px;
+            flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: white;
+        }
+        .chk.on { background: var(--purple); border-color: var(--purple); }
+        .chk.on::after { content: '✓'; font-size: 8px; color: white; font-weight: 700; }
+        .icd-chip {
+            display: inline-block; background: var(--amber-bg); color: var(--amber-txt);
+            font-size: 8.5px; padding: 3px 8px; border-radius: 20px; margin: 2px 2px 0 0;
+        }
+        .seldx {
+            background: var(--blue-bg); border-left: 2.5px solid var(--blue-brd);
+            font-size: 9.5px; color: var(--blue-txt); padding: 5px 8px; margin-bottom: 5px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .hist { display: flex; gap: 8px; padding: 7px 0; border-bottom: 0.5px solid var(--brd2); }
+        .hist:last-child { border-bottom: none; }
+        .hist-date { font-size: 8.5px; color: var(--txt3); width: 60px; flex-shrink: 0; padding-top: 2px; }
+        .hist-dx { font-size: 10.5px; font-weight: 500; color: var(--txt1); }
+        .hist-note { font-size: 9px; color: var(--txt2); margin-top: 2px; }
+        .bar-wrap { display: flex; align-items: flex-end; gap: 4px; height: 50px; margin: 6px 0 3px; }
+        .bar { flex: 1; background: var(--purple-dim); border-radius: 3px 3px 0 0; opacity: .75; }
+        .bar-labels { display: flex; justify-content: space-between; font-size: 8px; color: var(--txt3); }
+        .prayer-card {
+            background: var(--purple-lt); border-left: 2.5px solid var(--purple-mid);
+            padding: 9px 11px; margin-bottom: 10px; font-size: 9.5px; color: var(--purple);
+        }
+        .prayer-verse { font-style: italic; font-size: 9px; color: var(--purple-mid); margin-bottom: 4px; }
+        .dis-box {
+            background: var(--bg2); border-radius: var(--radius-sm);
+            padding: 8px 10px; font-size: 10.5px; color: var(--txt1); margin-bottom: 6px;
+        }
+        .dis-label { font-size: 8.5px; color: var(--txt3); margin-bottom: 2px; }
+        .res-high { font-size: 12px; font-weight: 600; color: var(--red-txt); }
+        .res-mid  { font-size: 12px; font-weight: 600; color: var(--amber-txt); }
+        .res-ok   { font-size: 12px; font-weight: 600; color: var(--green-txt); }
+        .annotation {
+            background: #FFFBEA; border: 0.5px solid #EAD87A; border-radius: var(--radius-sm);
+            padding: 8px 12px; font-size: 9.5px; color: #6B5900; margin-top: 14px;
+        }
+        .annotation strong { font-weight: 600; }
+
+        /* ── Annotating mode hint ── */
+        .anno-hint {
+            position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+            background: var(--purple); color: white; border-radius: 20px;
+            padding: 8px 18px; font-size: 12px; font-weight: 500; z-index: 600;
+            box-shadow: 0 4px 16px rgba(60,52,137,.35); pointer-events: none;
+            opacity: 0; transition: opacity .2s;
+        }
+        body.annotating .anno-hint { opacity: 1; }
+    </style>
+</head>
+<body>
+
+<div class="anno-hint">Tap anywhere on the screen to drop a pin</div>
+
+<div class="page-header">
+    <span class="cross">✝</span>
+    <div>
+        <h1>Christ Medical EMR — Review</h1>
+        <p>Tap a screen, drop a pin, leave your feedback</p>
+    </div>
+    <div class="version">v0.1 · Review build</div>
+</div>
+
+<!-- Reviewer setup bar -->
+<div class="reviewer-bar">
+    <label>Your name:</label>
+    <input type="text" id="reviewer-name" placeholder="e.g. Sarah McElveen" maxlength="30"/>
+    <div class="mode-toggle">
+        <div class="mode-btn active" id="btn-view" onclick="setMode('view')">👁 View</div>
+        <div class="mode-btn" id="btn-annotate" onclick="setMode('annotate')">📌 Add pin</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:5px;margin-left:8px;">
+        <div class="status-dot" id="status-dot"></div>
+        <span class="status-label" id="status-label">Connecting…</span>
+    </div>
+</div>
+
+<!-- Screen nav -->
+<div class="screen-nav">
+    <div class="snav active" data-s="queue">1 · Queue<span class="pin-count" data-screen="queue">0</span></div>
+    <div class="snav" data-s="checkin">2 · Check-in<span class="pin-count" data-screen="checkin">0</span></div>
+    <div class="snav" data-s="chart">3 · Encounter<span class="pin-count" data-screen="chart">0</span></div>
+    <div class="snav" data-s="history">4 · History<span class="pin-count" data-screen="history">0</span></div>
+    <div class="snav" data-s="meds">5 · Medications<span class="pin-count" data-screen="meds">0</span></div>
+    <div class="snav" data-s="labs">6 · Labs<span class="pin-count" data-screen="labs">0</span></div>
+    <div class="snav" data-s="spiritual">7 · Spiritual care<span class="pin-count" data-screen="spiritual">0</span></div>
+    <div class="snav" data-s="discharge">8 · Discharge<span class="pin-count" data-screen="discharge">0</span></div>
+    <div class="snav" data-s="dashboard">9 · Dashboard<span class="pin-count" data-screen="dashboard">0</span></div>
+</div>
+
+<!-- App wrapper with annotation overlay -->
+<div class="app-wrap">
+    <div id="anno-layer"></div>
+
+    <div class="app">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="s-logo">
+                <div class="s-logo-row">
+                    <span class="s-logo-cross">✝</span>
+                    <div>
+                        <div class="s-logo-name">Christ Medical</div>
+                        <div class="s-logo-tag">Serving in His Name</div>
+                    </div>
+                </div>
+            </div>
+            <div class="s-section">Clinical</div>
+            <div class="nav-item on" data-screen="queue"><span class="icon">👥</span>Patient queue</div>
+            <div class="nav-item" data-screen="checkin"><span class="icon">➕</span>Check-in</div>
+            <div class="nav-item" data-screen="chart"><span class="icon">📋</span>Encounter</div>
+            <div class="nav-item" data-screen="history"><span class="icon">🕐</span>Patient history</div>
+            <div class="s-section">Support</div>
+            <div class="nav-item" data-screen="meds"><span class="icon">💊</span>Medications</div>
+            <div class="nav-item" data-screen="labs"><span class="icon">🔬</span>Labs &amp; orders</div>
+            <div class="nav-item" data-screen="spiritual"><span class="icon">🤍</span>Spiritual care</div>
+            <div class="nav-item" data-screen="discharge"><span class="icon">🚪</span>Discharge</div>
+            <div class="s-section">Admin</div>
+            <div class="nav-item" data-screen="dashboard"><span class="icon">📊</span>Dashboard</div>
+            <div class="s-foot">
+                <div class="prov-row">
+                    <div class="prov-av">JM</div>
+                    <div>
+                        <div class="prov-name">Dr. J. McElveen</div>
+                        <div class="prov-role">Attending physician</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN -->
+        <div class="main">
+            <div class="topbar">
+                <span class="tb-title" id="tb-title">Patient queue</span>
+                <span class="badge b-info" id="tb-badge">Today · May 8, 2026</span>
+            </div>
+            <div class="content">
+
+                <!-- 1. QUEUE -->
+                <div class="screen on" id="s-queue">
+                    <div class="stats">
+                        <div class="stat"><div class="sn">14</div><div class="sl">Waiting</div></div>
+                        <div class="stat"><div class="sn">2</div><div class="sl">Urgent</div></div>
+                        <div class="stat"><div class="sn">31</div><div class="sl">Seen today</div></div>
+                        <div class="stat"><div class="sn">5</div><div class="sl">Providers on</div></div>
+                    </div>
+                    <div class="card">
+                        <div class="ct"><span class="icon">📋</span>Active queue — tap to open chart</div>
+                        <div class="li"><div class="av red">JC</div><div style="flex:1"><div class="li-name">Jose Cortez, 58M</div><div class="li-sub">Chest pain · 6 min ago</div></div><span class="badge b-urg">Urgent</span><div class="btn sm pri" onclick="go('chart')">Open →</div></div>
+                        <div class="li"><div class="av">MR</div><div style="flex:1"><div class="li-name">Maria Ramirez, 42F</div><div class="li-sub">Headache · 14 min ago</div></div><span class="badge b-wait">Waiting</span><div class="btn sm" onclick="go('chart')">Open →</div></div>
+                        <div class="li"><div class="av grn">AL</div><div style="flex:1"><div class="li-name">Ana Lopez, 29F</div><div class="li-sub">Follow-up · 22 min ago</div></div><span class="badge b-seen">In room</span><div class="btn sm" onclick="go('chart')">Open →</div></div>
+                        <div class="li"><div class="av amb">PT</div><div style="flex:1"><div class="li-name">Pedro Torres, 34M</div><div class="li-sub">Wound care · 38 min ago</div></div><span class="badge b-wait">Waiting</span><div class="btn sm" onclick="go('chart')">Open →</div></div>
+                        <div class="li"><div class="av pink">EG</div><div style="flex:1"><div class="li-name">Elena Garcia, 67F</div><div class="li-sub">Diabetes check · 51 min ago</div></div><span class="badge b-wait">Waiting</span><div class="btn sm" onclick="go('chart')">Open →</div></div>
+                    </div>
+                    <div class="btn ghost full" onclick="go('checkin')">+ Check in new patient</div>
+                    <div class="annotation"><strong>UX note:</strong> Queue auto-refreshes every 30s. Urgent patients float to top. Tap any row to open chart.</div>
+                </div>
+
+                <!-- 2. CHECK-IN -->
+                <div class="screen" id="s-checkin">
+                    <div class="row2">
+                        <div class="col">
+                            <div class="card"><div class="ct"><span class="icon">🔍</span>Find existing patient</div><div class="f"><span class="fl">Search by name, DOB, or patient ID…</span></div><div style="font-size:9px;color:var(--txt3);text-align:center;padding:8px 0;">— or register new patient below —</div></div>
+                            <div class="card"><div class="ct"><span class="icon">➕</span>New patient registration</div><div class="frow"><div class="f" style="flex:1"><span class="fl">First name</span></div><div class="f" style="flex:1"><span class="fl">Last name</span></div></div><div class="frow"><div class="f" style="flex:1"><span class="fl">Date of birth</span></div><div class="f" style="flex:1"><span class="fl">Sex at birth</span></div></div><div class="f"><span class="fl">Village / community</span></div><div class="f"><span class="fl">Primary language</span></div><div class="f"><span class="fl">Interpreter needed?</span></div><div class="f"><span class="fl">Emergency contact name &amp; phone</span></div></div>
+                        </div>
+                        <div class="col">
+                            <div class="card"><div class="ct"><span class="icon">🩺</span>Triage &amp; vitals</div><div class="vitals"><div class="vit"><div class="vit-v">98.6°F</div><div class="vit-l">Temperature</div></div><div class="vit"><div class="vit-v">120/80</div><div class="vit-l">Blood pressure</div></div><div class="vit"><div class="vit-v">72 bpm</div><div class="vit-l">Heart rate</div></div><div class="vit"><div class="vit-v">98%</div><div class="vit-l">O2 saturation</div></div></div><div class="frow"><div class="f" style="flex:1"><span class="fl">Weight (lbs)</span></div><div class="f" style="flex:1"><span class="fl">Height</span></div></div><div class="ct" style="margin-top:10px;"><span class="icon">⚠️</span>Chief complaint</div><div class="fta">Describe reason for visit…</div><div style="display:flex;gap:6px;margin-top:4px;"><div class="btn danger" style="flex:1;text-align:center;font-size:9.5px;">🔴 Urgent</div><div class="btn pri" style="flex:1;text-align:center;font-size:9.5px;">🟢 Routine</div><div class="btn" style="flex:1;text-align:center;font-size:9.5px;color:var(--amber-txt);border-color:var(--amber-brd);">🟡 Monitor</div></div></div>
+                            <div class="btn pri full" onclick="go('queue')">Add to queue →</div>
+                        </div>
+                    </div>
+                    <div class="annotation"><strong>UX note:</strong> Search first — if patient exists, pre-fill vitals only. Language field drives discharge instruction language.</div>
+                </div>
+
+                <!-- 3. ENCOUNTER -->
+                <div class="screen" id="s-chart">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><div class="av lg">MR</div><div style="flex:1"><span style="font-size:14px;font-weight:600;color:var(--txt1);">Maria Ramirez</span><span style="font-size:10px;color:var(--txt3);margin-left:8px;">42 y/o · F · DOB 03/14/1982 · San Pedro</span></div><div class="btn sm" onclick="go('history')">View full history</div><span class="badge b-wait">In encounter</span></div>
+                    <div class="row2">
+                        <div class="col"><div class="card"><div class="ct"><span class="icon">📝</span>SOAP note</div><div class="soap s"><div class="soap-lbl">S — Subjective</div><div class="faux"></div><div class="faux w80"></div></div><div class="soap o"><div class="soap-lbl">O — Objective</div><div style="font-size:9.5px;">BP 120/80 · HR 72 · Temp 98.6°F · O2 98% · Wt 145 lbs</div></div><div class="soap a"><div class="soap-lbl">A — Assessment / Diagnosis</div><div class="f" style="background:rgba(186,117,23,.1);border-color:var(--amber-brd);"><span class="fl" style="color:var(--amber-txt);">Search ICD-10 code or description…</span></div><div class="seldx">E11.9 — Type 2 diabetes mellitus without complications <div class="btn sm" style="padding:1px 6px;font-size:8px;">✕</div></div></div><div class="soap p"><div class="soap-lbl">P — Plan</div><div class="faux w80"></div><div class="faux w60"></div></div><div class="soap pr"><div class="soap-lbl">✝ Prayer note (optional)</div><div class="faux w45"></div></div><div style="display:flex;gap:6px;margin-top:8px;"><div class="btn ghost" style="flex:1;text-align:center;">Save draft</div><div class="btn pri" style="flex:1;text-align:center;" onclick="go('discharge')">Sign &amp; close →</div></div></div></div>
+                        <div class="col"><div class="card"><div class="ct"><span class="icon">📈</span>Vitals</div><div class="vitals"><div class="vit"><div class="vit-v">120/80</div><div class="vit-l">Blood pressure</div></div><div class="vit"><div class="vit-v">98.6°F</div><div class="vit-l">Temperature</div></div><div class="vit"><div class="vit-v">72 bpm</div><div class="vit-l">Heart rate</div></div><div class="vit"><div class="vit-v">145 lbs</div><div class="vit-l">Weight</div></div></div></div><div class="card"><div class="ct"><span class="icon">⚠️</span>Allergies on file</div><div class="allergy">⚠ Penicillin — hives (severe)</div><div class="btn ghost" style="font-size:9px;">+ Add allergy</div></div><div class="card"><div class="ct"><span class="icon">⚡</span>Quick actions</div><div class="btn full" onclick="go('meds')" style="margin-bottom:4px;">💊 Prescribe medication →</div><div class="btn full" onclick="go('labs')" style="margin-bottom:4px;">🔬 Order labs →</div><div class="btn full" onclick="go('spiritual')">🤍 Log spiritual care →</div></div></div>
+                    </div>
+                    <div class="annotation"><strong>UX note:</strong> Prayer note is always optional. ICD-10 search is async typeahead. Quick actions return here on save.</div>
+                </div>
+
+                <!-- 4. HISTORY -->
+                <div class="screen" id="s-history">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><div class="av lg">MR</div><div style="flex:1"><span style="font-size:14px;font-weight:600;color:var(--txt1);">Maria Ramirez</span><span style="font-size:10px;color:var(--txt3);margin-left:8px;">42 y/o · F · Community: San Pedro</span></div><div class="btn sm pri" onclick="go('chart')">New encounter</div></div>
+                    <div class="row2">
+                        <div class="col"><div class="card"><div class="ct"><span class="icon">🕐</span>Visit history</div><div class="hist"><div class="hist-date">May 8, 2026</div><div style="flex:1"><div class="hist-dx">Type 2 diabetes — follow-up</div><div class="hist-note">HbA1c elevated · Metformin adjusted · Prayer offered</div><span class="badge b-pray" style="margin-top:4px;display:inline-block;font-size:8.5px;">✝ Prayer logged</span></div></div><div class="hist"><div class="hist-date">Jan 14, 2026</div><div style="flex:1"><div class="hist-dx">Hypertension — routine check</div><div class="hist-note">BP well controlled · Lisinopril continued</div></div></div><div class="hist"><div class="hist-date">Sep 3, 2025</div><div style="flex:1"><div class="hist-dx">URI — acute</div><div class="hist-note">Amoxicillin 500mg × 7 days · resolved</div></div></div><div class="hist"><div class="hist-date">Apr 12, 2025</div><div style="flex:1"><div class="hist-dx">Annual wellness visit</div><div class="hist-note">CBC normal · HbA1c 7.9% · counseled on diet</div></div></div></div></div>
+                        <div class="col"><div class="card"><div class="ct"><span class="icon">🧬</span>Chronic conditions</div><span class="icd-chip">E11.9 Type 2 diabetes</span><span class="icd-chip">I10 Hypertension</span><span class="icd-chip">E78.5 Hyperlipidemia</span></div><div class="card"><div class="ct"><span class="icon">💊</span>Current medications</div><div class="li"><div style="flex:1"><div class="li-name">Metformin 500mg</div><div class="li-sub">2× daily with meals · ongoing</div></div></div><div class="li"><div style="flex:1"><div class="li-name">Lisinopril 10mg</div><div class="li-sub">1× daily morning · ongoing</div></div></div><div class="li"><div style="flex:1"><div class="li-name">Atorvastatin 20mg</div><div class="li-sub">1× daily evening · ongoing</div></div></div></div><div class="card"><div class="ct"><span class="icon">🤍</span>Cumulative spiritual record</div><div class="chk-row"><div class="chk on"></div><span>Has received prayer — 3 visits</span></div><div class="chk-row"><div class="chk on"></div><span>Gospel shared — Jan 2026</span></div><div class="chk-row"><div class="chk"></div><span>Referred to local pastor</span></div><div class="chk-row"><div class="chk"></div><span>Bible / scripture provided</span></div></div></div>
+                    </div>
+                </div>
+
+                <!-- 5. MEDICATIONS -->
+                <div class="screen" id="s-meds">
+                    <div class="row2">
+                        <div class="col"><div class="card"><div class="ct"><span class="icon">💊</span>Active medications — Maria Ramirez</div><div class="li"><div style="flex:1"><div class="li-name">Metformin 500mg</div><div class="li-sub">2× daily with meals · ongoing</div></div><div class="btn sm">Edit</div><div class="btn sm danger">D/C</div></div><div class="li"><div style="flex:1"><div class="li-name">Lisinopril 10mg</div><div class="li-sub">1× daily morning · ongoing</div></div><div class="btn sm">Edit</div><div class="btn sm danger">D/C</div></div><div class="li"><div style="flex:1"><div class="li-name">Atorvastatin 20mg</div><div class="li-sub">1× daily evening · ongoing</div></div><div class="btn sm">Edit</div><div class="btn sm danger">D/C</div></div><div class="btn ghost full">+ Add existing medication</div></div><div class="card"><div class="ct"><span class="icon">⚠️</span>Allergies on file</div><div class="allergy">⚠ Penicillin — hives (severe)</div><div class="btn ghost" style="font-size:9px;">+ Add allergy</div></div></div>
+                        <div class="col"><div class="card"><div class="ct"><span class="icon">📄</span>Prescribe new</div><div class="f"><span class="fl">Search formulary…</span></div><div class="frow"><div class="f" style="flex:2"><span class="fl">Dose &amp; unit (e.g. 500mg)</span></div><div class="f" style="flex:1"><span class="fl">Route</span></div></div><div class="f"><span class="fl">Frequency (e.g. twice daily)</span></div><div class="frow"><div class="f" style="flex:1"><span class="fl">Duration</span></div><div class="f" style="flex:1"><span class="fl">Quantity</span></div></div><div class="fta">Provider notes / patient instructions…</div><div class="btn pri full">Save prescription →</div></div></div>
+                    </div>
+                </div>
+
+                <!-- 6. LABS -->
+                <div class="screen" id="s-labs">
+                    <div class="row2">
+                        <div class="col"><div class="card"><div class="ct"><span class="icon">📋</span>Order tests — Maria Ramirez</div><div style="font-size:9px;font-weight:600;color:var(--txt3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;">Common panels</div><div class="chk-row"><div class="chk on"></div><span>Blood glucose (fasting)</span></div><div class="chk-row"><div class="chk on"></div><span>HbA1c</span></div><div class="chk-row"><div class="chk on"></div><span>CBC with differential</span></div><div class="chk-row"><div class="chk"></div><span>Comprehensive metabolic panel</span></div><div class="chk-row"><div class="chk"></div><span>Lipid panel</span></div><div class="chk-row"><div class="chk"></div><span>Urinalysis</span></div><div class="chk-row"><div class="chk"></div><span>Malaria RDT</span></div><div class="chk-row"><div class="chk"></div><span>Chest X-ray</span></div><div class="chk-row"><div class="chk"></div><span>ECG / 12-lead</span></div><div class="btn ghost full" style="margin-top:5px;">+ Custom order</div><div class="btn pri full" style="margin-top:4px;">Submit orders →</div></div></div>
+                        <div class="col"><div class="card"><div class="ct"><span class="icon">📊</span>Previous results</div><div class="li"><div style="flex:1"><div class="li-name">HbA1c</div><div class="li-sub">Apr 12, 2025</div></div><span class="res-high">7.9%</span></div><div class="li"><div style="flex:1"><div class="li-name">Fasting glucose</div><div class="li-sub">Apr 12, 2025</div></div><span class="res-mid">142 mg/dL</span></div><div class="li"><div style="flex:1"><div class="li-name">LDL cholesterol</div><div class="li-sub">Apr 12, 2025</div></div><span class="res-mid">118 mg/dL</span></div><div class="li"><div style="flex:1"><div class="li-name">eGFR</div><div class="li-sub">Apr 12, 2025</div></div><span class="res-ok">72 mL/min</span></div><div class="li"><div style="flex:1"><div class="li-name">Hemoglobin</div><div class="li-sub">Apr 12, 2025</div></div><span class="res-ok">13.8 g/dL</span></div></div><div class="card"><div class="ct"><span class="icon">🔧</span>Procedures performed today</div><div class="f"><span class="fl">Procedure name or CPT code…</span></div><div class="fta" style="min-height:36px;">Procedure notes…</div><div class="btn ghost" style="font-size:9px;">+ Add procedure</div></div></div>
+                    </div>
+                </div>
+
+                <!-- 7. SPIRITUAL CARE -->
+                <div class="screen" id="s-spiritual">
+                    <div class="prayer-card"><div class="prayer-verse">"Heal me, Lord, and I will be healed; save me and I will be saved, for you are the one I praise." — Jeremiah 17:14</div>Today's care team prayer is displayed here each morning.</div>
+                    <div class="row2">
+                        <div class="col"><div class="card"><div class="ct"><span class="icon">🤍</span>Spiritual care — Maria Ramirez</div><div class="chk-row"><div class="chk on"></div><span>Patient requested prayer</span></div><div class="chk-row"><div class="chk on"></div><span>Prayer offered by provider</span></div><div class="chk-row"><div class="chk"></div><span>Gospel shared / spiritual conversation</span></div><div class="chk-row"><div class="chk"></div><span>Patient expressed faith decision</span></div><div class="chk-row"><div class="chk"></div><span>Bible / scripture provided</span></div><div class="chk-row"><div class="chk"></div><span>Referred to local church or pastor</span></div><div class="chk-row"><div class="chk"></div><span>Spiritual follow-up requested</span></div></div></div>
+                        <div class="col"><div class="card"><div class="ct"><span class="icon">✏️</span>Prayer request &amp; notes</div><div class="fta" style="min-height:72px;">Record the patient's prayer request…</div></div><div class="card"><div class="ct"><span class="icon">👥</span>Care team prayer log</div><div style="font-size:9px;color:var(--txt3);margin-bottom:7px;">Visible to all team members for this encounter</div><div class="li"><div class="av pink">SN</div><div style="flex:1"><div class="li-name">Prayed for healing &amp; peace</div><div class="li-sub">Nurse Santos · 9:42 AM</div></div></div><div class="btn ghost full" style="margin-top:5px;">+ Add team note</div></div><div class="btn pri full" onclick="go('chart')">Save &amp; return to chart →</div></div>
+                    </div>
+                </div>
+
+                <!-- 8. DISCHARGE -->
+                <div class="screen" id="s-discharge">
+                    <div class="row2">
+                        <div class="col"><div class="card"><div class="ct"><span class="icon">✅</span>Encounter summary — Maria Ramirez</div><div class="dis-box"><div class="dis-label">Primary diagnosis</div>E11.9 — Type 2 diabetes mellitus without complications</div><div class="dis-box"><div class="dis-label">Prescribed today</div>Metformin 500mg · 2× daily · adjusted dose</div><div class="dis-box"><div class="dis-label">Labs ordered</div>HbA1c · Fasting glucose · CBC</div></div><div class="card"><div class="ct"><span class="icon">📅</span>Follow-up plan</div><div class="frow"><div class="f" style="flex:2"><span class="fl">Return in…</span></div><div class="f" style="flex:1"><span class="fl">Weeks / months</span></div></div><div class="chk-row" style="margin-top:5px;"><div class="chk on"></div><span>Schedule return visit</span></div><div class="chk-row"><div class="chk"></div><span>Refer to specialist</span></div><div class="chk-row"><div class="chk"></div><span>Community health worker follow-up</span></div></div></div>
+                        <div class="col"><div class="card"><div class="ct"><span class="icon">📄</span>Patient instructions</div><div class="f"><span class="fl">Language for printed instructions</span></div><div class="fta" style="min-height:64px;">Write plain-language instructions for the patient…</div><div class="chk-row" style="margin-top:5px;"><div class="chk on"></div><span>Print discharge summary</span></div><div class="chk-row"><div class="chk on"></div><span>Include full medication list</span></div><div class="chk-row"><div class="chk"></div><span>Include lab results when ready</span></div></div><div class="card"><div class="ct"><span class="icon">🤍</span>Spiritual care at discharge</div><div class="chk-row"><div class="chk on"></div><span>Closing prayer offered</span></div><div class="chk-row"><div class="chk"></div><span>Devotional / scripture given</span></div></div><div style="display:flex;gap:6px;margin-top:4px;"><div class="btn ghost" style="flex:1;text-align:center;">🖨 Print summary</div><div class="btn pri" style="flex:1;text-align:center;" onclick="go('queue')">Discharge patient ✓</div></div></div>
+                    </div>
+                </div>
+
+                <!-- 9. DASHBOARD -->
+                <div class="screen" id="s-dashboard">
+                    <div class="stats"><div class="stat"><div class="sn">31</div><div class="sl">Patients today</div></div><div class="stat"><div class="sn">18</div><div class="sl">Prayer logs</div></div><div class="stat"><div class="sn">5</div><div class="sl">Gospel conversations</div></div><div class="stat"><div class="sn">4</div><div class="sl">Providers active</div></div></div>
+                    <div class="row2">
+                        <div class="col"><div class="card"><div class="ct"><span class="icon">📊</span>Visits by hour</div><div class="bar-wrap"><div class="bar" style="height:20%"></div><div class="bar" style="height:45%"></div><div class="bar" style="height:75%"></div><div class="bar" style="height:100%"></div><div class="bar" style="height:90%"></div><div class="bar" style="height:65%"></div><div class="bar" style="height:40%"></div><div class="bar" style="height:20%"></div></div><div class="bar-labels"><span>8am</span><span>10am</span><span>12pm</span><span>2pm</span><span>4pm</span></div></div><div class="card"><div class="ct"><span class="icon">📋</span>Top diagnoses today</div><div class="li"><div style="flex:1;font-size:10.5px;">Hypertension</div><span style="font-weight:600;font-size:11px;">7</span></div><div class="li"><div style="flex:1;font-size:10.5px;">Type 2 diabetes</div><span style="font-weight:600;font-size:11px;">6</span></div><div class="li"><div style="flex:1;font-size:10.5px;">URI / respiratory</div><span style="font-weight:600;font-size:11px;">5</span></div><div class="li"><div style="flex:1;font-size:10.5px;">Wound / skin</div><span style="font-weight:600;font-size:11px;">4</span></div><div class="li"><div style="flex:1;font-size:10.5px;">Malaria (confirmed)</div><span style="font-weight:600;font-size:11px;">3</span></div></div></div>
+                        <div class="col"><div class="card" style="background:var(--purple-lt);border-color:var(--purple-dim);"><div class="ct" style="color:var(--purple);border-color:var(--purple-dim);">✝ Mission impact today</div><div class="stat" style="margin-bottom:6px;background:white;"><div class="sn" style="color:var(--purple-mid);">18</div><div class="sl">Patients received prayer</div></div><div class="stat" style="margin-bottom:6px;background:white;"><div class="sn" style="color:var(--purple-mid);">5</div><div class="sl">Gospel conversations recorded</div></div><div class="stat" style="background:white;"><div class="sn" style="color:var(--purple-mid);">2</div><div class="sl">Referrals to local pastor</div></div></div><div class="card"><div class="ct"><span class="icon">👥</span>Provider activity</div><div class="li"><div class="av">JM</div><div style="flex:1"><div class="li-name">Dr. McElveen</div><div class="li-sub">Attending</div></div><span style="font-size:10.5px;font-weight:500;">9 patients</span></div><div class="li"><div class="av grn">SS</div><div style="flex:1"><div class="li-name">Dr. Singh</div><div class="li-sub">Attending</div></div><span style="font-size:10.5px;font-weight:500;">8 patients</span></div><div class="li"><div class="av amb">KL</div><div style="flex:1"><div class="li-name">Nurse Lopez</div><div class="li-sub">Triage</div></div><span style="font-size:10.5px;font-weight:500;">14 triage</span></div></div></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Comments panel -->
+<div id="comments-panel">
+    <div class="panel-header">
+        <h2>💬 Feedback</h2>
+        <div class="panel-close" onclick="togglePanel()">✕</div>
+    </div>
+    <div class="panel-filters">
+        <div class="filter-pill active" data-filter="all" onclick="setFilter(this,'all')">All</div>
+        <div class="filter-pill" data-filter="open" onclick="setFilter(this,'open')">Open</div>
+        <div class="filter-pill" data-filter="resolved" onclick="setFilter(this,'resolved')">Resolved</div>
+    </div>
+    <div class="panel-list" id="panel-list">
+        <div class="panel-empty">No comments yet.<br>Switch to "Add pin" mode and tap the wireframe.</div>
+    </div>
+</div>
+
+<!-- Floating button -->
+<button id="panel-toggle" onclick="togglePanel()">
+    💬 Comments <span class="count" id="total-count">0</span>
+</button>
+
+<script>
+    // ══════════════════════════════════════════
+    // FIREBASE CONFIG
+    // Replace these values with your own project
+    // ══════════════════════════════════════════
+    const FB_CONFIG = {
+        apiKey: "AIzaSyDKBCvUgIgHvXuHTBz0oYNkP9Nmlji_Pr0",
+        authDomain: "christmedical-demo.firebaseapp.com",
+        databaseURL: "https://christmedical-demo-default-rtdb.firebaseio.com",
+        projectId: "christmedical-demo",
+        storageBucket: "christmedical-demo.firebasestorage.app",
+        messagingSenderId: "961870441508",
+        appId: "1:961870441508:web:44dd654906fa78c5697cb1",
+        measurementId: "G-PF240SX7K1"
+    };
+
+    // ── State ──
+    let db, commentsRef;
+    let currentScreen = 'queue';
+    let mode = 'view';
+    let allComments = {};
+    let activePopup = null;
+    let currentFilter = 'all';
+    const PIN_COLORS = ['#E24B4A','#534AB7','#0F7B5A','#B07820','#C4508A'];
+    const reviewerColors = {};
+    let colorIndex = 0;
+
+    function getReviewerColor(name) {
+        if (!reviewerColors[name]) {
+            reviewerColors[name] = PIN_COLORS[colorIndex % PIN_COLORS.length];
+            colorIndex++;
+        }
+        return reviewerColors[name];
+    }
+
+    function colorIndex0(name) {
+        const idx = Object.keys(reviewerColors).indexOf(name);
+        return idx === -1 ? 0 : idx % PIN_COLORS.length;
+    }
+
+    // ── Firebase init ──
+    function initFirebase() {
+        try {
+            firebase.initializeApp(FB_CONFIG);
+            db = firebase.database();
+            commentsRef = db.ref('christmedical-wireframe-comments');
+            commentsRef.on('value', snap => {
+                allComments = snap.val() || {};
+                renderAllPins();
+                renderPanel();
+                updateCounts();
+            });
+            db.ref('.info/connected').on('value', snap => {
+                const el = document.getElementById('status-dot');
+                const lbl = document.getElementById('status-label');
+                if (snap.val()) {
+                    el.classList.add('connected');
+                    lbl.textContent = 'Live sync';
+                } else {
+                    el.classList.remove('connected');
+                    lbl.textContent = 'Reconnecting…';
+                }
+            });
+        } catch(e) {
+            document.getElementById('status-label').textContent = 'Configure Firebase below';
+            console.warn('Firebase not configured yet:', e.message);
+        }
+    }
+
+    // ── Screen navigation ──
+    const SCREENS = {
+        queue:     { title: 'Patient queue',             badge: 'Today · May 8, 2026',  cls: 'b-info' },
+        checkin:   { title: 'Check-in & triage',         badge: 'New patient',           cls: 'b-info' },
+        chart:     { title: 'Encounter — Maria Ramirez', badge: 'In encounter',          cls: 'b-wait' },
+        history:   { title: 'Patient history',           badge: '42 y/o · F',            cls: 'b-info' },
+        meds:      { title: 'Medications & Rx',          badge: 'Maria Ramirez',         cls: 'b-info' },
+        labs:      { title: 'Labs & orders',             badge: 'Maria Ramirez',         cls: 'b-info' },
+        spiritual: { title: 'Spiritual care',            badge: 'Maria Ramirez',         cls: 'b-pray' },
+        discharge: { title: 'Discharge',                 badge: 'Ready to discharge',    cls: 'b-seen' },
+        dashboard: { title: 'Mission dashboard',         badge: 'May 8, 2026',           cls: 'b-info' },
+    };
+
+    function go(id) {
+        closePopup();
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+        document.getElementById('s-' + id).classList.add('on');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('on'));
+        const ni = document.querySelector('.nav-item[data-screen="' + id + '"]');
+        if (ni) ni.classList.add('on');
+        document.querySelectorAll('.snav').forEach(n => n.classList.remove('active'));
+        const sn = document.querySelector('.snav[data-s="' + id + '"]');
+        if (sn) sn.classList.add('active');
+        const cfg = SCREENS[id] || {};
+        document.getElementById('tb-title').textContent = cfg.title || id;
+        const b = document.getElementById('tb-badge');
+        b.textContent = cfg.badge || '';
+        b.className = 'badge ' + (cfg.cls || 'b-info');
+        currentScreen = id;
+        renderAllPins();
+    }
+
+    document.querySelectorAll('.nav-item').forEach(el =>
+        el.addEventListener('click', () => go(el.dataset.screen))
+    );
+    document.querySelectorAll('.snav').forEach(el =>
+        el.addEventListener('click', () => go(el.dataset.s))
+    );
+
+    // ── Mode toggle ──
+    function setMode(m) {
+        mode = m;
+        document.body.classList.toggle('annotating', m === 'annotate');
+        document.getElementById('btn-view').classList.toggle('active', m === 'view');
+        document.getElementById('btn-annotate').classList.toggle('active', m === 'annotate');
+        closePopup();
+    }
+
+    // ── Click to drop pin ──
+    document.getElementById('anno-layer').addEventListener('click', function(e) {
+        if (mode !== 'annotate') return;
+        const name = document.getElementById('reviewer-name').value.trim();
+        if (!name) {
+            document.getElementById('reviewer-name').focus();
+            document.getElementById('reviewer-name').style.borderColor = '#E24B4A';
+            setTimeout(() => document.getElementById('reviewer-name').style.borderColor = '', 1500);
+            return;
+        }
+        closePopup();
+        const rect = this.getBoundingClientRect();
+        const xPct = ((e.clientX - rect.left) / rect.width * 100).toFixed(2);
+        const yPct = ((e.clientY - rect.top)  / rect.height * 100).toFixed(2);
+        showNewPinPopup(parseFloat(xPct), parseFloat(yPct), name, e.clientX, e.clientY);
+    });
+
+    // ── Show popup for NEW pin ──
+    function showNewPinPopup(xPct, yPct, reviewer, clientX, clientY) {
+        closePopup();
+        const popup = createPopupEl();
+        const color = getReviewerColor(reviewer);
+        const initials = reviewer.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+
+        popup.innerHTML = `
+    <div class="pop-header">
+      <div class="pop-avatar" style="background:${color}">${initials}</div>
+      <div class="pop-meta">
+        <div class="pop-name">${reviewer}</div>
+        <div class="pop-screen">${SCREENS[currentScreen]?.title || currentScreen}</div>
+      </div>
+      <div class="pop-close" onclick="closePopup()">✕</div>
+    </div>
+    <textarea id="new-comment-text" placeholder="What's your feedback on this area?…" rows="4" autofocus></textarea>
+    <div class="pop-actions">
+      <div class="pop-btn ghost" onclick="closePopup()">Cancel</div>
+      <div class="pop-btn pri" onclick="saveNewPin(${xPct}, ${yPct}, '${reviewer.replace(/'/g,"\\'")}')">Post pin</div>
+    </div>
+  `;
+        positionPopup(popup, clientX, clientY);
+        document.getElementById('anno-layer').appendChild(popup);
+        activePopup = popup;
+        setTimeout(() => {
+            const ta = document.getElementById('new-comment-text');
+            if (ta) ta.focus();
+        }, 50);
+    }
+
+    // ── Save new pin to Firebase ──
+    function saveNewPin(xPct, yPct, reviewer) {
+        const text = (document.getElementById('new-comment-text')?.value || '').trim();
+        if (!text) return;
+        const key = commentsRef ? commentsRef.push().key : 'local_' + Date.now();
+        const pin = {
+            id: key, screen: currentScreen, x: xPct, y: yPct,
+            reviewer, text, resolved: false,
+            ts: Date.now()
+        };
+        if (commentsRef) {
+            commentsRef.child(key).set(pin);
+        } else {
+            allComments[key] = pin;
+            renderAllPins(); renderPanel(); updateCounts();
+        }
+        closePopup();
+        setMode('view');
+    }
+
+    // ── Render all pins for current screen ──
+    function renderAllPins() {
+        const layer = document.getElementById('anno-layer');
+        layer.querySelectorAll('.pin').forEach(p => p.remove());
+        const screenComments = Object.values(allComments).filter(c => c.screen === currentScreen);
+        screenComments.forEach((c, i) => {
+            const pin = document.createElement('div');
+            const color = getReviewerColor(c.reviewer);
+            const num = getCommentNumber(c.id);
+            pin.className = 'pin pin-color-' + (colorIndex0(c.reviewer)) + (c.resolved ? ' resolved' : '');
+            pin.style.cssText = `left:${c.x}%;top:${c.y}%;background:${color};`;
+            pin.innerHTML = `<span class="pin-num">${num}</span>`;
+            pin.addEventListener('click', e => {
+                e.stopPropagation();
+                showExistingPinPopup(c, e.clientX, e.clientY);
+            });
+            layer.appendChild(pin);
+        });
+    }
+
+    // ── Show popup for EXISTING pin ──
+    function showExistingPinPopup(c, clientX, clientY) {
+        closePopup();
+        const popup = createPopupEl();
+        const color = getReviewerColor(c.reviewer);
+        const initials = c.reviewer.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+        const num = getCommentNumber(c.id);
+        const isOwn = c.reviewer === document.getElementById('reviewer-name').value.trim();
+        const timeStr = new Date(c.ts).toLocaleString();
+
+        popup.innerHTML = `
+    <div class="pop-header">
+      <div class="pop-avatar" style="background:${color}">${initials}</div>
+      <div class="pop-meta">
+        <div class="pop-name">#${num} · ${c.reviewer}</div>
+        <div class="pop-screen">${SCREENS[c.screen]?.title || c.screen}</div>
+      </div>
+      <div class="pop-close" onclick="closePopup()">✕</div>
+    </div>
+    <textarea readonly>${c.text}</textarea>
+    <div class="pop-time">${timeStr}</div>
+    <div class="pop-actions" style="margin-top:8px;">
+      ${c.resolved
+            ? `<div class="pop-btn" onclick="toggleResolve('${c.id}', false)">↩ Reopen</div>`
+            : `<div class="pop-btn resolve" onclick="toggleResolve('${c.id}', true)">✓ Resolve</div>`
+        }
+      ${isOwn ? `<div class="pop-btn danger" onclick="deletePin('${c.id}')">Delete</div>` : ''}
+    </div>
+  `;
+        positionPopup(popup, clientX, clientY);
+        document.getElementById('anno-layer').appendChild(popup);
+        activePopup = popup;
+    }
+
+    function toggleResolve(id, val) {
+        if (commentsRef) {
+            commentsRef.child(id).update({ resolved: val });
+        } else {
+            if (allComments[id]) allComments[id].resolved = val;
+            renderAllPins(); renderPanel();
+        }
+        closePopup();
+    }
+
+    function deletePin(id) {
+        if (commentsRef) {
+            commentsRef.child(id).remove();
+        } else {
+            delete allComments[id];
+            renderAllPins(); renderPanel(); updateCounts();
+        }
+        closePopup();
+    }
+
+    // ── Render comments panel ──
+    function renderPanel() {
+        const list = document.getElementById('panel-list');
+        let comments = Object.values(allComments).sort((a,b) => b.ts - a.ts);
+        if (currentFilter === 'open')     comments = comments.filter(c => !c.resolved);
+        if (currentFilter === 'resolved') comments = comments.filter(c =>  c.resolved);
+
+        if (!comments.length) {
+            list.innerHTML = '<div class="panel-empty">No comments yet.<br>Switch to "Add pin" and tap the wireframe.</div>';
+            return;
+        }
+        list.innerHTML = comments.map(c => {
+            const color = getReviewerColor(c.reviewer);
+            const initials = c.reviewer.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+            const num = getCommentNumber(c.id);
+            const timeStr = new Date(c.ts).toLocaleString();
+            return `
+      <div class="comment-card ${c.resolved?'resolved':''}" onclick="jumpTo('${c.id}')">
+        <div class="cc-header">
+          <div class="cc-avatar" style="background:${color}">${initials}</div>
+          <span class="cc-name">#${num} ${c.reviewer}</span>
+          <span class="cc-screen">${SCREENS[c.screen]?.title?.split('—')[0].trim() || c.screen}</span>
+        </div>
+        <div class="cc-text">${c.text}</div>
+        <div class="cc-time">${timeStr}</div>
+        ${c.resolved ? '<div class="cc-resolved">✓ Resolved</div>' : ''}
+      </div>
+    `;
+        }).join('');
+    }
+
+    function jumpTo(id) {
+        const c = allComments[id];
+        if (!c) return;
+        if (c.screen !== currentScreen) go(c.screen);
+        setTimeout(() => {
+            const pins = document.querySelectorAll('.pin');
+            pins.forEach(p => {
+                const num = getCommentNumber(id);
+                if (p.querySelector('.pin-num')?.textContent == num) {
+                    const rect = p.getBoundingClientRect();
+                    showExistingPinPopup(c, rect.left + 14, rect.top);
+                }
+            });
+        }, 100);
+    }
+
+    // ── Update screen pill pin counts ──
+    function updateCounts() {
+        const counts = {};
+        Object.values(allComments).forEach(c => {
+            counts[c.screen] = (counts[c.screen] || 0) + 1;
+        });
+        document.querySelectorAll('.pin-count').forEach(el => {
+            const screen = el.dataset.screen;
+            const n = counts[screen] || 0;
+            el.textContent = n;
+            el.style.display = n ? 'inline' : 'none';
+        });
+        const total = Object.keys(allComments).length;
+        document.getElementById('total-count').textContent = total;
+    }
+
+    // ── Panel toggle ──
+    let panelOpen = false;
+    function togglePanel() {
+        panelOpen = !panelOpen;
+        document.getElementById('comments-panel').classList.toggle('open', panelOpen);
+        renderPanel();
+    }
+
+    function setFilter(el, f) {
+        currentFilter = f;
+        document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+        el.classList.add('active');
+        renderPanel();
+    }
+
+    // ── Helpers ──
+    function createPopupEl() {
+        const p = document.createElement('div');
+        p.className = 'pin-popup';
+        return p;
+    }
+
+    function positionPopup(popup, clientX, clientY) {
+        const layer = document.getElementById('anno-layer');
+        const rect = layer.getBoundingClientRect();
+        let left = clientX - rect.left + 16;
+        let top  = clientY - rect.top  - 20;
+        if (left + 280 > rect.width)  left = clientX - rect.left - 280;
+        if (top  + 200 > rect.height) top  = clientY - rect.top  - 200;
+        popup.style.left = Math.max(0, left) + 'px';
+        popup.style.top  = Math.max(0, top)  + 'px';
+    }
+
+    function closePopup() {
+        if (activePopup) { activePopup.remove(); activePopup = null; }
+    }
+
+    let commentCounter = {};
+    function getCommentNumber(id) {
+        const sorted = Object.keys(allComments).sort((a,b) =>
+            (allComments[a]?.ts||0) - (allComments[b]?.ts||0)
+        );
+        return sorted.indexOf(id) + 1;
+    }
+
+    // Close popup when clicking layer (not a pin)
+    document.getElementById('anno-layer').addEventListener('click', e => {
+        if (e.target === document.getElementById('anno-layer') && mode === 'view') closePopup();
+    });
+
+    // Kick it off
+    initFirebase();
+    updateCounts();
+</script>
+</body>
+</html>

@@ -10,6 +10,12 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Sanctified Bronze — Christ Medical EMR */
+  --color-bronze-deep: #4a3728;
+  --color-bronze-burnished: #cd7f32;
+  --color-bronze-glow: #e3b448;
+  --color-ancient-vellum: #fdf5e6;
 }
 
 @media (prefers-color-scheme: dark) {

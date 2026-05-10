@@ -21,7 +21,7 @@
 | HTTP API | `api/` | ASP.NET Core 9, Railway-ready (`Dockerfile`) |
 | Mission sync | `sync/` | Dotmim sync helpers for laptop ↔ hub |
 | ETL | `conversion/etl-tool/` | Staging → Postgres clinical migration; **`bin/` / `obj/` are gitignored** (build with `dotnet build` / `make build`) |
-| UI | `frontend/` | Next.js 15, deploys to **Vercel** — **Home** dashboard, **Patient search** (phonetic + filters), **Patient list** |
+| UI | `frontend/` | Next.js 15, deploys to **Vercel** — **Home** dashboard, **Patient search** (phonetic + filters), **Patient list**; **Storybook** for the EMR component library (`npm run storybook`) |
 | Tests | `tests/`, `frontend/**/*.test.*` | .NET xUnit under `tests/`; **Vitest** + **Testing Library** in `frontend/` |
 | Help (draft) | `docs/HELP_MANUAL.md` | Staff-facing help; keep updated as features ship |
 
@@ -46,7 +46,7 @@ cd frontend && npm ci && npm run ci
 ```
 
 - **.NET**: `Directory.Build.props` turns on `EnforceCodeStyleInBuild`; `dotnet format` enforces `.editorconfig`.
-- **Frontend**: `npm run ci` → ESLint, Vitest (including React component tests via Testing Library), `next build`.
+- **Frontend**: `npm run ci` → ESLint, Vitest (unit tests + Storybook interaction tests via Playwright), `next build`.
 
 When you change behavior or tooling, keep **tests** and this **README** aligned (see `.cursor/rules/tests-and-readme.mdc`).
 
@@ -78,6 +78,17 @@ make setup
 | `make setup` | Dev environment setup |
 | `make build` | Full lint/build/test (CI parity) |
 | `make db-up` / `make db-down` | Postgres via Docker Compose |
+
+### Storybook (component library)
+
+From `frontend/`:
+
+```bash
+npm run storybook          # dev server (port 6006)
+npm run build-storybook    # static output → storybook-static/
+```
+
+**Sanctified Bronze** design tokens (`bronze-deep`, `bronze-burnished`, `bronze-glow`, `ancient-vellum`) live in `frontend/app/globals.css` under `@theme inline`, so they are available to both the Next app and Storybook.
 
 ---
 

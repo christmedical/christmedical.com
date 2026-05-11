@@ -156,33 +156,51 @@ describe("PatientList", () => {
       spiritualStatusLabel: "No spiritual record",
     });
 
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        statusText: "OK",
-        json: async () => [
-          patient({ id: P1, displayNameMasked: "A***" }),
-          patient({
-            id: P2,
-            displayNameMasked: "B***",
-            spiritualNotes: "Note two",
-          }),
-        ],
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        statusText: "OK",
-        json: async () => [],
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        statusText: "OK",
-        json: async () => updated,
-      });
+    const listJson = [
+      patient({ id: P1, displayNameMasked: "A***" }),
+      patient({
+        id: P2,
+        displayNameMasked: "B***",
+        spiritualNotes: "Note two",
+      }),
+    ];
+
+    const fetchMock = vi.fn(
+      async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url =
+          typeof input === "string"
+            ? input
+            : input instanceof URL
+              ? input.href
+              : input.url;
+        const method = init?.method ?? "GET";
+
+        if (method === "PATCH" && url.includes(P2)) {
+          return {
+            ok: true,
+            status: 200,
+            statusText: "OK",
+            json: async () => updated,
+          } as Response;
+        }
+
+        if (url.includes(`/patients/${P2}/visits`)) {
+          return {
+            ok: true,
+            status: 200,
+            statusText: "OK",
+            json: async () => [],
+          } as Response;
+        }
+
+        return {
+          ok: true,
+          status: 200,
+          statusText: "OK",
+          json: async () => listJson,
+        } as Response;
+      },
+    );
     globalThis.fetch = fetchMock as typeof fetch;
 
     render(<PatientList />);
@@ -193,12 +211,19 @@ describe("PatientList", () => {
     fireEvent.change(spiritual, { target: { value: "Saved note" } });
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
-    const patchCall = fetchMock.mock.calls[2];
-    expect(patchCall?.[0]).toBe(
+    await waitFor(() => {
+      const patchCall = fetchMock.mock.calls.find(
+        (c) => (c[1] as RequestInit | undefined)?.method === "PATCH",
+      );
+      expect(patchCall).toBeDefined();
+    });
+    const patchCall = fetchMock.mock.calls.find(
+      (c) => (c[1] as RequestInit | undefined)?.method === "PATCH",
+    )!;
+    expect(patchCall[0]).toBe(
       `http://localhost:5050/api/v1/patients/${P2}?tenantId=1`,
     );
-    expect((patchCall?.[1] as RequestInit)?.method).toBe("PATCH");
+    expect((patchCall[1] as RequestInit).method).toBe("PATCH");
   });
 
   it("does not PATCH when offline and shows offline save error", async () => {

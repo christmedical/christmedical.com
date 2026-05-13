@@ -4,8 +4,6 @@
 
 <p align="center">
 
-[![CI](https://github.com/christmedical/christmedical.com/actions/workflows/ci.yml/badge.svg)](https://github.com/christmedical/christmedical.com/actions/workflows/ci.yml)
-[![Branch reminder](https://github.com/christmedical/christmedical.com/actions/workflows/branch-protection.yml/badge.svg)](https://github.com/christmedical/christmedical.com/actions/workflows/branch-protection.yml)
 [![.NET](https://img.shields.io/badge/.NET-9%20%2F%2010-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-data-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)

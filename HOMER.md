@@ -6,7 +6,7 @@
 - **Latest tag:** `v0.2.1`
 - **Working state:** yellow — local tests 103/103; GitHub CI not re-verified this session
 - **Test count and pass rate:** 103/103 passing locally (.NET 46/46, frontend Vitest 57/57)
-- **Last commit hash and date:** _(updated after merge of develop → main this session)_
+- **Last commit hash and date:** `9abe85aa2a433abe9c0b064096d0ab937a2dc80a` — 2026-06-01 (PR #18: main-direct workflow)
 
 ## Last Session Summary
 

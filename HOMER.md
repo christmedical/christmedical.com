@@ -7,36 +7,52 @@ Hi **Homer** — Garfield here 🖖. Protocol answers received; initial codebase
 ## Current State
 
 - **Branch:** `main`
-- **Latest tag:** `v0.2.1`
-- **Working state:** yellow — local tests 103/103; GitHub Actions on `main` **failing** (frontend lockfile out of sync; last failure 2026-06-01)
-- **Test count and pass rate:** xUnit **46/46**, Vitest **57/57** (103 total; not re-run `make build` this session)
-- **Coverage %:** not collected in CI or by default locally (`@vitest/coverage-v8` present but no coverage gate)
-- **Last CI on `main`:** failure — `npm ci` — `package-lock.json` missing `vite@7.3.5` and related entries (run `26764432461`, 2026-06-01 ~15:24 UTC)
-- **Last commit hash and date:** `80c939c` — 2026-06-01 (Project Gate protocol)
+- **Latest tag:** `v0.2.2-ci-green` (on `9d1727d`)
+- **Working state:** yellow — local `make build` green; **CI build job green**; full workflow still **red** on Railway/Vercel deploy (secrets/config, not test regression)
+- **Test count and pass rate:** xUnit **46/46**, Vitest **57/57** (103 total; verified via `make build` this session)
+- **Coverage %:** not collected
+- **Last CI on `main`:** **build job success** — [run 26769334419](https://github.com/christmedical/christmedical.com/actions/runs/26769334419) (2026-06-01 ~17:01 UTC); workflow conclusion `failure` (deploy jobs only)
+- **Last commit hash and date:** `9d1727d` — 2026-06-01 (CI lockfile + Playwright in workflow)
 
 ## Last Session Summary
 
 **Date:** 2026-06-01
 
-**Prompt received from PO:** Adopt **Project Gate** protocol — verify repo before executing Homer prompts; update `HOMER.md` session history only.
+**Prompt received from PO:** Fix CI — regenerate frontend lockfile, verify `make build`, green GitHub Actions, tag `v0.2.2-ci-green`. Record Homer's new priority order and deferred sync decision.
 
 **Work completed:**
 
-- Confirmed session repo: `christmedical/christmedical.com`
-- Documented gate convention: 🖖 Garfield (developer), 🍩 Homer (PO); mismatch → stop, do not execute
-- Prepended Session History entry for Project Gate adoption
+- Regenerated `frontend/package-lock.json` (Linux/`node:20` — includes `vite@7.3.5`, `fdir`, `picomatch` for vitest)
+- Added `npx playwright install chromium --with-deps` to `.github/workflows/ci.yml` (Storybook browser tests)
+- Verified `npm ci` + `make build` locally (103/103 tests)
+- Pushed `b0b56fd` + `9d1727d`; tagged **`v0.2.2-ci-green`**
+- **CI build job passed** on `9d1727d`; deploy jobs failed (Railway/Vercel — outside lockfile scope)
 
 **Decisions made (and why):**
 
-- **No application code** — routing safety only, per PO
+- **Lockfile must be produced on Linux** — macOS `npm install` left darwin-only `fsevents` entries that break `npm ci` on `ubuntu-latest`
+- **Playwright in CI required** — not just lockfile; browser tests need Chromium on runner
+- **Two commits on `main`** — first mac lockfile still failed CI; second commit fixed Linux lockfile + workflow (PO asked one commit; split due to platform surprise)
 
 **Issues encountered:**
 
-- None
+- Mac-regenerated lockfile passed local `npm ci` but CI failed `EBADPLATFORM` on `fsevents@2.3.3`
+- Full workflow still fails: **Deploy API (Railway)** and **Deploy frontend (Vercel)** — likely missing/invalid secrets (not diagnosed further this session)
 
 **Files changed:**
 
+- `frontend/package-lock.json`
+- `.github/workflows/ci.yml`
 - `HOMER.md`
+
+**Homer strategic updates (from this prompt):**
+
+1. Fix CI → **done** (build gate)
+2. Auth on API → next prompt
+3. Docs reconciliation → later
+4. Offline write queue (real sync) → after auth
+5. **Delete Dotmim** → separate prompt (not this one)
+6. Sync architecture **deferred** — PWA IndexedDB + HTTP→API→Postgres; last-write-wins + audit log; single-tenant-per-deployment OK for now
 
 ## PO Protocol — Resolved Answers
 
@@ -53,13 +69,17 @@ Hi **Homer** — Garfield here 🖖. Protocol answers received; initial codebase
 
 ## Suggested Next Steps
 
-1. **Fix CI (release gate):** run `npm install` in `frontend/`, commit lockfile so `npm ci` passes — unblocks green status and deploy jobs on `main`.
-2. **Homer: sync architecture decision** — choose Dotmim laptop SQLite ↔ Postgres hub vs. API/outbox pattern (see briefing §2–3); current code has Dotmim library **not wired** to API or Next.js.
-3. **Reconcile docs vs. code:** update or deprecate `docs/ARCHITECTURE.md` after decision so PO/dev don't plan against JWT/Dexie/Electron that aren't built.
-4. **Wireframes Firebase:** commit `firebase.json` + `404.html` + team `.firebaserc` **or** gitignore local project IDs — `index.html` wireframe already tracked.
-5. **HIPAA-adjacent hardening** (when prioritized): auth on API, tenant enforcement server-side, audit logging — see briefing §5.
+1. **Auth on API** (Homer priority #2) — next work prompt.
+2. **Deploy workflow green (optional):** fix Railway/Vercel secrets or make deploy jobs non-blocking until configured — needed for full workflow `success`, not for build/test gate.
+3. **Documentation reconciliation** — align `docs/ARCHITECTURE.md` with PWA + API path (no Dotmim/Electron/Dexie).
+4. **Offline write queue** — after auth; scope notes/visits/vitals per PWA UI.
+5. **Delete Dotmim** — separate prompt when PO ready.
 
 ## Session History
+
+### 2026-06-01 — CI lockfile + Playwright; build job green
+
+Regenerated Linux-compatible `package-lock.json`; CI build job green ([run 26769334419](https://github.com/christmedical/christmedical.com/actions/runs/26769334419)). Tag `v0.2.2-ci-green`. Homer reprioritized: auth next, Dotmim delete later, sync deferred.
 
 ### 2026-06-01 — Project Gate protocol adopted
 

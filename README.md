@@ -185,7 +185,9 @@ Secrets required:
 
 ## Branching
 
-Work on feature branches and open PRs into `main`. Prefer **squash merge** so WIP commits collapse into one clear message.
+**Current (PO/Dev):** `main` is the integration branch. Local git hooks allow direct commits and pushes to `main` (`CHRISTMEDICAL_ALLOW_MAIN=1` in `scripts/git-hooks/`). GitHub does not enforce branch protection on `main`; keep `develop` synced via merge from `main` when using both branches.
+
+**Later (stricter):** Set `CHRISTMEDICAL_ALLOW_MAIN=0` in the hook sources, run `scripts/install-hooks.sh`, and prefer feature branches + PRs with squash merge.
 
 If you need to undo a local commit on `main`:
 

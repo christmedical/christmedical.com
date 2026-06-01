@@ -38,10 +38,9 @@ The setup scripts will:
 
 The hooks installed by the setup scripts will:
 
-- **pre-commit**: Prevent direct commits to the `main` branch locally
-- **pre-push**: Prevent direct pushes to the `main` branch
+- **pre-commit** / **pre-push**: Guard direct work on `main` when `CHRISTMEDICAL_ALLOW_MAIN=0` (default in hook source is **`1`** during PO/Dev — main allowed)
 
-Both hooks provide helpful error messages and instructions for fixing mistakes.
+Set `CHRISTMEDICAL_ALLOW_MAIN=0` in `scripts/git-hooks/pre-commit` and `pre-push`, then run `scripts/install-hooks.sh`, to restore blocking.
 
 ## Idempotency
 
@@ -85,4 +84,4 @@ git commit --no-verify -m "message"
 git push --no-verify
 ```
 
-**Warning**: Only use `--no-verify` in emergencies. The main branch should always be protected.
+**Warning**: Only use `--no-verify` in emergencies. Prefer toggling `CHRISTMEDICAL_ALLOW_MAIN` in hook sources when changing policy repo-wide.

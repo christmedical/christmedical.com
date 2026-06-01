@@ -12,7 +12,7 @@
 
 **Date:** 2026-06-01
 
-**Prompt received from PO:** Establish PO/Dev protocol; create `HOMER.md`; document prior work retroactively; commit to `main`.
+**Prompt received from PO:** Allow direct push to `main` for easier PO communication; sync `develop` with `main`; relax git rules; merge via PR from `develop`.
 
 **Work completed:**
 
@@ -24,40 +24,44 @@
 
 **Decisions made (and why):**
 
-- **Working state = yellow, not green:** CI badges were removed because workflows were failing; local tests pass but remote CI was not verified after merge — honest signal for PO
-- **Session History includes pre-protocol work:** Protocol rule 7 requires retroactive documentation of badge/PR work in first entry
+- **Main as integration branch (temporary):** Reduces bridge friction between Homer ↔ Jamey ↔ Cursor; hooks stay in repo but default to allow `main` until PO asks to tighten again
+- **Still use PR develop → main for this policy change:** Single reviewed merge bundles hook + doc + `HOMER.md` updates; after merge, day-to-day can be direct to `main`
 
 **Issues encountered:**
 
-- Local `develop` tip (`76ecf7f`) matches squash content on `main` (`99c94c0`) but hashes differ; branches should be synced after `main` commit
-- Untracked wireframe Firebase files (`docs/wireframes/.firebaserc`, `404.html`, `firebase.json`) — not part of this commit
+- Prior HOMER commits used feature-branch PRs because hooks blocked `main`; not a GitHub rules issue
 
 **Files changed:**
 
-- `HOMER.md` (new)
+- `scripts/git-hooks/pre-commit`, `scripts/git-hooks/pre-push`
+- `README.md`, `scripts/README.md`
+- `HOMER.md`
 
 ## Open Questions for PO
 
-1. **Commit pairing:** Should every feature commit include an updated `HOMER.md` in the same commit, or is a dedicated end-of-session `chore: update HOMER.md` commit acceptable when multiple commits land in one session?
-2. **Branch of record:** When implementation happens on `develop` (or a feature branch), should **Current State → Branch** reflect the working branch until merge, or always track `main`?
-3. **Homer write access:** Does Homer ever edit `HOMER.md` directly (e.g., answers under Open Questions), or is it developer-maintained only with PO replies arriving via Jamey's prompts?
-4. **CI as "green":** Is passing local `make build` sufficient for green, or must GitHub Actions on `main` be green before we mark green?
-5. **Tag updates:** Who cuts version tags (`v0.2.x`) — PO request only, or developer when a milestone ships?
+1. **Commit pairing:** Should every feature commit include an updated `HOMER.md` in the same commit, or is a dedicated end-of-session `chore: update HOMER.md` commit acceptable?
+2. ~~**Branch of record:**~~ **Resolved:** `main` for now; sync `develop` when needed.
+3. **Homer write access:** Does Homer ever edit `HOMER.md` directly, or developer-maintained only?
+4. **CI as "green":** Local `make build` only, or must GitHub Actions on `main` pass?
+5. **Tag updates:** PO request only, or developer on milestone?
+6. **When to re-tighten:** What signal should flip `CHRISTMEDICAL_ALLOW_MAIN` back to `0`?
 
 ## Suggested Next Steps
 
-1. **Sync `develop` with `main`** after `HOMER.md` lands — avoids drift between branch tips
-2. **Triage GitHub CI failures** when PO prioritizes it — restores confidence for green status (badges can return later if desired)
-3. **Decide fate of untracked wireframe Firebase config** — commit for hosting preview, gitignore, or document in README
+1. Run `scripts/install-hooks.sh` on any machine that still has old blocking hooks installed
+2. Triage CI when prioritized
+3. Decide on untracked `docs/wireframes/` Firebase files
 
 ## Session History
 
+### 2026-06-01 — Main-direct workflow + develop sync
+
+Relaxed local main guards (`CHRISTMEDICAL_ALLOW_MAIN=1`), documented in README, merged `main` into `develop`, landed via PR to `main`.
+
 ### 2026-06-01 — PO/Dev protocol bootstrap
 
-Created `HOMER.md`, documented protocol, baselined local tests (103/103). Prior session (badge removal) captured retroactively below.
+Created `HOMER.md`, baselined local tests (103/103). Badge removal (PR #14) documented retroactively.
 
 ### 2026-05-13 — README badge removal (retroactive)
 
-**PO ask (via Jamey):** Remove failing CI and branch-protection badges from README during job hunt; push and merge to `main`.
-
-**Done:** Removed two GitHub Actions badge lines from `README.md`; pushed `develop`; opened PR #14; squash-merged to `main`. Tech stack badges unchanged. CI root cause not fixed.
+Removed failing CI/branch-protection README badges; squash-merged PR #14 to `main`.

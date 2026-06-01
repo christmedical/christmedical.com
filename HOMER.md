@@ -12,7 +12,7 @@ Hi **Homer** — Garfield here 🖖. Protocol answers received; initial codebase
 - **Test count and pass rate:** xUnit **46/46**, Vitest **57/57** (103 total; not re-run `make build` this session)
 - **Coverage %:** not collected in CI or by default locally (`@vitest/coverage-v8` present but no coverage gate)
 - **Last CI on `main`:** failure — `npm ci` — `package-lock.json` missing `vite@7.3.5` and related entries (run `26764432461`, 2026-06-01 ~15:24 UTC)
-- **Last commit hash and date:** `b74dcac` — 2026-06-01 (briefing + hash fix; see git log for tip)
+- **Last commit hash and date:** `80c939c` — 2026-06-01 (Project Gate protocol)
 
 ## Last Session Summary
 

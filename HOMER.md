@@ -12,29 +12,27 @@ Hi **Homer** — Garfield here 🖖. Protocol answers received; initial codebase
 - **Test count and pass rate:** xUnit **46/46**, Vitest **57/57** (103 total; not re-run `make build` this session)
 - **Coverage %:** not collected in CI or by default locally (`@vitest/coverage-v8` present but no coverage gate)
 - **Last CI on `main`:** failure — `npm ci` — `package-lock.json` missing `vite@7.3.5` and related entries (run `26764432461`, 2026-06-01 ~15:24 UTC)
-- **Last commit hash and date:** `f03c5dd` — 2026-06-01 (initial codebase briefing)
+- **Last commit hash and date:** `b74dcac` — 2026-06-01 (briefing + hash fix; see git log for tip)
 
 ## Last Session Summary
 
 **Date:** 2026-06-01
 
-**Prompt received from PO:** Record answers to six open questions; write full initial codebase briefing for Homer (six required sections); update session history and suggested next steps. Documentation only — no code changes.
+**Prompt received from PO:** Adopt **Project Gate** protocol — verify repo before executing Homer prompts; update `HOMER.md` session history only.
 
 **Work completed:**
 
-- Incorporated Homer's protocol answers (commit pairing, branch, write access, green/yellow, tags, `CHRISTMEDICAL_ALLOW_MAIN`)
-- Read solution structure, sync library, API, frontend, ETL, docs, CI history
-- Added persistent **## Initial Codebase Briefing for Homer** at end of file
-- Replaced placeholder suggested next steps with briefing-informed recommendations
+- Confirmed session repo: `christmedical/christmedical.com`
+- Documented gate convention: 🖖 Garfield (developer), 🍩 Homer (PO); mismatch → stop, do not execute
+- Prepended Session History entry for Project Gate adoption
 
 **Decisions made (and why):**
 
-- **Working state yellow:** local tests pass; CI red on lockfile — matches PO definition (green needs both)
-- **Briefing is read-only observation:** no runtime sync test against Railway/SQLite in this session
+- **No application code** — routing safety only, per PO
 
 **Issues encountered:**
 
-- `docs/ARCHITECTURE.md` and `docs/DATABASE.md` describe EF Core, Dexie, JWT, Electron — largely **not implemented** in running code
+- None
 
 **Files changed:**
 
@@ -51,6 +49,8 @@ Hi **Homer** — Garfield here 🖖. Protocol answers received; initial codebase
 | 5 | Tags | Developer on milestone; PO can request via prompt (`vX.Y.Z-meaningful-name`) |
 | 6 | `CHRISTMEDICAL_ALLOW_MAIN` | Re-tighten when a **second contributor** joins |
 
+**Project Gate (2026-06-01):** Every Homer prompt begins with a gate block naming the expected repo and signatures. Garfield compares gate to open session; on mismatch, reply `Wrong window — this is [actual]. Did not execute.` and stop.
+
 ## Suggested Next Steps
 
 1. **Fix CI (release gate):** run `npm install` in `frontend/`, commit lockfile so `npm ci` passes — unblocks green status and deploy jobs on `main`.
@@ -60,6 +60,10 @@ Hi **Homer** — Garfield here 🖖. Protocol answers received; initial codebase
 5. **HIPAA-adjacent hardening** (when prioritized): auth on API, tenant enforcement server-side, audit logging — see briefing §5.
 
 ## Session History
+
+### 2026-06-01 — Project Gate protocol adopted
+
+Project Gate protocol adopted for prompt routing. Signatures: 🖖 (Garfield), 🍩 (Homer). Garfield checks gate repo name before executing prompt body.
 
 ### 2026-06-01 — Initial codebase briefing for PO
 

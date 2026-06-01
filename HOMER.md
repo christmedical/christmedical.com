@@ -6,7 +6,7 @@
 - **Latest tag:** `v0.2.1`
 - **Working state:** yellow — local tests 103/103; GitHub CI not re-verified this session
 - **Test count and pass rate:** 103/103 passing locally (.NET 46/46, frontend Vitest 57/57)
-- **Last commit hash and date:** `964952c` — 2026-06-01 (`main` direct push verified; PR #18 landed workflow)
+- **Last commit hash and date:** `e1fe4c5` — 2026-06-01 (`main` and `develop` aligned; direct push to `main` verified)
 
 ## Last Session Summary
 
@@ -19,7 +19,8 @@
 - Verified GitHub **`main` is not branch-protected** (404 from API) — only local hooks blocked direct `main` work
 - Set `CHRISTMEDICAL_ALLOW_MAIN=1` (default) in `scripts/git-hooks/pre-commit` and `pre-push`
 - Updated `README.md` and `scripts/README.md` branching/hook documentation
-- Merged `origin/main` into `develop` (sync), then PR `develop` → `main`
+- Merged `origin/main` into `develop` (sync), then PR [#18](https://github.com/christmedical/christmedical.com/pull/18) `develop` → `main`
+- Verified direct `git push origin main` after hook change; merged `main` back into `develop`
 
 **Decisions made (and why):**
 

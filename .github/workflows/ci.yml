@@ -45,7 +45,10 @@ jobs:
 
       - name: Install & verify frontend
         working-directory: frontend
-        run: npm ci && npm run ci
+        run: |
+          npm ci
+          npx playwright install chromium --with-deps
+          npm run ci
 
   deploy-api:
     name: Deploy API (Railway)

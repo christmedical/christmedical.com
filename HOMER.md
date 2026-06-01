@@ -2,11 +2,11 @@
 
 ## Current State
 
-- **Branch:** `main` (PO workflow: commit and push here; keep `develop` synced from `main`)
+- **Branch:** `main` (`origin/main` at `ab382f2`)
 - **Latest tag:** `v0.2.1`
-- **Working state:** yellow — local tests 103/103; GitHub CI not re-verified this session
-- **Test count and pass rate:** 103/103 passing locally (.NET 46/46, frontend Vitest 57/57)
-- **Last commit hash and date:** `e1fe4c5` — 2026-06-01 (`main` and `develop` aligned; direct push to `main` verified)
+- **Working state:** yellow — local full test run passes; GitHub Actions CI was failing before README badge removal (not re-run on `main` this session)
+- **Test count and pass rate:** 103/103 passing locally (.NET 46/46, frontend Vitest 57/57; `make build` not run end-to-end this session)
+- **Last commit hash and date:** `ab382f2984d86c0d7486c74d06f368a1d264d8bd` — 2026-06-01 (PR #15 squash merge: `HOMER.md` protocol)
 
 ## Last Session Summary
 
@@ -16,11 +16,11 @@
 
 **Work completed:**
 
-- Verified GitHub **`main` is not branch-protected** (404 from API) — only local hooks blocked direct `main` work
-- Set `CHRISTMEDICAL_ALLOW_MAIN=1` (default) in `scripts/git-hooks/pre-commit` and `pre-push`
-- Updated `README.md` and `scripts/README.md` branching/hook documentation
-- Merged `origin/main` into `develop` (sync), then PR [#18](https://github.com/christmedical/christmedical.com/pull/18) `develop` → `main`
-- Verified direct `git push origin main` after hook change; merged `main` back into `develop`
+- Confirmed PO/Dev model: Jamey = stakeholder bridge, Homer = PO, Cursor = developer
+- Created this `HOMER.md` communication artifact at repo root
+- Captured retroactive summary of prior session (README badge removal, PR #14)
+- Ran local test suites to baseline pass counts
+- Landed on `main` via PR #15 (pre-commit hook blocks direct commits to `main`)
 
 **Decisions made (and why):**
 

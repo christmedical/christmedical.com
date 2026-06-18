@@ -19,7 +19,7 @@
 | HTTP API | `api/` | ASP.NET Core 9, Railway-ready (`Dockerfile`) |
 | Mission sync | `sync/` | Dotmim sync helpers for laptop ↔ hub |
 | ETL | `conversion/etl-tool/` | Staging → Postgres clinical migration; **`bin/` / `obj/` are gitignored** (build with `dotnet build` / `make build`) |
-| UI | `frontend/` | Next.js 15, deploys to **Vercel** — **Home** dashboard, **Patient search** (phonetic + filters), **Patient list**; **Storybook** for the EMR component library (`npm run storybook`) |
+| UI | `frontend/` | Next.js 15 PWA on **Vercel** — sidebar **EMR workflow** (`/queue` → discharge + `/dashboard`); **Patient search** and **Patient list** under the same shell; **Storybook** (`npm run storybook`) |
 | Tests | `tests/`, `frontend/**/*.test.*` | .NET xUnit under `tests/`; **Vitest** + **Testing Library** in `frontend/` |
 | Help (draft) | `docs/HELP_MANUAL.md` | Staff-facing help; keep updated as features ship |
 

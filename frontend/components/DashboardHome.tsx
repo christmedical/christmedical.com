@@ -12,7 +12,7 @@ function pct(part: number, total: number): string {
   return Math.round((part / total) * 1000) / 10 + "";
 }
 
-export function DashboardHome() {
+export function DashboardHome({ embedded = false }: { embedded?: boolean }) {
   const tenantId = getTenantId();
   const branding = getTenantBranding(tenantId);
   const [data, setData] = useState<DashboardSummaryDto | null>(null);
@@ -49,22 +49,39 @@ export function DashboardHome() {
   const md = data?.medical;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Mission dashboard
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            {branding.name} (tenant {tenantId}) — high-level spiritual and clinical footprint. Use
-            this to see gospel engagement and documentation depth before drilling into{" "}
-            <Link href="/search" className="font-medium text-teal-700 underline dark:text-teal-400">
-              patient search
+    <div className={embedded ? "space-y-6" : "mx-auto max-w-6xl space-y-8 px-4 py-8"}>
+      {!embedded ? (
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+              Mission dashboard
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+              {branding.name} (tenant {tenantId}) — high-level spiritual and clinical footprint. Use
+              this to see gospel engagement and documentation depth before drilling into{" "}
+              <Link href="/search" className="font-medium text-teal-700 underline dark:text-teal-400">
+                patient search
+              </Link>
+              .
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Link
+              href="/search"
+              className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-teal-700"
+            >
+              Patient search
             </Link>
-            .
-          </p>
+            <Link
+              href="/patients"
+              className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-sm hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+            >
+              Full list
+            </Link>
+          </div>
         </div>
-        <div className="flex gap-2">
+      ) : (
+        <div className="flex flex-wrap gap-2">
           <Link
             href="/search"
             className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-teal-700"
@@ -78,7 +95,7 @@ export function DashboardHome() {
             Full list
           </Link>
         </div>
-      </div>
+      )}
 
       {loading && (
         <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading metrics…</p>

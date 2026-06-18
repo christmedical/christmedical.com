@@ -10,7 +10,7 @@ import { getTenantId } from "@/lib/tenantRuntime";
 
 type SpiritualFilter = "all" | "heard" | "hope" | "none";
 
-export function PatientSearch() {
+export function PatientSearch({ embedded = false }: { embedded?: boolean }) {
   const tenantId = getTenantId();
   const branding = getTenantBranding(tenantId);
   const [q, setQ] = useState("");
@@ -61,18 +61,25 @@ export function PatientSearch() {
   }, [q, spiritual]);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-          Patient search — {branding.name}
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-          Search by <strong>legacy id</strong>, part of <strong>first or last name</strong>, or two
-          words for <strong>first and last</strong>. Matching uses spelling and{" "}
-          <strong>phonetic (Double Metaphone)</strong> codes so similar-sounding names resolve even
-          when chart spelling differs.
+    <div className={embedded ? "space-y-6" : "mx-auto max-w-5xl space-y-8 px-4 py-8"}>
+      {!embedded ? (
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+            Patient search — {branding.name}
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
+            Search by <strong>legacy id</strong>, part of <strong>first or last name</strong>, or two
+            words for <strong>first and last</strong>. Matching uses spelling and{" "}
+            <strong>phonetic (Double Metaphone)</strong> codes so similar-sounding names resolve even
+            when chart spelling differs.
+          </p>
+        </div>
+      ) : (
+        <p className="max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
+          Search by legacy id, name, or spiritual filter. Phonetic matching helps when chart spelling
+          differs.
         </p>
-      </div>
+      )}
 
       <div className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <div>

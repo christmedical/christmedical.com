@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { AppNav } from "@/components/AppNav";
 import { ConnectivityBanner } from "@/components/ConnectivityBanner";
 import { PwaHead } from "@/components/PwaHead";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
@@ -42,7 +41,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <PwaHead />
-        <AppNav />
         <ConnectivityBanner />
         {children}
         <PwaInstallPrompt />

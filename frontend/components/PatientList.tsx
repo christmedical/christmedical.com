@@ -107,7 +107,7 @@ function parseOptionalDecimal(raw: string): number | undefined {
   return Number.isFinite(n) ? n : undefined;
 }
 
-export function PatientList() {
+export function PatientList({ embedded = false }: { embedded?: boolean }) {
   const searchParams = useSearchParams();
   const tenantId = getTenantId();
   const branding = getTenantBranding(tenantId);
@@ -242,19 +242,29 @@ export function PatientList() {
   }, [draft, online, selected]);
 
   return (
-    <div className="flex min-h-screen flex-col gap-0 md:flex-row">
-      <section className="flex-1 overflow-auto p-6 md:border-r md:border-zinc-200 dark:md:border-zinc-800">
-        <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-              {branding.name} — patients
-            </h1>
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-              Up to {OFFLINE_PATIENT_CAP.toLocaleString()} sanitized records
-              (tenant {tenantId}). Cached locally for offline lookup. Names are
-              masked.
+    <div
+      className={`flex flex-col gap-0 md:flex-row ${embedded ? "min-h-0" : "min-h-screen"}`}
+    >
+      <section className="flex-1 overflow-auto md:border-r md:border-zinc-200 dark:md:border-zinc-800">
+        <header
+          className={`flex flex-wrap items-end justify-between gap-4 ${embedded ? "mb-4" : "mb-6 p-6"}`}
+        >
+          {!embedded ? (
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+                {branding.name} — patients
+              </h1>
+              <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                Up to {OFFLINE_PATIENT_CAP.toLocaleString()} sanitized records
+                (tenant {tenantId}). Cached locally for offline lookup. Names are
+                masked.
+              </p>
+            </div>
+          ) : (
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              Up to {OFFLINE_PATIENT_CAP.toLocaleString()} records cached for offline lookup.
             </p>
-          </div>
+          )}
           <button
             type="button"
             onClick={() => void load()}

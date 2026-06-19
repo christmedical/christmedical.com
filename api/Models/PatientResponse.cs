@@ -6,6 +6,8 @@ public sealed class PatientResponse
     public string? LegacyId { get; init; }
     public required string DisplayName { get; init; }
     public string? DateOfBirth { get; init; }
+    public int? CalculatedAge { get; init; }
+    public string? Gender { get; init; }
     public bool HopeGospel { get; init; }
     public string? HeardGospelDate { get; init; }
     public required string SpiritualStatusLabel { get; init; }

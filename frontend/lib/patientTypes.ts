@@ -3,6 +3,8 @@ export type PatientDto = {
   legacyId: string | null;
   displayName: string;
   dateOfBirth: string | null;
+  calculatedAge: number | null;
+  gender: string | null;
   hopeGospel: boolean;
   heardGospelDate: string | null;
   spiritualStatusLabel: string;

@@ -284,6 +284,8 @@ public sealed class PatientService(IConfiguration configuration) : IPatientServi
             LegacyId = r.LegacyId,
             DisplayName = FormatDisplayName(r.FirstName, r.LastName),
             DateOfBirth = r.Dob?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+            CalculatedAge = r.CalculatedAge,
+            Gender = FormatGender(r.Gender),
             HopeGospel = r.HopeGospel,
             HeardGospelDate = r.HeardGospelDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             SpiritualStatusLabel = statusLabel,
@@ -305,6 +307,15 @@ public sealed class PatientService(IConfiguration configuration) : IPatientServi
             return ("Hope / Gospel noted", "hope");
 
         return ("No spiritual record", "none");
+    }
+
+    private static string? FormatGender(string? gender)
+    {
+        if (string.IsNullOrWhiteSpace(gender))
+            return null;
+
+        var g = gender.Trim();
+        return g.Length == 1 ? g.ToUpperInvariant() : g;
     }
 
     private static string FormatDisplayName(string? firstName, string? lastName)
@@ -329,6 +340,8 @@ public sealed class PatientService(IConfiguration configuration) : IPatientServi
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public DateTime? Dob { get; set; }
+        public int? CalculatedAge { get; set; }
+        public string? Gender { get; set; }
         public bool HopeGospel { get; set; }
         public DateTime? HeardGospelDate { get; set; }
         public string? SpiritualNotes { get; set; }

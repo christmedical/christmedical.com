@@ -5,7 +5,7 @@ export type SpiritualFilter = "all" | "heard" | "hope" | "none";
 export const SPIRITUAL_FILTERS: ReadonlyArray<{ value: SpiritualFilter; label: string }> = [
   { value: "all", label: "All" },
   { value: "heard", label: "Heard gospel" },
-  { value: "hope", label: "Hope / interest" },
+  { value: "hope", label: "Hope-interest" },
   { value: "none", label: "No record" },
 ];
 

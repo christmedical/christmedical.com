@@ -8,7 +8,9 @@ export default function PatientsPage() {
         <p className="text-sm text-zinc-600">Loading patients…</p>
       }
     >
-      <PatientBrowse embedded />
+      <div className="-m-6 flex min-h-[calc(100dvh-10rem)] flex-col overflow-hidden">
+        <PatientBrowse embedded />
+      </div>
     </Suspense>
   );
 }

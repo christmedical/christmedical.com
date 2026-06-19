@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { EmrIcon } from "@/lib/emrIcons";
 import { EMR_NAV } from "@/lib/emrNav";
 import { getTenantBranding } from "@/lib/tenantConfig";
 import { getTenantId } from "@/lib/tenantRuntime";
@@ -21,20 +22,18 @@ export function EmrShell({ children }: { children: ReactNode }) {
   const sections = ["clinical", "support", "admin"] as const;
 
   return (
-    <div className="flex min-h-screen bg-zinc-100 dark:bg-zinc-950">
+    <div className="flex min-h-screen bg-zinc-100">
       <aside
-        className="flex w-56 shrink-0 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+        className="flex w-56 shrink-0 flex-col border-r border-zinc-200 bg-white"
         aria-label="Clinical workflow"
       >
-        <div className="border-b border-zinc-100 px-4 py-4 dark:border-zinc-800">
+        <div className="border-b border-zinc-100 px-4 py-4">
           <div className="flex items-center gap-2">
-            <span className="text-lg text-teal-700 dark:text-teal-400" aria-hidden>
+            <span className="text-lg text-teal-700" aria-hidden>
               ✝
             </span>
             <div>
-              <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-                Christ Medical
-              </div>
+              <div className="text-sm font-semibold text-zinc-900">Christ Medical</div>
               <div className="text-[10px] text-zinc-500">{branding.shortName} mission</div>
             </div>
           </div>
@@ -55,13 +54,11 @@ export function EmrShell({ children }: { children: ReactNode }) {
                     href={item.href}
                     className={`mx-2 flex items-center gap-2 rounded-lg border-l-2 px-3 py-2 text-sm transition-colors ${
                       active
-                        ? "border-teal-600 bg-teal-50 font-medium text-teal-900 dark:border-teal-500 dark:bg-teal-950/50 dark:text-teal-100"
-                        : "border-transparent text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+                        ? "border-teal-600 bg-teal-50 font-medium text-teal-900"
+                        : "border-transparent text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
                     }`}
                   >
-                    <span className="text-base" aria-hidden>
-                      {item.icon}
-                    </span>
+                    <EmrIcon icon={item.icon} />
                     {item.label}
                   </Link>
                 );
@@ -70,15 +67,13 @@ export function EmrShell({ children }: { children: ReactNode }) {
           ))}
         </nav>
 
-        <div className="border-t border-zinc-100 p-4 dark:border-zinc-800">
+        <div className="border-t border-zinc-100 p-4">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-bronze-deep text-xs font-semibold text-ancient-vellum">
               JM
             </div>
             <div className="min-w-0">
-              <div className="truncate text-xs font-medium text-zinc-900 dark:text-zinc-100">
-                Dr. J. McElveen
-              </div>
+              <div className="truncate text-xs font-medium text-zinc-900">Dr. J. McElveen</div>
               <div className="text-[10px] text-zinc-500">Attending physician</div>
             </div>
           </div>

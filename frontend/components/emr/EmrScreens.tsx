@@ -1,20 +1,36 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import {
+  Activity,
+  AlertTriangle,
+  BarChart3,
+  Calendar,
+  CheckCircle2,
+  ClipboardList,
+  FileText,
+  FlaskConical,
+  Heart,
+  History,
+  ListOrdered,
+  Pill,
+  Search,
+  UserPlus,
+  Wrench,
+  Zap,
+} from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { EmrCard, EMR_PAGE_STACK, EMR_SURFACE } from "@/components/emr/EmrCard";
 import { DEMO_PATIENT } from "@/lib/emrDemoPatient";
+
+const DEMO_ENCOUNTER_KEY = "cm-demo-encounter-draft";
 
 export function StatGrid({ items }: { items: { value: string; label: string }[] }) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {items.map((item) => (
-        <div
-          key={item.label}
-          className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-900"
-        >
-          <div className="text-2xl font-semibold text-teal-800 dark:text-teal-300">
-            {item.value}
-          </div>
+        <div key={item.label} className={`${EMR_SURFACE} p-4`}>
+          <div className="text-2xl font-semibold text-teal-800">{item.value}</div>
           <div className="mt-1 text-xs text-zinc-500">{item.label}</div>
         </div>
       ))}
@@ -22,29 +38,8 @@ export function StatGrid({ items }: { items: { value: string; label: string }[] 
   );
 }
 
-export function Card({
-  title,
-  icon,
-  children,
-  className = "",
-}: {
-  title: string;
-  icon?: string;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <section
-      className={`rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900 ${className}`}
-    >
-      <div className="border-b border-zinc-100 px-4 py-3 text-sm font-medium text-zinc-800 dark:border-zinc-800 dark:text-zinc-100">
-        {icon ? <span className="mr-1.5">{icon}</span> : null}
-        {title}
-      </div>
-      <div className="p-4">{children}</div>
-    </section>
-  );
-}
+/** @deprecated Use EmrCard */
+export const Card = EmrCard;
 
 export function PatientBanner({
   showNewEncounter,
@@ -97,7 +92,7 @@ export function QueueScreen() {
   );
 
   return (
-    <div className="space-y-4">
+    <div className={EMR_PAGE_STACK}>
       <StatGrid
         items={[
           { value: "14", label: "Waiting" },
@@ -106,7 +101,7 @@ export function QueueScreen() {
           { value: "5", label: "Providers on" },
         ]}
       />
-      <Card title="Active queue — tap to open chart" icon="📋">
+      <EmrCard title="Active queue — tap to open chart" icon={ListOrdered}>
         <ul className="divide-y divide-zinc-100 dark:divide-zinc-800">
           {queue.map((row) => (
             <li key={row.initials} className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0">
@@ -121,7 +116,7 @@ export function QueueScreen() {
                 {row.status}
               </span>
               <Link
-                href="/encounter"
+                href="/patients"
                 className="rounded-lg bg-teal-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-teal-700"
               >
                 Open →
@@ -129,7 +124,7 @@ export function QueueScreen() {
             </li>
           ))}
         </ul>
-      </Card>
+      </EmrCard>
       <Link
         href="/check-in"
         className="block w-full rounded-xl border border-dashed border-teal-300 py-3 text-center text-sm font-medium text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-200 dark:hover:bg-teal-950/30"
@@ -152,16 +147,16 @@ export function CheckInScreen() {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <div className="space-y-4">
-        <Card title="Find existing patient" icon="🔍">
+        <EmrCard title="Find existing patient" icon={Search}>
           <Link
-            href="/search"
-            className="block rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-500 hover:border-teal-400 dark:border-zinc-700 dark:bg-zinc-800"
+            href="/patients"
+            className="block rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-500 hover:border-teal-400"
           >
             Search by name, DOB, or patient ID…
           </Link>
           <p className="mt-3 text-center text-xs text-zinc-400">— or register new patient below —</p>
-        </Card>
-        <Card title="New patient registration" icon="➕">
+        </EmrCard>
+        <EmrCard title="New patient registration" icon={UserPlus}>
           <div className="grid gap-2 sm:grid-cols-2">
             {["First name", "Last name", "Date of birth", "Sex at birth"].map((label) => (
               <div
@@ -182,10 +177,10 @@ export function CheckInScreen() {
               </div>
             ),
           )}
-        </Card>
+        </EmrCard>
       </div>
       <div className="space-y-4">
-        <Card title="Triage & vitals" icon="🩺">
+        <EmrCard title="Triage & vitals" icon={Activity}>
           <div className="grid grid-cols-2 gap-2">
             {[
               ["98.6°F", "Temperature"],
@@ -222,7 +217,7 @@ export function CheckInScreen() {
               Monitor
             </button>
           </div>
-        </Card>
+        </EmrCard>
         <Link
           href="/queue"
           className="block w-full rounded-xl bg-teal-600 py-3 text-center text-sm font-medium text-white hover:bg-teal-700"
@@ -235,40 +230,104 @@ export function CheckInScreen() {
 }
 
 export function EncounterScreen() {
+  const [subjective, setSubjective] = useState("");
+  const [plan, setPlan] = useState("");
+  const [prayerNote, setPrayerNote] = useState("");
+  const [savedAt, setSavedAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DEMO_ENCOUNTER_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw) as {
+        subjective?: string;
+        plan?: string;
+        prayerNote?: string;
+      };
+      setSubjective(data.subjective ?? "");
+      setPlan(data.plan ?? "");
+      setPrayerNote(data.prayerNote ?? "");
+    } catch {
+      /* ignore corrupt draft */
+    }
+  }, []);
+
+  const saveDraft = useCallback(() => {
+    const payload = { subjective, plan, prayerNote };
+    localStorage.setItem(DEMO_ENCOUNTER_KEY, JSON.stringify(payload));
+    setSavedAt(new Date().toLocaleTimeString());
+  }, [plan, prayerNote, subjective]);
+
+  const soapField =
+    "mt-1 w-full resize-y rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-sm text-zinc-800";
+
   return (
-    <div className="space-y-4">
+    <div className={EMR_PAGE_STACK}>
       <PatientBanner />
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="SOAP note" icon="📝">
-          {[
-            { key: "S", label: "Subjective", className: "border-l-4 border-sky-400 bg-sky-50/50 dark:bg-sky-950/20" },
-            { key: "O", label: "Objective", className: "border-l-4 border-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20", text: "BP 120/80 · HR 72 · Temp 98.6°F · O2 98% · Wt 145 lbs" },
-            { key: "A", label: "Assessment / Diagnosis", className: "border-l-4 border-amber-400 bg-amber-50/50 dark:bg-amber-950/20" },
-            { key: "P", label: "Plan", className: "border-l-4 border-violet-400 bg-violet-50/50 dark:bg-violet-950/20" },
-            { key: "✝", label: "Prayer note (optional)", className: "border-l-4 border-rose-400 bg-rose-50/50 dark:bg-rose-950/20" },
-          ].map((section) => (
-            <div key={section.key} className={`mb-3 rounded-lg p-3 ${section.className}`}>
-              <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-600">
-                {section.key} — {section.label}
-              </div>
-              {section.text ? (
-                <p className="text-xs text-zinc-600 dark:text-zinc-300">{section.text}</p>
-              ) : section.key === "A" ? (
-                <>
-                  <div className="mb-2 rounded border border-amber-200 bg-white/60 px-2 py-1.5 text-xs text-amber-800">
-                    Search ICD-10 code or description…
-                  </div>
-                  <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-2 py-1 text-xs text-amber-900">
-                    E11.9 — Type 2 diabetes mellitus without complications
-                  </div>
-                </>
-              ) : (
-                <div className="h-8 rounded bg-white/50 dark:bg-zinc-900/30" />
-              )}
+      <p className="text-sm text-zinc-600">
+        Demo workflow screen. To save encounters to Postgres, open the patient in{" "}
+        <Link href="/patients" className="font-medium text-teal-700 underline">
+          Patients
+        </Link>{" "}
+        and use <strong>Save encounter</strong> on the chart.
+      </p>
+      <div className="grid gap-4 xl:grid-cols-[1fr_18rem]">
+        <EmrCard title="SOAP note" icon={ClipboardList}>
+          <div className="mb-3 rounded-lg border-l-4 border-sky-400 bg-sky-50/50 p-3">
+            <div className="mb-2 text-xs font-semibold uppercase text-zinc-600">S — Subjective</div>
+            <textarea
+              value={subjective}
+              onChange={(e) => setSubjective(e.target.value)}
+              rows={3}
+              className={soapField}
+              placeholder="Patient reports…"
+            />
+          </div>
+          <div className="mb-3 rounded-lg border-l-4 border-emerald-400 bg-emerald-50/50 p-3">
+            <div className="mb-2 text-xs font-semibold uppercase text-zinc-600">O — Objective</div>
+            <p className="text-sm text-zinc-700">
+              BP 120/80 · HR 72 · Temp 98.6°F · O2 98% · Wt 145 lbs
+            </p>
+          </div>
+          <div className="mb-3 rounded-lg border-l-4 border-amber-400 bg-amber-50/50 p-3">
+            <div className="mb-2 text-xs font-semibold uppercase text-zinc-600">
+              A — Assessment / Diagnosis
             </div>
-          ))}
-          <div className="flex gap-2">
-            <button type="button" className="flex-1 rounded-lg border border-zinc-300 py-2 text-xs font-medium">
+            <div className="mb-2 rounded border border-amber-200 bg-white/60 px-2 py-1.5 text-xs text-amber-800">
+              Search ICD-10 code or description…
+            </div>
+            <span className="inline-flex rounded-full bg-amber-100 px-2 py-1 text-xs text-amber-900">
+              E11.9 — Type 2 diabetes mellitus without complications
+            </span>
+          </div>
+          <div className="mb-3 rounded-lg border-l-4 border-violet-400 bg-violet-50/50 p-3">
+            <div className="mb-2 text-xs font-semibold uppercase text-zinc-600">P — Plan</div>
+            <textarea
+              value={plan}
+              onChange={(e) => setPlan(e.target.value)}
+              rows={3}
+              className={soapField}
+              placeholder="Treatment plan…"
+            />
+          </div>
+          <div className="mb-3 rounded-lg border-l-4 border-rose-400 bg-rose-50/50 p-3">
+            <div className="mb-2 text-xs font-semibold uppercase text-zinc-600">
+              Prayer note (optional)
+            </div>
+            <textarea
+              value={prayerNote}
+              onChange={(e) => setPrayerNote(e.target.value)}
+              rows={2}
+              className={soapField}
+              placeholder="Spiritual care notes…"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={saveDraft}
+              className="flex-1 rounded-lg border border-zinc-300 py-2 text-xs font-medium hover:bg-zinc-50"
+            >
               Save draft
             </button>
             <Link
@@ -278,9 +337,12 @@ export function EncounterScreen() {
               Sign & close →
             </Link>
           </div>
-        </Card>
+          {savedAt ? (
+            <p className="mt-2 text-xs text-teal-700">Draft saved locally at {savedAt}.</p>
+          ) : null}
+        </EmrCard>
         <div className="space-y-4">
-          <Card title="Vitals" icon="📈">
+          <EmrCard title="Vitals" icon={Activity}>
             <div className="grid grid-cols-2 gap-2">
               {[
                 ["120/80", "Blood pressure"],
@@ -294,13 +356,13 @@ export function EncounterScreen() {
                 </div>
               ))}
             </div>
-          </Card>
-          <Card title="Allergies on file" icon="⚠️">
+          </EmrCard>
+          <EmrCard title="Allergies on file" icon={AlertTriangle}>
             <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-200">
               Penicillin — hives (severe)
             </p>
-          </Card>
-          <Card title="Quick actions" icon="⚡">
+          </EmrCard>
+          <EmrCard title="Quick actions" icon={Zap}>
             <div className="space-y-2">
               <Link href="/medications" className="block rounded-lg border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800">
                 Prescribe medication →
@@ -312,7 +374,7 @@ export function EncounterScreen() {
                 Log spiritual care →
               </Link>
             </div>
-          </Card>
+          </EmrCard>
         </div>
       </div>
     </div>
@@ -324,7 +386,7 @@ export function HistoryScreen() {
     <div className="space-y-4">
       <PatientBanner showNewEncounter />
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="Visit history" icon="🕐">
+        <EmrCard title="Visit history" icon={History}>
           {[
             ["May 8, 2026", "Type 2 diabetes — follow-up", "HbA1c elevated · Metformin adjusted · Prayer offered", true],
             ["Jan 14, 2026", "Hypertension — routine check", "BP well controlled · Lisinopril continued", false],
@@ -343,9 +405,9 @@ export function HistoryScreen() {
               </div>
             </div>
           ))}
-        </Card>
+        </EmrCard>
         <div className="space-y-4">
-          <Card title="Chronic conditions" icon="🧬">
+          <EmrCard title="Chronic conditions" icon={FileText}>
             <div className="flex flex-wrap gap-2">
               {["E11.9 Type 2 diabetes", "I10 Hypertension", "E78.5 Hyperlipidemia"].map((c) => (
                 <span key={c} className="rounded-full bg-zinc-100 px-2 py-1 text-xs dark:bg-zinc-800">
@@ -353,8 +415,8 @@ export function HistoryScreen() {
                 </span>
               ))}
             </div>
-          </Card>
-          <Card title="Current medications" icon="💊">
+          </EmrCard>
+          <EmrCard title="Current medications" icon={Pill}>
             {["Metformin 500mg — 2× daily", "Lisinopril 10mg — 1× daily", "Atorvastatin 20mg — evening"].map(
               (m) => (
                 <div key={m} className="border-b border-zinc-100 py-2 text-sm last:border-0 dark:border-zinc-800">
@@ -362,8 +424,8 @@ export function HistoryScreen() {
                 </div>
               ),
             )}
-          </Card>
-          <Card title="Cumulative spiritual record" icon="🤍">
+          </EmrCard>
+          <EmrCard title="Cumulative spiritual record" icon={Heart}>
             {[
               [true, "Has received prayer — 3 visits"],
               [true, "Gospel shared — Jan 2026"],
@@ -374,7 +436,7 @@ export function HistoryScreen() {
                 {label}
               </label>
             ))}
-          </Card>
+          </EmrCard>
         </div>
       </div>
     </div>
@@ -385,7 +447,7 @@ export function MedicationsScreen() {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <div className="space-y-4">
-        <Card title={`Active medications — ${DEMO_PATIENT.name}`} icon="💊">
+        <EmrCard title={`Active medications — ${DEMO_PATIENT.name}`} icon={Pill}>
           {["Metformin 500mg", "Lisinopril 10mg", "Atorvastatin 20mg"].map((med) => (
             <div key={med} className="mb-2 flex items-center justify-between gap-2 border-b border-zinc-100 py-2 last:border-0 dark:border-zinc-800">
               <div>
@@ -402,12 +464,12 @@ export function MedicationsScreen() {
               </div>
             </div>
           ))}
-        </Card>
-        <Card title="Allergies on file" icon="⚠️">
+        </EmrCard>
+        <EmrCard title="Allergies on file" icon={AlertTriangle}>
           <p className="text-sm text-red-800">Penicillin — hives (severe)</p>
-        </Card>
+        </EmrCard>
       </div>
-      <Card title="Prescribe new" icon="📄">
+      <EmrCard title="Prescribe new" icon={FileText}>
         {["Search formulary…", "Dose & unit", "Frequency", "Duration", "Quantity"].map((f) => (
           <div
             key={f}
@@ -422,7 +484,7 @@ export function MedicationsScreen() {
         <button type="button" className="w-full rounded-lg bg-teal-600 py-2 text-sm font-medium text-white">
           Save prescription →
         </button>
-      </Card>
+      </EmrCard>
     </div>
   );
 }
@@ -438,7 +500,7 @@ export function LabsScreen() {
   ];
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <Card title={`Order tests — ${DEMO_PATIENT.name}`} icon="📋">
+      <EmrCard title={`Order tests — ${DEMO_PATIENT.name}`} icon={FlaskConical}>
         <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-zinc-400">
           Common panels
         </p>
@@ -451,9 +513,9 @@ export function LabsScreen() {
         <button type="button" className="mt-3 w-full rounded-lg bg-teal-600 py-2 text-sm font-medium text-white">
           Submit orders →
         </button>
-      </Card>
+      </EmrCard>
       <div className="space-y-4">
-        <Card title="Previous results" icon="📊">
+        <EmrCard title="Previous results" icon={BarChart3}>
           {[
             ["HbA1c", "7.9%", "high"],
             ["Fasting glucose", "142 mg/dL", "mid"],
@@ -474,12 +536,12 @@ export function LabsScreen() {
               </span>
             </div>
           ))}
-        </Card>
-        <Card title="Procedures performed today" icon="🔧">
+        </EmrCard>
+        <EmrCard title="Procedures performed today" icon={Wrench}>
           <div className="rounded-lg border border-zinc-200 px-3 py-2 text-xs text-zinc-400 dark:border-zinc-700">
             Procedure name or CPT code…
           </div>
-        </Card>
+        </EmrCard>
       </div>
     </div>
   );
@@ -493,7 +555,7 @@ export function SpiritualScreen() {
         praise.&rdquo; — Jeremiah 17:14
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card title={`Spiritual care — ${DEMO_PATIENT.name}`} icon="🤍">
+        <EmrCard title={`Spiritual care — ${DEMO_PATIENT.name}`} icon={Heart}>
           {[
             "Patient requested prayer",
             "Prayer offered by provider",
@@ -505,13 +567,13 @@ export function SpiritualScreen() {
               {item}
             </label>
           ))}
-        </Card>
+        </EmrCard>
         <div className="space-y-4">
-          <Card title="Prayer request & notes" icon="✏️">
+          <EmrCard title="Prayer request & notes" icon={FileText}>
             <div className="min-h-[5rem] rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800">
               Record the patient&apos;s prayer request…
             </div>
-          </Card>
+          </EmrCard>
           <Link
             href="/encounter"
             className="block w-full rounded-xl bg-teal-600 py-3 text-center text-sm font-medium text-white hover:bg-teal-700"
@@ -528,7 +590,7 @@ export function DischargeScreen() {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <div className="space-y-4">
-        <Card title={`Encounter summary — ${DEMO_PATIENT.name}`} icon="✅">
+        <EmrCard title={`Encounter summary — ${DEMO_PATIENT.name}`} icon={CheckCircle2}>
           <dl className="space-y-3 text-sm">
             <div>
               <dt className="text-xs font-medium text-zinc-500">Primary diagnosis</dt>
@@ -543,26 +605,26 @@ export function DischargeScreen() {
               <dd>HbA1c · Fasting glucose · CBC</dd>
             </div>
           </dl>
-        </Card>
-        <Card title="Follow-up plan" icon="📅">
+        </EmrCard>
+        <EmrCard title="Follow-up plan" icon={Calendar}>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" defaultChecked readOnly className="rounded" />
             Schedule return visit
           </label>
-        </Card>
+        </EmrCard>
       </div>
       <div className="space-y-4">
-        <Card title="Patient instructions" icon="📄">
+        <EmrCard title="Patient instructions" icon={FileText}>
           <div className="min-h-[4rem] rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800">
             Write plain-language instructions for the patient…
           </div>
-        </Card>
-        <Card title="Spiritual care at discharge" icon="🤍">
+        </EmrCard>
+        <EmrCard title="Spiritual care at discharge" icon={Heart}>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" defaultChecked readOnly className="rounded" />
             Closing prayer offered
           </label>
-        </Card>
+        </EmrCard>
         <div className="flex gap-2">
           <button type="button" className="flex-1 rounded-lg border border-zinc-300 py-2 text-sm font-medium">
             Print summary

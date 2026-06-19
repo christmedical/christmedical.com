@@ -59,42 +59,26 @@ export function DashboardHome({ embedded = false }: { embedded?: boolean }) {
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
               {branding.name} (tenant {tenantId}) — high-level spiritual and clinical footprint. Use
               this to see gospel engagement and documentation depth before drilling into{" "}
-              <Link href="/search" className="font-medium text-teal-700 underline dark:text-teal-400">
-                patient search
+              <Link href="/patients" className="font-medium text-teal-700 underline">
+                patients
               </Link>
               .
             </p>
           </div>
-          <div className="flex gap-2">
-            <Link
-              href="/search"
-              className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-teal-700"
-            >
-              Patient search
-            </Link>
-            <Link
-              href="/patients"
-              className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-sm hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
-            >
-              Full list
-            </Link>
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-wrap gap-2">
-          <Link
-            href="/search"
-            className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-teal-700"
-          >
-            Patient search
-          </Link>
           <Link
             href="/patients"
-            className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-sm hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+            className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-teal-700"
           >
-            Full list
+            Patients
           </Link>
         </div>
+      ) : (
+        <Link
+          href="/patients"
+          className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-teal-700"
+        >
+          Patients
+        </Link>
       )}
 
       {loading && (

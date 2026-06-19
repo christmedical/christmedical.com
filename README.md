@@ -74,6 +74,7 @@ make setup
 |--------|----------------|
 | `make help` | Lists targets |
 | `make setup` | Dev environment setup |
+| `make run` | **Local app**: stop processes/containers, rebuild images when needed, start db + api + web |
 | `make build` | Full lint/build/test (CI parity) |
 | `make db-up` / `make db-down` | Postgres via Docker Compose |
 
@@ -100,15 +101,8 @@ This repo includes a demo compose override that:
 Run (or use Make):
 
 ```bash
-# Either set variables inline, or copy .env.example → .env (gitignored) with
-# DOCKERHUB_NAMESPACE, IMAGE_TAG, and optional DOCKER_* for `make deploy`.
-export DOCKERHUB_NAMESPACE=<your-dockerhub-username-or-org>
-export IMAGE_TAG=v0.1.0
-
-make demo-up
-# or: make docker-up   (same as demo-up)
-# equivalent:
-# docker compose -f docker-compose.demo.yaml up -d
+make run
+# or: make demo-up   (start without stop/rebuild cycle)
 ```
 
 **Publish images from your machine:** with `.env` filled in, run `make deploy` (logs in to Docker Hub when `DOCKER_USERNAME` and `DOCKER_PASSWORD` are set, otherwise reuses `~/.docker/config.json` or runs interactive `docker login`). See **`.env.example`** for the full variable list.

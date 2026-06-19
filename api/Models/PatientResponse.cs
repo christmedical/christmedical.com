@@ -4,7 +4,7 @@ public sealed class PatientResponse
 {
     public Guid Id { get; init; }
     public string? LegacyId { get; init; }
-    public required string DisplayNameMasked { get; init; }
+    public required string DisplayName { get; init; }
     public string? DateOfBirth { get; init; }
     public bool HopeGospel { get; init; }
     public string? HeardGospelDate { get; init; }

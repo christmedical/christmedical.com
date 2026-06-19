@@ -1,4 +1,4 @@
-.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down demo-up demo-down docker-up deploy deploy-login build ci
+.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down demo-up demo-down docker-up deploy deploy-login build ci run lockfile-sync
 
 # Default target
 .DEFAULT_GOAL := help
@@ -65,6 +65,8 @@ help: ## Display this help message
 	@echo "Christ Medical Makefile Commands:"
 	@echo "  db-up         - Start the Postgres Docker container"
 	@echo "  db-down       - Stop the Postgres Docker container"
+	@echo "  run           - Stop everything, rebuild if needed, start demo stack (open http://localhost:3000)"
+	@echo "  demo-up       - Start demo stack without full stop/rebuild cycle"
 	@echo "  init-schema   - Run V0, V1, and V2 SQL scripts (Reset & Build)"
 	@echo "  load-staging  - Load CSVs into staging via psql \copy"
 	@echo "  Convert       - Run the Conversion"
@@ -122,6 +124,14 @@ demo-down: ## Stop and remove demo stack (ephemeral DB data is discarded)
 	@echo "$(BLUE)Stopping demo stack...$(NC)"
 	cd "$(ROOT_DIR)" && $(COMPOSE) $(COMPOSE_DEMO) down
 	@echo "$(GREEN)Demo stopped.$(NC)"
+
+run: ## Stop local processes + containers, rebuild if needed, start full stack (UI :3000 API :5050)
+	@bash "$(ROOT_DIR)/scripts/run-local.sh"
+
+lockfile-sync: ## Regenerate frontend/package-lock.json on Linux (fixes Docker npm ci after Mac npm install)
+	@echo "$(BLUE)Regenerating package-lock.json in node:20-alpine...$(NC)"
+	docker run --rm -v "$(ROOT_DIR)/frontend:/app" -w /app node:20-alpine sh -c "rm -rf node_modules && npm install"
+	@echo "$(GREEN)Done. Commit frontend/package-lock.json if changed.$(NC)"
 
 # Docker Hub: non-interactive login when DOCKER_USERNAME + DOCKER_PASSWORD are set (e.g. from .env);
 # otherwise use existing ~/.docker/config.json or run interactive docker login once.

@@ -23,6 +23,7 @@ describe("EmrShell", () => {
     );
     expect(screen.getByRole("link", { name: /Patient queue/ })).toHaveAttribute("href", "/queue");
     expect(screen.getByRole("link", { name: /Check-in/ })).toHaveAttribute("href", "/check-in");
+    expect(screen.getByRole("link", { name: /Patients/ })).toHaveAttribute("href", "/patients");
     expect(screen.getByRole("link", { name: /Dashboard/ })).toHaveAttribute("href", "/dashboard");
     expect(screen.getByText("content")).toBeInTheDocument();
   });

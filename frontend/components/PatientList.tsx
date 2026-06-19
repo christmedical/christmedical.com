@@ -1,15 +1,22 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { EMR_SURFACE, EMR_SURFACE_BODY } from "@/components/emr/EmrCard";
 import {
   normalizeApiBaseUrl,
   patientVisitsCreateUrl,
   patientVisitsListUrl,
   patientsListUrl,
   patientsPatchUrl,
+  patientsSearchUrl,
 } from "@/lib/patientApi";
-import type { VisitDto } from "@/lib/visitTypes";
+import {
+  filterPatientsLocal,
+  isSearchMode,
+  SPIRITUAL_FILTERS,
+  type SpiritualFilter,
+} from "@/lib/patientFilter";
 import { reconcileSelectionAfterLoad } from "@/lib/patientSelection";
 import type { PatientDto } from "@/lib/patientTypes";
 import {
@@ -18,8 +25,9 @@ import {
 } from "@/lib/offlinePatientsDb";
 import { useOnlineStatus } from "@/lib/onlineStatus";
 import { spiritualStatusBadgeClass } from "@/lib/spiritualBadge";
-import { getTenantBranding } from "@/lib/tenantConfig";
 import { getTenantId } from "@/lib/tenantRuntime";
+import { useDebouncedValue } from "@/lib/useDebouncedValue";
+import type { VisitDto } from "@/lib/visitTypes";
 
 export type { PatientDto } from "@/lib/patientTypes";
 
@@ -107,19 +115,31 @@ function parseOptionalDecimal(raw: string): number | undefined {
   return Number.isFinite(n) ? n : undefined;
 }
 
-export function PatientList({ embedded = false }: { embedded?: boolean }) {
+export function PatientBrowse({ embedded = false }: { embedded?: boolean }) {
   const searchParams = useSearchParams();
   const tenantId = getTenantId();
-  const branding = getTenantBranding(tenantId);
   const online = useOnlineStatus();
 
-  const [patients, setPatients] = useState<PatientDto[]>([]);
+  const [allPatients, setAllPatients] = useState<PatientDto[]>([]);
+  const [searchResults, setSearchResults] = useState<PatientDto[] | null>(null);
+  const [q, setQ] = useState("");
+  const debouncedQ = useDebouncedValue(q, 250);
+  const [spiritual, setSpiritual] = useState<SpiritualFilter>("all");
   const [selected, setSelected] = useState<PatientDto | null>(null);
   const [draft, setDraft] = useState<NotesDraft | null>(null);
   const [loading, setLoading] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  const searchActive = isSearchMode(debouncedQ, spiritual);
+
+  const displayedPatients = useMemo(() => {
+    if (!searchActive) return allPatients;
+    return searchResults ?? [];
+  }, [allPatients, searchActive, searchResults]);
 
   const load = useCallback(async () => {
     const base = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL);
@@ -143,7 +163,7 @@ export function PatientList({ embedded = false }: { embedded?: boolean }) {
         throw new Error(`API ${res.status} ${res.statusText}`);
       }
       const data = (await res.json()) as PatientDto[];
-      setPatients(data);
+      setAllPatients(data);
       setSelected((prev) => reconcileSelectionAfterLoad(prev, data));
       void savePatientsOffline(tid, data).catch(() => {
         /* quota / private mode */
@@ -151,14 +171,12 @@ export function PatientList({ embedded = false }: { embedded?: boolean }) {
     } catch (e) {
       const cached = await loadPatientsOffline(tid);
       if (cached?.length) {
-        setPatients(cached);
+        setAllPatients(cached);
         setSelected((prev) => reconcileSelectionAfterLoad(prev, cached));
-        setError(
-          "Offline or server unreachable — showing cached patients.",
-        );
+        setError("Offline or server unreachable — showing cached patients.");
       } else {
         setError(e instanceof Error ? e.message : "Failed to load patients.");
-        setPatients([]);
+        setAllPatients([]);
         setSelected(null);
       }
     } finally {
@@ -166,16 +184,74 @@ export function PatientList({ embedded = false }: { embedded?: boolean }) {
     }
   }, []);
 
+  const runSearch = useCallback(async () => {
+    if (!searchActive) {
+      setSearchResults(null);
+      setSearchError(null);
+      return;
+    }
+
+    if (!online) {
+      setSearchResults(filterPatientsLocal(allPatients, debouncedQ, spiritual));
+      setSearchError(null);
+      return;
+    }
+
+    const base = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL);
+    const tid = getTenantId();
+    if (!base) {
+      setSearchError("NEXT_PUBLIC_API_URL is not set.");
+      return;
+    }
+
+    setSearchLoading(true);
+    setSearchError(null);
+    try {
+      const res = await fetch(
+        patientsSearchUrl(base, {
+          tenantId: tid,
+          q: debouncedQ.trim() || undefined,
+          spiritual,
+          limit: 100,
+        }),
+        { cache: "no-store" },
+      );
+      if (res.status === 400) {
+        const text = await res.text();
+        setSearchError(text || "Invalid search.");
+        setSearchResults([]);
+        return;
+      }
+      if (!res.ok) throw new Error(`API ${res.status} ${res.statusText}`);
+      setSearchResults((await res.json()) as PatientDto[]);
+    } catch (e) {
+      const cached = filterPatientsLocal(allPatients, debouncedQ, spiritual);
+      if (cached.length > 0) {
+        setSearchResults(cached);
+        setSearchError("Server unreachable — showing cached matches.");
+      } else {
+        setSearchError(e instanceof Error ? e.message : "Search failed.");
+        setSearchResults([]);
+      }
+    } finally {
+      setSearchLoading(false);
+    }
+  }, [allPatients, debouncedQ, online, searchActive, spiritual]);
+
   useEffect(() => {
     void load();
   }, [load]);
 
   useEffect(() => {
+    void runSearch();
+  }, [runSearch]);
+
+  useEffect(() => {
     const pid = searchParams.get("patientId");
-    if (!pid || patients.length === 0) return;
-    const match = patients.find((p) => p.id === pid);
+    if (!pid || displayedPatients.length === 0) return;
+    const match = displayedPatients.find((p) => p.id === pid);
     if (match) setSelected(match);
-  }, [searchParams, patients]);
+  }, [searchParams, displayedPatients]);
 
   useEffect(() => {
     if (!selected) {
@@ -227,11 +303,16 @@ export function PatientList({ embedded = false }: { embedded?: boolean }) {
         );
       }
       const updated = (await res.json()) as PatientDto;
-      setPatients((prev) => {
+      setAllPatients((prev) => {
         const next = prev.map((x) => (x.id === updated.id ? updated : x));
         void savePatientsOffline(tid, next).catch(() => {});
         return next;
       });
+      if (searchActive) {
+        setSearchResults((prev) =>
+          prev ? prev.map((x) => (x.id === updated.id ? updated : x)) : prev,
+        );
+      }
       setSelected(updated);
       setDraft(draftFromPatient(updated));
     } catch (e) {
@@ -239,112 +320,155 @@ export function PatientList({ embedded = false }: { embedded?: boolean }) {
     } finally {
       setSaving(false);
     }
-  }, [draft, online, selected]);
+  }, [draft, online, searchActive, selected]);
+
+  const listBusy = loading || (searchActive && searchLoading);
+  const listMessage = searchError ?? (searchActive ? null : error);
+  const showFilterButton = spiritual !== "all" && q.trim() === "";
 
   return (
     <div
       className={`flex flex-col gap-0 md:flex-row ${embedded ? "min-h-0" : "min-h-screen"}`}
     >
-      <section className="flex-1 overflow-auto md:border-r md:border-zinc-200 dark:md:border-zinc-800">
-        <header
-          className={`flex flex-wrap items-end justify-between gap-4 ${embedded ? "mb-4" : "mb-6 p-6"}`}
-        >
-          {!embedded ? (
+      <section className="min-w-0 flex-1 overflow-auto md:border-r md:border-zinc-200">
+        <div className={embedded ? "space-y-4" : "space-y-4 p-6"}>
+          <p className="text-sm text-zinc-600">
+            Search by name or legacy id (phonetic matching online). Up to{" "}
+            {OFFLINE_PATIENT_CAP.toLocaleString()} records cached for offline use.
+          </p>
+
+          <div className={`${EMR_SURFACE} space-y-4 ${EMR_SURFACE_BODY}`}>
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-                {branding.name} — patients
-              </h1>
-              <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                Up to {OFFLINE_PATIENT_CAP.toLocaleString()} sanitized records
-                (tenant {tenantId}). Cached locally for offline lookup. Names are
-                masked.
-              </p>
+              <label htmlFor="patient-browse-q" className="text-xs font-semibold uppercase text-zinc-500">
+                Search patients
+              </label>
+              <input
+                id="patient-browse-q"
+                type="search"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Name, legacy id, or “Jon Smith”"
+                className="mt-2 w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                autoComplete="off"
+              />
             </div>
-          ) : (
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              Up to {OFFLINE_PATIENT_CAP.toLocaleString()} records cached for offline lookup.
+
+            <div>
+              <span id="spiritual-filter-label" className="text-xs font-semibold uppercase text-zinc-500">
+                Spiritual filter
+              </span>
+              <div
+                className="mt-2 flex flex-wrap gap-2"
+                role="group"
+                aria-labelledby="spiritual-filter-label"
+              >
+                {SPIRITUAL_FILTERS.map(({ value, label }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setSpiritual(value)}
+                    className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                      spiritual === value
+                        ? "bg-teal-600 text-white shadow"
+                        : "border border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {showFilterButton ? (
+              <button
+                type="button"
+                onClick={() => void runSearch()}
+                disabled={searchLoading}
+                className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-50 disabled:opacity-50"
+              >
+                {searchLoading ? "Loading…" : "List everyone in this category"}
+              </button>
+            ) : null}
+          </div>
+
+          {listBusy && (
+            <p className="text-sm text-zinc-600">{searchActive ? "Searching…" : "Loading…"}</p>
+          )}
+          {listMessage && (
+            <p
+              className={
+                listMessage.includes("cached") || listMessage.includes("Offline")
+                  ? "rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
+                  : "rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800"
+              }
+            >
+              {listMessage}
             </p>
           )}
-          <button
-            type="button"
-            onClick={() => void load()}
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-800 shadow-sm hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
-          >
-            Refresh
-          </button>
-        </header>
 
-        {loading && (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">Loading…</p>
-        )}
-        {error && (
-          <p
-            className={
-              error.includes("cached")
-                ? "rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100"
-                : "rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
-            }
-          >
-            {error}
-          </p>
-        )}
+          {!listBusy && displayedPatients.length === 0 && !listMessage && (
+            <p className="text-sm text-zinc-600">
+              {searchActive ? "No matching patients." : "No patients returned. Run the ETL, then refresh."}
+            </p>
+          )}
 
-        {!loading && !error && patients.length === 0 && (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            No patients returned. Run the ETL against Postgres, then refresh.
-          </p>
-        )}
+          {!listBusy && displayedPatients.length > 0 && (
+            <div className={`${EMR_SURFACE} overflow-x-auto`}>
+              <table className="min-w-full text-left text-sm">
+                <thead className="border-b border-zinc-200 bg-zinc-50 text-xs font-medium uppercase tracking-wide text-zinc-600">
+                  <tr>
+                    <th className="px-4 py-3">Name</th>
+                    <th className="px-4 py-3">DOB</th>
+                    <th className="px-4 py-3">Spiritual status</th>
+                    <th className="px-4 py-3">Legacy ID</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-100">
+                  {displayedPatients.map((p) => {
+                    const isSel = selected?.id === p.id;
+                    return (
+                      <tr
+                        key={p.id}
+                        className={`cursor-pointer transition-colors hover:bg-zinc-50 ${
+                          isSel ? "bg-teal-50" : ""
+                        }`}
+                        onClick={() => setSelected(p)}
+                      >
+                        <td className="px-4 py-3 font-medium text-zinc-900">{p.displayName}</td>
+                        <td className="px-4 py-3 tabular-nums text-zinc-700">{p.dateOfBirth ?? "—"}</td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${spiritualStatusBadgeClass(p.spiritualStatusKind)}`}
+                          >
+                            {p.heardGospelDate
+                              ? `Heard · ${p.heardGospelDate}`
+                              : p.spiritualStatusLabel}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 font-mono text-xs text-zinc-600">
+                          {p.legacyId ?? "—"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-        {!loading && patients.length > 0 && (
-          <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-            <table className="min-w-full text-left text-sm">
-              <thead className="border-b border-zinc-200 bg-zinc-50 text-xs font-medium uppercase tracking-wide text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
-                <tr>
-                  <th className="px-4 py-3">Name (masked)</th>
-                  <th className="px-4 py-3">DOB</th>
-                  <th className="px-4 py-3">Spiritual status</th>
-                  <th className="px-4 py-3">Legacy ID</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                {patients.map((p) => {
-                  const isSel = selected?.id === p.id;
-                  return (
-                    <tr
-                      key={p.id}
-                      className={`cursor-pointer transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900/80 ${
-                        isSel ? "bg-sky-50 dark:bg-sky-950/30" : ""
-                      }`}
-                      onClick={() => setSelected(p)}
-                    >
-                      <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-100">
-                        {p.displayNameMasked}
-                      </td>
-                      <td className="px-4 py-3 text-zinc-700 tabular-nums dark:text-zinc-300">
-                        {p.dateOfBirth ?? "—"}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${spiritualStatusBadgeClass(p.spiritualStatusKind)}`}
-                        >
-                          {p.heardGospelDate
-                            ? `Heard · ${p.heardGospelDate}`
-                            : p.spiritualStatusLabel}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 font-mono text-xs text-zinc-600 dark:text-zinc-400">
-                        {p.legacyId ?? "—"}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => void load()}
+              className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-800 shadow-sm hover:bg-zinc-50"
+            >
+              Refresh roster
+            </button>
           </div>
-        )}
+        </div>
       </section>
 
-      <aside className="w-full shrink-0 border-t border-zinc-200 bg-zinc-50/80 p-6 dark:border-zinc-800 dark:bg-zinc-950/50 md:w-96 md:border-t-0">
+      <aside className="w-full shrink-0 border-t border-zinc-200 bg-zinc-50/80 p-6 md:w-[26rem] md:border-t-0">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
           Details
         </h2>
@@ -361,12 +485,8 @@ export function PatientList({ embedded = false }: { embedded?: boolean }) {
             </p>
             <dl className="space-y-2">
               <div>
-                <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                  Masked name
-                </dt>
-                <dd className="font-medium text-zinc-900 dark:text-zinc-100">
-                  {selected.displayNameMasked}
-                </dd>
+                <dt className="text-xs font-medium text-zinc-500">Name</dt>
+                <dd className="font-medium text-zinc-900">{selected.displayName}</dd>
               </div>
               <div>
                 <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
@@ -992,3 +1112,6 @@ function NoteField({
     </li>
   );
 }
+
+/** @deprecated Use PatientBrowse — kept for existing imports. */
+export const PatientList = PatientBrowse;

@@ -18,7 +18,7 @@ public sealed class PatientsControllerTests
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
                 LegacyId = "A1",
-                DisplayNameMasked = "J*** S***",
+                DisplayName = "Jon Smith",
                 SpiritualStatusLabel = "Heard Gospel · 2024-01-02",
                 SpiritualStatusKind = "heard",
             },
@@ -47,7 +47,7 @@ public sealed class PatientsControllerTests
         {
             Id = id,
             LegacyId = "A1",
-            DisplayNameMasked = "J*** S***",
+            DisplayName = "Jon Smith",
             SpiritualStatusLabel = "No spiritual record",
             SpiritualStatusKind = "none",
             SpiritualNotes = "saved",
@@ -125,7 +125,7 @@ public sealed class PatientsControllerTests
             {
                 Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
                 LegacyId = "A1",
-                DisplayNameMasked = "J*** S***",
+                DisplayName = "Jon Smith",
                 SpiritualStatusLabel = "No spiritual record",
                 SpiritualStatusKind = "none",
             },

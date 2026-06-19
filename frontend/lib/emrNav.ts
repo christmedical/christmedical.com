@@ -1,20 +1,26 @@
+import type { LucideIcon } from "lucide-react";
+import { EMR_NAV_ICONS } from "@/lib/emrIcons";
+
+export type EmrNavSection = "clinical" | "support" | "admin";
+
 export type EmrNavItem = {
   href: string;
   label: string;
-  icon: string;
-  section: "clinical" | "support" | "admin";
+  icon: LucideIcon;
+  section: EmrNavSection;
 };
 
 export const EMR_NAV: EmrNavItem[] = [
-  { href: "/queue", label: "Patient queue", icon: "👥", section: "clinical" },
-  { href: "/check-in", label: "Check-in", icon: "➕", section: "clinical" },
-  { href: "/encounter", label: "Encounter", icon: "📋", section: "clinical" },
-  { href: "/history", label: "Patient history", icon: "🕐", section: "clinical" },
-  { href: "/medications", label: "Medications", icon: "💊", section: "support" },
-  { href: "/labs", label: "Labs & orders", icon: "🔬", section: "support" },
-  { href: "/spiritual", label: "Spiritual care", icon: "🤍", section: "support" },
-  { href: "/discharge", label: "Discharge", icon: "🚪", section: "support" },
-  { href: "/dashboard", label: "Dashboard", icon: "📊", section: "admin" },
+  { href: "/queue", label: "Patient queue", icon: EMR_NAV_ICONS.queue, section: "clinical" },
+  { href: "/patients", label: "Patients", icon: EMR_NAV_ICONS.patients, section: "clinical" },
+  { href: "/check-in", label: "Check-in", icon: EMR_NAV_ICONS.checkIn, section: "clinical" },
+  { href: "/encounter", label: "Encounter", icon: EMR_NAV_ICONS.encounter, section: "clinical" },
+  { href: "/history", label: "Patient history", icon: EMR_NAV_ICONS.history, section: "clinical" },
+  { href: "/medications", label: "Medications", icon: EMR_NAV_ICONS.medications, section: "support" },
+  { href: "/labs", label: "Labs & orders", icon: EMR_NAV_ICONS.labs, section: "support" },
+  { href: "/spiritual", label: "Spiritual care", icon: EMR_NAV_ICONS.spiritual, section: "support" },
+  { href: "/discharge", label: "Discharge", icon: EMR_NAV_ICONS.discharge, section: "support" },
+  { href: "/dashboard", label: "Dashboard", icon: EMR_NAV_ICONS.dashboard, section: "admin" },
 ];
 
 export type EmrPageMeta = {
@@ -25,6 +31,7 @@ export type EmrPageMeta = {
 
 export const EMR_PAGE_META: Record<string, EmrPageMeta> = {
   "/queue": { title: "Patient queue", badge: "Today" },
+  "/patients": { title: "Patients", badge: "Search & charts" },
   "/check-in": { title: "Check-in & triage", badge: "New patient" },
   "/encounter": { title: "Encounter", badge: "In encounter", badgeClass: "amber" },
   "/history": { title: "Patient history", badge: "Active chart" },
@@ -33,6 +40,4 @@ export const EMR_PAGE_META: Record<string, EmrPageMeta> = {
   "/spiritual": { title: "Spiritual care", badge: "Active chart", badgeClass: "teal" },
   "/discharge": { title: "Discharge", badge: "Ready to discharge", badgeClass: "green" },
   "/dashboard": { title: "Mission dashboard", badge: "Live" },
-  "/search": { title: "Patient search", badge: "Find patient" },
-  "/patients": { title: "Patient list", badge: "Offline-capable" },
 };

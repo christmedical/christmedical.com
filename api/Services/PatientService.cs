@@ -282,7 +282,7 @@ public sealed class PatientService(IConfiguration configuration) : IPatientServi
         {
             Id = r.Id,
             LegacyId = r.LegacyId,
-            DisplayNameMasked = MaskName(r.FirstName, r.LastName),
+            DisplayName = FormatDisplayName(r.FirstName, r.LastName),
             DateOfBirth = r.Dob?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             HopeGospel = r.HopeGospel,
             HeardGospelDate = r.HeardGospelDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
@@ -307,17 +307,17 @@ public sealed class PatientService(IConfiguration configuration) : IPatientServi
         return ("No spiritual record", "none");
     }
 
-    private static string MaskName(string? firstName, string? lastName)
+    private static string FormatDisplayName(string? firstName, string? lastName)
     {
-        static string MaskPart(string? part)
-        {
-            if (string.IsNullOrWhiteSpace(part)) return "—";
-            var s = part.Trim();
-            var initial = char.ToUpperInvariant(s[0]);
-            return s.Length == 1 ? $"{initial}***" : $"{initial}***";
-        }
-
-        return $"{MaskPart(firstName)} {MaskPart(lastName)}".Trim();
+        var first = string.IsNullOrWhiteSpace(firstName) ? "" : firstName.Trim();
+        var last = string.IsNullOrWhiteSpace(lastName) ? "" : lastName.Trim();
+        if (first == "" && last == "")
+            return "—";
+        if (first == "")
+            return last;
+        if (last == "")
+            return first;
+        return $"{first} {last}";
     }
 
 #pragma warning disable CA1812 // Row type is constructed by Dapper

@@ -1,7 +1,7 @@
 export type PatientDto = {
   id: string;
   legacyId: string | null;
-  displayNameMasked: string;
+  displayName: string;
   dateOfBirth: string | null;
   hopeGospel: boolean;
   heardGospelDate: string | null;

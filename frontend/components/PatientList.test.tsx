@@ -17,7 +17,7 @@ vi.mock("@/lib/onlineStatus", () => ({
 const P1 = "11111111-1111-1111-1111-111111111111";
 const P2 = "22222222-2222-2222-2222-222222222222";
 
-function patient(partial: Partial<PatientDto> & Pick<PatientDto, "id" | "displayNameMasked">): PatientDto {
+function patient(partial: Partial<PatientDto> & Pick<PatientDto, "id" | "displayName">): PatientDto {
   return {
     legacyId: partial.legacyId ?? "LEG",
     dateOfBirth: null,
@@ -78,10 +78,10 @@ describe("PatientList", () => {
       status: 200,
       statusText: "OK",
       json: async () => [
-        patient({ id: P1, displayNameMasked: "A***" }),
+        patient({ id: P1, displayName: "Alice Alpha" }),
         patient({
           id: P2,
-          displayNameMasked: "B***",
+          displayName: "Bob Beta",
           spiritualStatusKind: "heard",
           heardGospelDate: "2024-01-01",
           spiritualStatusLabel: "Heard",
@@ -92,12 +92,10 @@ describe("PatientList", () => {
     render(<PatientList />);
     const table = await screen.findByRole("table");
     await waitFor(() => {
-      expect(within(table).getByText("A***")).toBeInTheDocument();
-      expect(within(table).getByText("B***")).toBeInTheDocument();
+      expect(within(table).getByText("Alice Alpha")).toBeInTheDocument();
+      expect(within(table).getByText("Bob Beta")).toBeInTheDocument();
     });
-    expect(
-      screen.getByRole("heading", { name: /Belize — patients/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/Search patients/i)).toBeInTheDocument();
   });
 
   it("shows API error when response is not ok", async () => {
@@ -136,13 +134,13 @@ describe("PatientList", () => {
       status: 200,
       statusText: "OK",
       json: async () => [
-        patient({ id: P1, displayNameMasked: "A***", spiritualNotes: "Note one" }),
-        patient({ id: P2, displayNameMasked: "B***", spiritualNotes: "Note two" }),
+        patient({ id: P1, displayName: "Alice Alpha", spiritualNotes: "Note one" }),
+        patient({ id: P2, displayName: "Bob Beta", spiritualNotes: "Note two" }),
       ],
     }) as typeof fetch;
 
     render(<PatientList />);
-    const bCell = await screen.findByRole("cell", { name: "B***" });
+    const bCell = await screen.findByRole("cell", { name: "Bob Beta" });
     fireEvent.click(bCell.closest("tr")!);
     await waitFor(() => expect(screen.getByText("Note two")).toBeInTheDocument());
   });
@@ -150,17 +148,17 @@ describe("PatientList", () => {
   it("sends PATCH when Save is clicked", async () => {
     const updated = patient({
       id: P2,
-      displayNameMasked: "B***",
+      displayName: "Bob Beta",
       spiritualNotes: "Saved note",
       spiritualStatusKind: "none",
       spiritualStatusLabel: "No spiritual record",
     });
 
     const listJson = [
-      patient({ id: P1, displayNameMasked: "A***" }),
+      patient({ id: P1, displayName: "Alice Alpha" }),
       patient({
         id: P2,
-        displayNameMasked: "B***",
+        displayName: "Bob Beta",
         spiritualNotes: "Note two",
       }),
     ];
@@ -204,7 +202,7 @@ describe("PatientList", () => {
     globalThis.fetch = fetchMock as typeof fetch;
 
     render(<PatientList />);
-    const bCell = await screen.findByRole("cell", { name: "B***" });
+    const bCell = await screen.findByRole("cell", { name: "Bob Beta" });
     fireEvent.click(bCell.closest("tr")!);
 
     const spiritual = await screen.findByLabelText(/Spiritual check-up notes/i);
@@ -236,10 +234,10 @@ describe("PatientList", () => {
         status: 200,
         statusText: "OK",
         json: async () => [
-          patient({ id: P1, displayNameMasked: "A***" }),
+          patient({ id: P1, displayName: "Alice Alpha" }),
           patient({
             id: P2,
-            displayNameMasked: "B***",
+            displayName: "Bob Beta",
             spiritualNotes: "Note two",
           }),
         ],
@@ -253,7 +251,7 @@ describe("PatientList", () => {
     globalThis.fetch = fetchMock as typeof fetch;
 
     render(<PatientList />);
-    const bCell = await screen.findByRole("cell", { name: "B***" });
+    const bCell = await screen.findByRole("cell", { name: "Bob Beta" });
     fireEvent.click(bCell.closest("tr")!);
 
     const spiritual = await screen.findByLabelText(/Spiritual check-up notes/i);

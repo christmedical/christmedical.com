@@ -1,5 +1,5 @@
-import { PatientSearch } from "@/components/PatientSearch";
+import { redirect } from "next/navigation";
 
-export default function SearchPage() {
-  return <PatientSearch embedded />;
+export default function SearchRedirectPage() {
+  redirect("/patients");
 }

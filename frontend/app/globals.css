@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
+/* Clinical UI defaults to light; dark: utilities only apply under .dark (not set by default). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -16,13 +20,6 @@
   --color-bronze-burnished: #cd7f32;
   --color-bronze-glow: #e3b448;
   --color-ancient-vellum: #fdf5e6;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {

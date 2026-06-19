@@ -36,6 +36,7 @@ const P1 = "11111111-1111-1111-1111-111111111111";
 function patient(partial: Partial<PatientDto> & Pick<PatientDto, "id" | "displayName">): PatientDto {
   return {
     legacyId: partial.legacyId ?? "LEG",
+    displayId: partial.displayId ?? null,
     dateOfBirth: null,
     calculatedAge: null,
     gender: null,

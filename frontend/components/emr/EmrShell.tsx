@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { Stethoscope } from "lucide-react";
+import { Search, Stethoscope } from "lucide-react";
+import { useCommandPalette } from "@/components/command-palette/CommandPaletteContext";
 import { FC_NAV_ACTIVE, FC_NAV_IDLE, FC_SECTION_LABEL } from "@/components/design/fieldClinical";
 import { EmrIcon } from "@/lib/emrIcons";
 import { EMR_NAV } from "@/lib/emrNav";
@@ -20,6 +21,7 @@ export function EmrShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const tenantId = getTenantId();
   const branding = getTenantBranding(tenantId);
+  const { isOpen, openPalette, searchTriggerRef } = useCommandPalette();
 
   const sections = ["clinical", "support", "admin"] as const;
 
@@ -44,6 +46,24 @@ export function EmrShell({ children }: { children: ReactNode }) {
               <div className="text-[10px] text-fc-ink-subtle">{branding.shortName} mission</div>
             </div>
           </div>
+        </div>
+
+        <div className="px-2 py-2">
+          <button
+            ref={searchTriggerRef}
+            type="button"
+            onClick={openPalette}
+            aria-haspopup="dialog"
+            aria-expanded={isOpen}
+            aria-label="Search patients"
+            className="flex min-h-11 w-full items-center gap-2.5 rounded-lg border border-fc-border-strong bg-fc-paper px-3 py-2 text-sm font-medium text-fc-ink transition-colors hover:border-fc-accent/40 hover:bg-fc-accent-tint focus:border-fc-accent focus:outline-none focus:ring-2 focus:ring-fc-accent/20"
+          >
+            <Search className="h-4 w-4 shrink-0 text-fc-accent" aria-hidden />
+            Search patients
+            <kbd className="ml-auto hidden rounded border border-fc-border bg-fc-surface px-1.5 py-0.5 font-mono text-[10px] text-fc-ink-subtle sm:inline">
+              ⌘Space
+            </kbd>
+          </button>
         </div>
 
         <nav className="flex-1 overflow-y-auto py-2">

@@ -106,6 +106,7 @@ function parseOptionalDecimal(raw: string): number | undefined {
 const NEW_PATIENT: PatientDto = {
   id: "",
   legacyId: null,
+  displayId: null,
   displayName: "New patient",
   dateOfBirth: null,
   calculatedAge: null,

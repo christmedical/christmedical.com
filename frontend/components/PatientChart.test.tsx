@@ -32,6 +32,7 @@ const P2 = "22222222-2222-2222-2222-222222222222";
 function patient(partial: Partial<PatientDto> & Pick<PatientDto, "id" | "displayName">): PatientDto {
   return {
     legacyId: partial.legacyId ?? "LEG",
+    displayId: partial.displayId ?? null,
     dateOfBirth: null,
     calculatedAge: null,
     gender: null,

@@ -5,8 +5,11 @@ import { reconcileSelectionAfterLoad } from "./patientSelection";
 const row = (id: string, name: string): PatientDto => ({
   id,
   legacyId: id,
+  displayId: null,
   displayName: name,
   dateOfBirth: null,
+  calculatedAge: null,
+  gender: null,
   hopeGospel: false,
   heardGospelDate: null,
   spiritualStatusLabel: "none",

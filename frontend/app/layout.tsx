@@ -1,18 +1,27 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Public_Sans } from "next/font/google";
 import { ConnectivityBanner } from "@/components/ConnectivityBanner";
 import { PwaHead } from "@/components/PwaHead";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-bricolage",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const publicSans = Public_Sans({
+  variable: "--font-public-sans",
   subsets: ["latin"],
+  display: "swap",
+});
+
+/** Tabular figures for DOB, vitals, and legacy IDs. */
+const tabularMono = Public_Sans({
+  variable: "--font-tabular-mono",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -24,7 +33,7 @@ export const metadata: Metadata = {
 
 /** Default until `PwaHead` sets tenant theme client-side. */
 export const viewport: Viewport = {
-  themeColor: "#0d9488",
+  themeColor: "#cd7f32",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -38,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="light" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${bricolage.variable} ${publicSans.variable} ${tabularMono.variable} antialiased`}
       >
         <PwaHead />
         <ConnectivityBanner />

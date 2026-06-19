@@ -1,29 +1,55 @@
 @import "tailwindcss";
+@import "../styles/field-clinical.css";
 
 /* Clinical UI defaults to light; dark: utilities only apply under .dark (not set by default). */
 @custom-variant dark (&:where(.dark, .dark *));
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-  color-scheme: light;
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-public-sans);
+  --font-display: var(--font-bricolage);
+  --font-mono: var(--font-tabular-mono);
 
-  /* Sanctified Bronze — Christ Medical EMR */
-  --color-bronze-deep: #4a3728;
-  --color-bronze-burnished: #cd7f32;
-  --color-bronze-glow: #e3b448;
-  --color-ancient-vellum: #fdf5e6;
+  --color-fc-paper: var(--fc-paper);
+  --color-fc-surface: var(--fc-surface);
+  --color-fc-ink: var(--fc-ink);
+  --color-fc-ink-muted: var(--fc-ink-muted);
+  --color-fc-ink-subtle: var(--fc-ink-subtle);
+  --color-fc-accent: var(--fc-accent);
+  --color-fc-accent-strong: var(--fc-accent-strong);
+  --color-fc-accent-glow: var(--fc-accent-glow);
+  --color-fc-accent-tint: var(--fc-accent-tint);
+  --color-fc-border: var(--fc-border);
+  --color-fc-border-strong: var(--fc-border-strong);
+  --color-fc-status-heard-bg: var(--fc-status-heard-bg);
+  --color-fc-status-heard-ink: var(--fc-status-heard-ink);
+  --color-fc-status-heard-ring: var(--fc-status-heard-ring);
+  --color-fc-status-hope-bg: var(--fc-status-hope-bg);
+  --color-fc-status-hope-ink: var(--fc-status-hope-ink);
+  --color-fc-status-hope-ring: var(--fc-status-hope-ring);
+  --color-fc-status-none-bg: var(--fc-status-none-bg);
+  --color-fc-status-none-ink: var(--fc-status-none-ink);
+  --color-fc-status-none-ring: var(--fc-status-none-ring);
+  --color-fc-warn-bg: var(--fc-warn-bg);
+  --color-fc-warn-ink: var(--fc-warn-ink);
+  --color-fc-warn-border: var(--fc-warn-border);
+  --color-fc-error-bg: var(--fc-error-bg);
+  --color-fc-error-ink: var(--fc-error-ink);
+  --color-fc-error-border: var(--fc-error-border);
+
+  --color-bronze-deep: var(--fc-ink);
+  --color-bronze-burnished: var(--fc-accent);
+  --color-bronze-glow: var(--fc-accent-glow);
+  --color-ancient-vellum: var(--fc-paper);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--fc-paper);
+  color: var(--fc-ink);
+  font-family: var(--font-public-sans), system-ui, sans-serif;
+}
+
+.font-tabular {
+  font-variant-numeric: tabular-nums;
 }

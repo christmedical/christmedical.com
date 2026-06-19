@@ -1,13 +1,13 @@
-/** Tailwind classes for spiritual-status chips (used by patient list and unit tests). */
+/** Tailwind classes for spiritual-status pills (Field Clinical tokens). */
 export function spiritualStatusBadgeClass(
   kind: "heard" | "hope" | "none",
 ): string {
   switch (kind) {
     case "heard":
-      return "bg-emerald-100 text-emerald-900 ring-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-200 dark:ring-emerald-800";
+      return "bg-fc-status-heard-bg text-fc-status-heard-ink ring-1 ring-inset ring-fc-status-heard-ring";
     case "hope":
-      return "bg-amber-100 text-amber-900 ring-amber-200 dark:bg-amber-950/50 dark:text-amber-100 dark:ring-amber-800";
+      return "bg-fc-status-hope-bg text-fc-status-hope-ink ring-1 ring-inset ring-fc-status-hope-ring";
     default:
-      return "bg-zinc-100 text-zinc-700 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700";
+      return "bg-fc-status-none-bg text-fc-status-none-ink ring-1 ring-inset ring-fc-status-none-ring";
   }
 }

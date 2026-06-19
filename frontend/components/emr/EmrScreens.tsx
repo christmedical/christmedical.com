@@ -30,8 +30,8 @@ export function StatGrid({ items }: { items: { value: string; label: string }[] 
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {items.map((item) => (
         <div key={item.label} className={`${EMR_SURFACE} p-4`}>
-          <div className="text-2xl font-semibold text-teal-800">{item.value}</div>
-          <div className="mt-1 text-xs text-zinc-500">{item.label}</div>
+          <div className="text-2xl font-semibold text-fc-accent">{item.value}</div>
+          <div className="mt-1 text-xs text-fc-ink-subtle">{item.label}</div>
         </div>
       ))}
     </div>
@@ -49,26 +49,26 @@ export function PatientBanner({
   const p = DEMO_PATIENT;
   return (
     <div className="mb-4 flex flex-wrap items-center gap-3">
-      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-teal-100 text-sm font-semibold text-teal-900 dark:bg-teal-950 dark:text-teal-100">
+      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-fc-accent-tint text-sm font-semibold text-fc-ink text-fc-ink text-fc-ink">
         {p.initials}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="font-semibold text-zinc-900 dark:text-zinc-50">{p.name}</div>
-        <div className="text-xs text-zinc-500">
+        <div className="font-semibold text-fc-ink text-fc-ink">{p.name}</div>
+        <div className="text-xs text-fc-ink-subtle">
           {p.ageGender} · DOB {p.dob} · {p.community}
         </div>
       </div>
       {showNewEncounter ? (
         <Link
           href="/encounter"
-          className="rounded-lg bg-teal-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-teal-700"
+          className="rounded-lg bg-fc-accent px-3 py-1.5 text-xs font-medium text-white hover:bg-fc-accent-strong"
         >
           New encounter
         </Link>
       ) : (
         <Link
           href="/history"
-          className="rounded-lg border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
+          className="rounded-lg border border-fc-border-strong px-3 py-1.5 text-xs font-medium text-fc-ink-muted hover:bg-zinc-50 border-fc-border text-fc-ink hover:bg-fc-accent-tint"
         >
           View full history
         </Link>
@@ -102,22 +102,22 @@ export function QueueScreen() {
         ]}
       />
       <EmrCard title="Active queue — tap to open chart" icon={ListOrdered}>
-        <ul className="divide-y divide-zinc-100 dark:divide-zinc-800">
+        <ul className="divide-y divide-fc-border ">
           {queue.map((row) => (
             <li key={row.initials} className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold dark:bg-zinc-800">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-fc-status-none-bg text-xs font-semibold ">
                 {row.initials}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium">{row.name}</div>
-                <div className="text-xs text-zinc-500">{row.sub}</div>
+                <div className="text-xs text-fc-ink-subtle">{row.sub}</div>
               </div>
               <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${row.statusClass}`}>
                 {row.status}
               </span>
               <Link
                 href="/patients"
-                className="rounded-lg bg-teal-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-teal-700"
+                className="rounded-lg bg-fc-accent px-3 py-1.5 text-xs font-medium text-white hover:bg-fc-accent-strong"
               >
                 Open →
               </Link>
@@ -127,7 +127,7 @@ export function QueueScreen() {
       </EmrCard>
       <Link
         href="/check-in"
-        className="block w-full rounded-xl border border-dashed border-teal-300 py-3 text-center text-sm font-medium text-teal-800 hover:bg-teal-50 dark:border-teal-700 dark:text-teal-200 dark:hover:bg-teal-950/30"
+        className="block w-full rounded-xl border border-dashed border-fc-border-strong py-3 text-center text-sm font-medium text-fc-accent hover:hover:bg-fc-accent-tint dark:border-fc-border-strong dark:text-fc-accent-glow dark:hover:bg-fc-accent-tint"
       >
         + Check in new patient
       </Link>
@@ -150,7 +150,7 @@ export function CheckInScreen() {
         <EmrCard title="Find existing patient" icon={Search}>
           <Link
             href="/patients"
-            className="block rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-500 hover:border-teal-400"
+            className="block rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-fc-ink-subtle hover:border-teal-400"
           >
             Search by name, DOB, or patient ID…
           </Link>
@@ -161,7 +161,7 @@ export function CheckInScreen() {
             {["First name", "Last name", "Date of birth", "Sex at birth"].map((label) => (
               <div
                 key={label}
-                className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800"
+                className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-400 dark:border-zinc-700 "
               >
                 {label}
               </div>
@@ -171,7 +171,7 @@ export function CheckInScreen() {
             (label) => (
               <div
                 key={label}
-                className="mt-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800"
+                className="mt-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-400 dark:border-zinc-700 "
               >
                 {label}
               </div>
@@ -188,9 +188,9 @@ export function CheckInScreen() {
               ["72 bpm", "Heart rate"],
               ["98%", "O2 saturation"],
             ].map(([v, l]) => (
-              <div key={l} className="rounded-lg bg-zinc-50 p-2 text-center dark:bg-zinc-800">
+              <div key={l} className="rounded-lg bg-zinc-50 p-2 text-center ">
                 <div className="text-sm font-semibold">{v}</div>
-                <div className="text-[10px] text-zinc-500">{l}</div>
+                <div className="text-[10px] text-fc-ink-subtle">{l}</div>
               </div>
             ))}
           </div>
@@ -202,15 +202,15 @@ export function CheckInScreen() {
               Height
             </div>
           </div>
-          <div className="mt-3 text-xs font-medium text-zinc-600">Chief complaint</div>
-          <div className="mt-1 min-h-[4rem] rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800">
+          <div className="mt-3 text-xs font-medium text-fc-ink-muted">Chief complaint</div>
+          <div className="mt-1 min-h-[4rem] rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-400 dark:border-zinc-700 ">
             Describe reason for visit…
           </div>
           <div className="mt-2 grid grid-cols-3 gap-2">
             <button type="button" className="rounded-lg border border-red-200 bg-red-50 py-2 text-xs font-medium text-red-800">
               Urgent
             </button>
-            <button type="button" className="rounded-lg bg-teal-600 py-2 text-xs font-medium text-white">
+            <button type="button" className="rounded-lg bg-fc-accent py-2 text-xs font-medium text-white">
               Routine
             </button>
             <button type="button" className="rounded-lg border border-amber-200 bg-amber-50 py-2 text-xs font-medium text-amber-900">
@@ -220,7 +220,7 @@ export function CheckInScreen() {
         </EmrCard>
         <Link
           href="/queue"
-          className="block w-full rounded-xl bg-teal-600 py-3 text-center text-sm font-medium text-white hover:bg-teal-700"
+          className="block w-full rounded-xl bg-fc-accent py-3 text-center text-sm font-medium text-white hover:bg-fc-accent-strong"
         >
           Add to queue →
         </Link>
@@ -259,14 +259,14 @@ export function EncounterScreen() {
   }, [plan, prayerNote, subjective]);
 
   const soapField =
-    "mt-1 w-full resize-y rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-sm text-zinc-800";
+    "mt-1 w-full resize-y rounded-md border border-zinc-200 bg-white px-2 py-1.5 text-sm text-fc-ink";
 
   return (
     <div className={EMR_PAGE_STACK}>
       <PatientBanner />
-      <p className="text-sm text-zinc-600">
+      <p className="text-sm text-fc-ink-muted">
         Demo workflow screen. To save encounters to Postgres, open the patient in{" "}
-        <Link href="/patients" className="font-medium text-teal-700 underline">
+        <Link href="/patients" className="font-medium text-fc-accent underline">
           Patients
         </Link>{" "}
         and use <strong>Save encounter</strong> on the chart.
@@ -274,7 +274,7 @@ export function EncounterScreen() {
       <div className="grid gap-4 xl:grid-cols-[1fr_18rem]">
         <EmrCard title="SOAP note" icon={ClipboardList}>
           <div className="mb-3 rounded-lg border-l-4 border-sky-400 bg-sky-50/50 p-3">
-            <div className="mb-2 text-xs font-semibold uppercase text-zinc-600">S — Subjective</div>
+            <div className="mb-2 text-xs font-semibold uppercase text-fc-ink-muted">S — Subjective</div>
             <textarea
               value={subjective}
               onChange={(e) => setSubjective(e.target.value)}
@@ -284,13 +284,13 @@ export function EncounterScreen() {
             />
           </div>
           <div className="mb-3 rounded-lg border-l-4 border-emerald-400 bg-emerald-50/50 p-3">
-            <div className="mb-2 text-xs font-semibold uppercase text-zinc-600">O — Objective</div>
-            <p className="text-sm text-zinc-700">
+            <div className="mb-2 text-xs font-semibold uppercase text-fc-ink-muted">O — Objective</div>
+            <p className="text-sm text-fc-ink-muted">
               BP 120/80 · HR 72 · Temp 98.6°F · O2 98% · Wt 145 lbs
             </p>
           </div>
           <div className="mb-3 rounded-lg border-l-4 border-amber-400 bg-amber-50/50 p-3">
-            <div className="mb-2 text-xs font-semibold uppercase text-zinc-600">
+            <div className="mb-2 text-xs font-semibold uppercase text-fc-ink-muted">
               A — Assessment / Diagnosis
             </div>
             <div className="mb-2 rounded border border-amber-200 bg-white/60 px-2 py-1.5 text-xs text-amber-800">
@@ -301,7 +301,7 @@ export function EncounterScreen() {
             </span>
           </div>
           <div className="mb-3 rounded-lg border-l-4 border-violet-400 bg-violet-50/50 p-3">
-            <div className="mb-2 text-xs font-semibold uppercase text-zinc-600">P — Plan</div>
+            <div className="mb-2 text-xs font-semibold uppercase text-fc-ink-muted">P — Plan</div>
             <textarea
               value={plan}
               onChange={(e) => setPlan(e.target.value)}
@@ -311,7 +311,7 @@ export function EncounterScreen() {
             />
           </div>
           <div className="mb-3 rounded-lg border-l-4 border-rose-400 bg-rose-50/50 p-3">
-            <div className="mb-2 text-xs font-semibold uppercase text-zinc-600">
+            <div className="mb-2 text-xs font-semibold uppercase text-fc-ink-muted">
               Prayer note (optional)
             </div>
             <textarea
@@ -326,19 +326,19 @@ export function EncounterScreen() {
             <button
               type="button"
               onClick={saveDraft}
-              className="flex-1 rounded-lg border border-zinc-300 py-2 text-xs font-medium hover:bg-zinc-50"
+              className="flex-1 rounded-lg border border-fc-border-strong py-2 text-xs font-medium hover:bg-zinc-50"
             >
               Save draft
             </button>
             <Link
               href="/discharge"
-              className="flex-1 rounded-lg bg-teal-600 py-2 text-center text-xs font-medium text-white hover:bg-teal-700"
+              className="flex-1 rounded-lg bg-fc-accent py-2 text-center text-xs font-medium text-white hover:bg-fc-accent-strong"
             >
               Sign & close →
             </Link>
           </div>
           {savedAt ? (
-            <p className="mt-2 text-xs text-teal-700">Draft saved locally at {savedAt}.</p>
+            <p className="mt-2 text-xs text-fc-accent">Draft saved locally at {savedAt}.</p>
           ) : null}
         </EmrCard>
         <div className="space-y-4">
@@ -350,9 +350,9 @@ export function EncounterScreen() {
                 ["72 bpm", "Heart rate"],
                 ["145 lbs", "Weight"],
               ].map(([v, l]) => (
-                <div key={l} className="rounded-lg bg-zinc-50 p-2 text-center dark:bg-zinc-800">
+                <div key={l} className="rounded-lg bg-zinc-50 p-2 text-center ">
                   <div className="text-sm font-semibold">{v}</div>
-                  <div className="text-[10px] text-zinc-500">{l}</div>
+                  <div className="text-[10px] text-fc-ink-subtle">{l}</div>
                 </div>
               ))}
             </div>
@@ -364,13 +364,13 @@ export function EncounterScreen() {
           </EmrCard>
           <EmrCard title="Quick actions" icon={Zap}>
             <div className="space-y-2">
-              <Link href="/medications" className="block rounded-lg border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800">
+              <Link href="/medications" className="block rounded-lg border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50 dark:border-zinc-700 hover:bg-fc-accent-tint">
                 Prescribe medication →
               </Link>
-              <Link href="/labs" className="block rounded-lg border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800">
+              <Link href="/labs" className="block rounded-lg border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50 dark:border-zinc-700 hover:bg-fc-accent-tint">
                 Order labs →
               </Link>
-              <Link href="/spiritual" className="block rounded-lg border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800">
+              <Link href="/spiritual" className="block rounded-lg border border-zinc-200 px-3 py-2 text-sm hover:bg-zinc-50 dark:border-zinc-700 hover:bg-fc-accent-tint">
                 Log spiritual care →
               </Link>
             </div>
@@ -393,12 +393,12 @@ export function HistoryScreen() {
             ["Sep 3, 2025", "URI — acute", "Amoxicillin 500mg × 7 days · resolved", false],
           ].map(([date, dx, note, prayer]) => (
             <div key={String(date)} className="mb-3 flex gap-3 border-b border-zinc-100 pb-3 last:mb-0 last:border-0 dark:border-zinc-800">
-              <div className="w-20 shrink-0 text-xs font-medium text-zinc-500">{date}</div>
+              <div className="w-20 shrink-0 text-xs font-medium text-fc-ink-subtle">{date}</div>
               <div>
                 <div className="text-sm font-medium">{dx}</div>
-                <div className="text-xs text-zinc-500">{note}</div>
+                <div className="text-xs text-fc-ink-subtle">{note}</div>
                 {prayer ? (
-                  <span className="mt-1 inline-block rounded-full bg-teal-100 px-2 py-0.5 text-[10px] text-teal-900">
+                  <span className="mt-1 inline-block rounded-full bg-fc-accent-tint px-2 py-0.5 text-[10px] text-fc-ink">
                     Prayer logged
                   </span>
                 ) : null}
@@ -410,7 +410,7 @@ export function HistoryScreen() {
           <EmrCard title="Chronic conditions" icon={FileText}>
             <div className="flex flex-wrap gap-2">
               {["E11.9 Type 2 diabetes", "I10 Hypertension", "E78.5 Hyperlipidemia"].map((c) => (
-                <span key={c} className="rounded-full bg-zinc-100 px-2 py-1 text-xs dark:bg-zinc-800">
+                <span key={c} className="rounded-full bg-fc-status-none-bg px-2 py-1 text-xs ">
                   {c}
                 </span>
               ))}
@@ -452,7 +452,7 @@ export function MedicationsScreen() {
             <div key={med} className="mb-2 flex items-center justify-between gap-2 border-b border-zinc-100 py-2 last:border-0 dark:border-zinc-800">
               <div>
                 <div className="text-sm font-medium">{med}</div>
-                <div className="text-xs text-zinc-500">ongoing</div>
+                <div className="text-xs text-fc-ink-subtle">ongoing</div>
               </div>
               <div className="flex gap-1">
                 <button type="button" className="rounded border px-2 py-1 text-xs">
@@ -473,15 +473,15 @@ export function MedicationsScreen() {
         {["Search formulary…", "Dose & unit", "Frequency", "Duration", "Quantity"].map((f) => (
           <div
             key={f}
-            className="mb-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800"
+            className="mb-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-400 dark:border-zinc-700 "
           >
             {f}
           </div>
         ))}
-        <div className="mb-3 min-h-[4rem] rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800">
+        <div className="mb-3 min-h-[4rem] rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-400 dark:border-zinc-700 ">
           Provider notes / patient instructions…
         </div>
-        <button type="button" className="w-full rounded-lg bg-teal-600 py-2 text-sm font-medium text-white">
+        <button type="button" className="w-full rounded-lg bg-fc-accent py-2 text-sm font-medium text-white">
           Save prescription →
         </button>
       </EmrCard>
@@ -510,7 +510,7 @@ export function LabsScreen() {
             {p}
           </label>
         ))}
-        <button type="button" className="mt-3 w-full rounded-lg bg-teal-600 py-2 text-sm font-medium text-white">
+        <button type="button" className="mt-3 w-full rounded-lg bg-fc-accent py-2 text-sm font-medium text-white">
           Submit orders →
         </button>
       </EmrCard>
@@ -550,7 +550,7 @@ export function LabsScreen() {
 export function SpiritualScreen() {
   return (
     <div className="space-y-4">
-      <div className="rounded-xl border border-teal-200 bg-teal-50/80 px-4 py-3 text-sm italic text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-100">
+      <div className="rounded-xl border border-teal-200 hover:bg-fc-accent-tint/80 px-4 py-3 text-sm italic text-fc-ink dark:border-teal-800 text-fc-ink/40 text-fc-ink">
         &ldquo;Heal me, Lord, and I will be healed; save me and I will be saved, for you are the one I
         praise.&rdquo; — Jeremiah 17:14
       </div>
@@ -570,13 +570,13 @@ export function SpiritualScreen() {
         </EmrCard>
         <div className="space-y-4">
           <EmrCard title="Prayer request & notes" icon={FileText}>
-            <div className="min-h-[5rem] rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800">
+            <div className="min-h-[5rem] rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-400 dark:border-zinc-700 ">
               Record the patient&apos;s prayer request…
             </div>
           </EmrCard>
           <Link
             href="/encounter"
-            className="block w-full rounded-xl bg-teal-600 py-3 text-center text-sm font-medium text-white hover:bg-teal-700"
+            className="block w-full rounded-xl bg-fc-accent py-3 text-center text-sm font-medium text-white hover:bg-fc-accent-strong"
           >
             Save & return to chart →
           </Link>
@@ -593,15 +593,15 @@ export function DischargeScreen() {
         <EmrCard title={`Encounter summary — ${DEMO_PATIENT.name}`} icon={CheckCircle2}>
           <dl className="space-y-3 text-sm">
             <div>
-              <dt className="text-xs font-medium text-zinc-500">Primary diagnosis</dt>
+              <dt className="text-xs font-medium text-fc-ink-subtle">Primary diagnosis</dt>
               <dd>E11.9 — Type 2 diabetes mellitus without complications</dd>
             </div>
             <div>
-              <dt className="text-xs font-medium text-zinc-500">Prescribed today</dt>
+              <dt className="text-xs font-medium text-fc-ink-subtle">Prescribed today</dt>
               <dd>Metformin 500mg · 2× daily · adjusted dose</dd>
             </div>
             <div>
-              <dt className="text-xs font-medium text-zinc-500">Labs ordered</dt>
+              <dt className="text-xs font-medium text-fc-ink-subtle">Labs ordered</dt>
               <dd>HbA1c · Fasting glucose · CBC</dd>
             </div>
           </dl>
@@ -615,7 +615,7 @@ export function DischargeScreen() {
       </div>
       <div className="space-y-4">
         <EmrCard title="Patient instructions" icon={FileText}>
-          <div className="min-h-[4rem] rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-400 dark:border-zinc-700 dark:bg-zinc-800">
+          <div className="min-h-[4rem] rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-400 dark:border-zinc-700 ">
             Write plain-language instructions for the patient…
           </div>
         </EmrCard>
@@ -626,12 +626,12 @@ export function DischargeScreen() {
           </label>
         </EmrCard>
         <div className="flex gap-2">
-          <button type="button" className="flex-1 rounded-lg border border-zinc-300 py-2 text-sm font-medium">
+          <button type="button" className="flex-1 rounded-lg border border-fc-border-strong py-2 text-sm font-medium">
             Print summary
           </button>
           <Link
             href="/queue"
-            className="flex-1 rounded-lg bg-teal-600 py-2 text-center text-sm font-medium text-white hover:bg-teal-700"
+            className="flex-1 rounded-lg bg-fc-accent py-2 text-center text-sm font-medium text-white hover:bg-fc-accent-strong"
           >
             Discharge patient ✓
           </Link>

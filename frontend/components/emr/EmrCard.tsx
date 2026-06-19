@@ -1,13 +1,17 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { EmrIcon } from "@/lib/emrIcons";
+import {
+  FC_PAGE_STACK,
+  FC_SURFACE,
+  FC_SURFACE_BODY,
+  FC_SURFACE_HEADER,
+} from "@/components/design/fieldClinical";
 
-export const EMR_SURFACE =
-  "rounded-xl border border-zinc-200 bg-white shadow-sm";
-export const EMR_SURFACE_HEADER =
-  "border-b border-zinc-100 px-4 py-3 text-sm font-medium text-zinc-800";
-export const EMR_SURFACE_BODY = "p-4";
-export const EMR_PAGE_STACK = "space-y-4";
+export const EMR_SURFACE = FC_SURFACE;
+export const EMR_SURFACE_HEADER = FC_SURFACE_HEADER;
+export const EMR_SURFACE_BODY = FC_SURFACE_BODY;
+export const EMR_PAGE_STACK = FC_PAGE_STACK;
 
 type EmrCardProps = {
   title: string;

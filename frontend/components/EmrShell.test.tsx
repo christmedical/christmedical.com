@@ -26,5 +26,6 @@ describe("EmrShell", () => {
     expect(screen.getByRole("link", { name: /Patients/ })).toHaveAttribute("href", "/patients");
     expect(screen.getByRole("link", { name: /Dashboard/ })).toHaveAttribute("href", "/dashboard");
     expect(screen.getByText("content")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Settings/ })).toHaveAttribute("href", "/settings");
   });
 });

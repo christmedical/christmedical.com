@@ -2,15 +2,15 @@ import { describe, expect, it } from "vitest";
 import { spiritualStatusBadgeClass } from "./spiritualBadge";
 
 describe("spiritualStatusBadgeClass", () => {
-  it("returns emerald styling for heard", () => {
-    expect(spiritualStatusBadgeClass("heard")).toContain("emerald");
+  it("maps heard to Field Clinical status tokens", () => {
+    expect(spiritualStatusBadgeClass("heard")).toContain("fc-status-heard");
   });
 
-  it("returns amber styling for hope", () => {
-    expect(spiritualStatusBadgeClass("hope")).toContain("amber");
+  it("maps hope to Field Clinical status tokens", () => {
+    expect(spiritualStatusBadgeClass("hope")).toContain("fc-status-hope");
   });
 
-  it("returns neutral zinc styling for none", () => {
-    expect(spiritualStatusBadgeClass("none")).toContain("zinc");
+  it("maps none to Field Clinical status tokens", () => {
+    expect(spiritualStatusBadgeClass("none")).toContain("fc-status-none");
   });
 });

@@ -17,13 +17,19 @@ function todayLabel(): string {
 
 export function EmrLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const meta = EMR_PAGE_META[pathname] ?? { title: "Christ Medical" };
+  const meta =
+    EMR_PAGE_META[pathname] ??
+    (pathname.startsWith("/patients/")
+      ? pathname.endsWith("/new")
+        ? { title: "Register patient", badge: "New chart" }
+        : { title: "Patient chart", badge: "Active chart" }
+      : { title: "Christ Medical" });
   const dateLabel = pathname === "/queue" || pathname === "/dashboard" ? todayLabel() : undefined;
 
   return (
     <EmrShell>
       <EmrPageHeader {...meta} dateLabel={dateLabel} />
-      <main className="flex-1 overflow-y-auto p-6">{children}</main>
+      <main className="flex-1 overflow-y-auto bg-fc-paper p-6">{children}</main>
     </EmrShell>
   );
 }

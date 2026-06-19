@@ -21,6 +21,7 @@ export const EMR_NAV: EmrNavItem[] = [
   { href: "/spiritual", label: "Spiritual care", icon: EMR_NAV_ICONS.spiritual, section: "support" },
   { href: "/discharge", label: "Discharge", icon: EMR_NAV_ICONS.discharge, section: "support" },
   { href: "/dashboard", label: "Dashboard", icon: EMR_NAV_ICONS.dashboard, section: "admin" },
+  { href: "/settings", label: "Settings", icon: EMR_NAV_ICONS.settings, section: "admin" },
 ];
 
 export type EmrPageMeta = {
@@ -31,13 +32,14 @@ export type EmrPageMeta = {
 
 export const EMR_PAGE_META: Record<string, EmrPageMeta> = {
   "/queue": { title: "Patient queue", badge: "Today" },
-  "/patients": { title: "Patients", badge: "Search & charts" },
+  "/patients": { title: "Patients", badge: "Search" },
   "/check-in": { title: "Check-in & triage", badge: "New patient" },
   "/encounter": { title: "Encounter", badge: "In encounter", badgeClass: "amber" },
   "/history": { title: "Patient history", badge: "Active chart" },
   "/medications": { title: "Medications & Rx", badge: "Active chart" },
   "/labs": { title: "Labs & orders", badge: "Active chart" },
-  "/spiritual": { title: "Spiritual care", badge: "Active chart", badgeClass: "teal" },
+  "/spiritual": { title: "Spiritual care", badge: "Active chart", badgeClass: "accent" },
   "/discharge": { title: "Discharge", badge: "Ready to discharge", badgeClass: "green" },
   "/dashboard": { title: "Mission dashboard", badge: "Live" },
+  "/settings": { title: "Settings", badge: "Trip" },
 };

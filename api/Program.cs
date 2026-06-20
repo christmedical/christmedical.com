@@ -6,6 +6,14 @@ var builder = WebApplication.CreateBuilder(args);
 var rawConnection =
     builder.Configuration.GetConnectionString("DefaultConnection")
     ?? Environment.GetEnvironmentVariable("DATABASE_URL");
+
+if (rawConnection?.Contains("${{", StringComparison.Ordinal) == true)
+{
+    throw new InvalidOperationException(
+        "ConnectionStrings__DefaultConnection contains unresolved Railway template text (${{...}}). "
+        + "In the Railway dashboard use Add Reference → Postgres → pick a variable; do not paste ${{...}} literally.");
+}
+
 var normalizedConnection = PostgresConnectionString.Normalize(rawConnection);
 if (!string.IsNullOrWhiteSpace(normalizedConnection))
 {

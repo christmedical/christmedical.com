@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { patientCommunity } from "@/lib/demoPatientMeta";
+import { apiFetch } from "@/lib/apiFetch";
 import {
   normalizeApiBaseUrl,
   patientsListUrl,
@@ -54,7 +55,7 @@ export function usePatientPaletteSearch(enabled: boolean) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         patientsListUrl(base, { tenantId: tid, limit: OFFLINE_PATIENT_CAP }),
         { cache: "no-store" },
       );
@@ -94,7 +95,7 @@ export function usePatientPaletteSearch(enabled: boolean) {
 
     setSearchLoading(true);
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         patientsSearchUrl(base, {
           tenantId: tid,
           q: debouncedQ.trim() || undefined,

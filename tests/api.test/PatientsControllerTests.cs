@@ -1,6 +1,7 @@
 using ChristMedical.WebAPI.Controllers;
 using ChristMedical.WebAPI.Models;
 using ChristMedical.WebAPI.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Xunit;
@@ -29,7 +30,7 @@ public sealed class PatientsControllerTests
             .Setup(s => s.ListPatientsAsync(1, 50, It.IsAny<CancellationToken>()))
             .ReturnsAsync(patients);
 
-        var controller = new PatientsController(service.Object);
+        var controller = new PatientsController(service.Object, new AllowTenantContext());
 
         var result = await controller.ListAsync(1, 50, CancellationToken.None);
 
@@ -60,7 +61,7 @@ public sealed class PatientsControllerTests
             .Setup(s => s.UpdatePatientNotesAsync(id, 1, body, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PatientNotesUpdateOutcome(PatientNotesUpdateStatus.Updated, updated));
 
-        var controller = new PatientsController(service.Object);
+        var controller = new PatientsController(service.Object, new AllowTenantContext());
 
         var result = await controller.PatchNotesAsync(id, 1, body, CancellationToken.None);
 
@@ -80,7 +81,7 @@ public sealed class PatientsControllerTests
             .Setup(s => s.UpdatePatientNotesAsync(id, 1, body, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PatientNotesUpdateOutcome(PatientNotesUpdateStatus.NotFound));
 
-        var controller = new PatientsController(service.Object);
+        var controller = new PatientsController(service.Object, new AllowTenantContext());
 
         var result = await controller.PatchNotesAsync(id, 1, body, CancellationToken.None);
 
@@ -92,7 +93,7 @@ public sealed class PatientsControllerTests
     public async Task SearchAsync_Returns_BadRequest_When_No_Query_And_Spiritual_All()
     {
         var service = new Mock<IPatientService>(MockBehavior.Strict);
-        var controller = new PatientsController(service.Object);
+        var controller = new PatientsController(service.Object, new AllowTenantContext());
 
         var result = await controller.SearchAsync(1, null, "all", 50, CancellationToken.None);
 
@@ -108,7 +109,7 @@ public sealed class PatientsControllerTests
             .Setup(s => s.SearchPatientsAsync(1, null, "heard", 20, It.IsAny<CancellationToken>()))
             .ReturnsAsync(found);
 
-        var controller = new PatientsController(service.Object);
+        var controller = new PatientsController(service.Object, new AllowTenantContext());
 
         var result = await controller.SearchAsync(1, null, "heard", 20, CancellationToken.None);
 
@@ -136,7 +137,7 @@ public sealed class PatientsControllerTests
             .Setup(s => s.SearchPatientsAsync(1, "jon", "all", 50, It.IsAny<CancellationToken>()))
             .ReturnsAsync(patients);
 
-        var controller = new PatientsController(service.Object);
+        var controller = new PatientsController(service.Object, new AllowTenantContext());
 
         var result = await controller.SearchAsync(1, "jon", "all", 50, CancellationToken.None);
 
@@ -144,5 +145,17 @@ public sealed class PatientsControllerTests
         var list = Assert.IsAssignableFrom<IReadOnlyList<PatientResponse>>(
             Assert.IsType<OkObjectResult>(ok.Result!).Value);
         Assert.Single(list);
+    }
+
+    [Fact]
+    public async Task SearchAsync_ReturnsForbidden_WhenTenantContextRejects()
+    {
+        var service = new Mock<IPatientService>(MockBehavior.Strict);
+        var controller = new PatientsController(service.Object, new DenyTenantContext());
+
+        var result = await controller.SearchAsync(1, "jon", "all", 50, CancellationToken.None);
+
+        var forbidden = Assert.IsType<ObjectResult>(result.Result);
+        Assert.Equal(StatusCodes.Status403Forbidden, forbidden.StatusCode);
     }
 }

@@ -31,6 +31,17 @@ vi.mock("@/lib/onlineStatus", () => ({
   useOnlineStatus: vi.fn(() => true),
 }));
 
+vi.mock("@/lib/authSession", () => ({
+  bootstrapAccessToken: vi.fn().mockResolvedValue(null),
+  getAccessToken: vi.fn().mockReturnValue(null),
+  setAccessToken: vi.fn(),
+  clearAccessToken: vi.fn(),
+}));
+
+vi.mock("@/lib/apiFetch", () => ({
+  apiFetch: (url: string, init?: RequestInit) => fetch(url, init),
+}));
+
 const P1 = "11111111-1111-1111-1111-111111111111";
 
 function patient(partial: Partial<PatientDto> & Pick<PatientDto, "id" | "displayName">): PatientDto {

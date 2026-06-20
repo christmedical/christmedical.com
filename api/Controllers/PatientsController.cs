@@ -7,19 +7,33 @@ namespace ChristMedical.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/v1/patients")]
-public class PatientsController(IPatientService patients) : ControllerBase
+public class PatientsController(IPatientService patients, ITenantRequestContext tenantContext) : ControllerBase
 {
+    private ActionResult? RejectTenantMismatch(short queryTenantId, out short tenantId)
+    {
+        tenantId = queryTenantId;
+        var resolved = tenantContext.TryResolveTenantId(queryTenantId, out var error);
+        if (resolved is null)
+            return StatusCode(StatusCodes.Status403Forbidden, new { message = error ?? "Tenant access denied." });
+        tenantId = resolved.Value;
+        return null;
+    }
+
     /// <summary>
     /// Patient list for offline-capable PWA (default 50 rows, up to 2000 for IndexedDB sync).
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<PatientResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<IReadOnlyList<PatientResponse>>> ListAsync(
         [FromQuery] short tenantId = 1,
         [FromQuery] int limit = 50,
         CancellationToken cancellationToken = default)
     {
+        if (RejectTenantMismatch(tenantId, out tenantId) is { } denied)
+            return denied;
+
         if (limit is < 1 or > 2000)
             return BadRequest("limit must be between 1 and 2000.");
 
@@ -33,6 +47,7 @@ public class PatientsController(IPatientService patients) : ControllerBase
     [HttpGet("search")]
     [ProducesResponseType(typeof(IReadOnlyList<PatientResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<IReadOnlyList<PatientResponse>>> SearchAsync(
         [FromQuery] short tenantId = 1,
         [FromQuery] string? q = null,
@@ -40,6 +55,9 @@ public class PatientsController(IPatientService patients) : ControllerBase
         [FromQuery] int limit = 50,
         CancellationToken cancellationToken = default)
     {
+        if (RejectTenantMismatch(tenantId, out tenantId) is { } denied)
+            return denied;
+
         if (limit is < 1 or > 200)
             return BadRequest("limit must be between 1 and 200.");
 
@@ -62,6 +80,7 @@ public class PatientsController(IPatientService patients) : ControllerBase
     [HttpPatch("{id:guid}")]
     [ProducesResponseType(typeof(PatientResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PatientResponse>> PatchNotesAsync(
         Guid id,
@@ -69,6 +88,9 @@ public class PatientsController(IPatientService patients) : ControllerBase
         [FromBody] UpdatePatientNotesRequest body,
         CancellationToken cancellationToken = default)
     {
+        if (RejectTenantMismatch(tenantId, out tenantId) is { } denied)
+            return denied;
+
         var outcome = await patients.UpdatePatientNotesAsync(
             id,
             tenantId,

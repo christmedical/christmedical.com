@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { apiFetch } from "@/lib/apiFetch";
 import {
   normalizeApiBaseUrl,
   patientVisitsCreateUrl,
@@ -152,7 +153,7 @@ export function PatientChart({
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         patientsListUrl(base, { tenantId: tid, limit: OFFLINE_PATIENT_CAP }),
         { cache: "no-store" },
       );
@@ -206,7 +207,7 @@ export function PatientChart({
     setSaving(true);
     setSaveError(null);
     try {
-      const res = await fetch(patientsPatchUrl(base, selected.id, tid), {
+      const res = await apiFetch(patientsPatchUrl(base, selected.id, tid), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -480,7 +481,7 @@ function EncountersPanel({
     setLoading(true);
     setLoadError(null);
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         patientVisitsListUrl(base, patientId, tenantId),
         { cache: "no-store" },
       );
@@ -559,7 +560,7 @@ function EncountersPanel({
     setSaving(true);
     setSaveError(null);
     try {
-      const res = await fetch(patientVisitsCreateUrl(base, patientId, tenantId), {
+      const res = await apiFetch(patientVisitsCreateUrl(base, patientId, tenantId), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { DashboardSummaryDto } from "@/lib/dashboardTypes";
+import { apiFetch } from "@/lib/apiFetch";
 import { dashboardSummaryUrl, normalizeApiBaseUrl } from "@/lib/patientApi";
 import { getTenantBranding } from "@/lib/tenantConfig";
 import { getTenantId } from "@/lib/tenantRuntime";
@@ -30,7 +31,7 @@ export function DashboardHome({ embedded = false }: { embedded?: boolean }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(dashboardSummaryUrl(base, tid), { cache: "no-store" });
+      const res = await apiFetch(dashboardSummaryUrl(base, tid), { cache: "no-store" });
       if (!res.ok) throw new Error(`API ${res.status}`);
       setData((await res.json()) as DashboardSummaryDto);
     } catch (e) {

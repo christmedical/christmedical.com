@@ -1,4 +1,5 @@
-import { DEFAULT_TENANT_ID, getTenantBranding } from "@/lib/tenantConfig";
+import { DEFAULT_TENANT_ID, getTenantBranding, getTenantIdBySlug } from "@/lib/tenantConfig";
+import { parseHost } from "@/lib/subdomain";
 
 const STORAGE_KEY = "cm-tenant-id";
 
@@ -9,23 +10,19 @@ function readEnvTenantId(): number {
   return Number.isFinite(n) && n > 0 ? n : DEFAULT_TENANT_ID;
 }
 
-/** Resolve tenant: URL ?tenantId= → localStorage → env default. */
-export function getTenantId(): number {
-  if (typeof window === "undefined") return readEnvTenantId();
+function tenantIdFromHost(): number | null {
+  if (typeof window === "undefined") return null;
+  const parsed = parseHost(window.location.host);
+  if (parsed.kind !== "tenant") return null;
+  return getTenantIdBySlug(parsed.tenantSlug);
+}
 
-  const params = new URLSearchParams(window.location.search);
-  const fromUrl = params.get("tenantId");
-  if (fromUrl != null) {
-    const n = Number.parseInt(fromUrl, 10);
-    if (Number.isFinite(n) && n > 0) {
-      try {
-        window.localStorage.setItem(STORAGE_KEY, String(n));
-      } catch {
-        /* private mode */
-      }
-      return n;
-    }
-  }
+/** Resolve tenant: subdomain slug → localStorage → env default. */
+export function getTenantId(): number {
+  const fromHost = tenantIdFromHost();
+  if (fromHost != null) return fromHost;
+
+  if (typeof window === "undefined") return readEnvTenantId();
 
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -43,4 +40,10 @@ export function getTenantId(): number {
 export function getResolvedTenant() {
   const id = getTenantId();
   return { id, branding: getTenantBranding(id) };
+}
+
+export function getTenantSlug(): string | null {
+  if (typeof window === "undefined") return null;
+  const parsed = parseHost(window.location.host);
+  return parsed.kind === "tenant" ? parsed.tenantSlug : null;
 }

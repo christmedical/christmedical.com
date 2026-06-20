@@ -5,7 +5,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 var rawConnection =
     builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? Environment.GetEnvironmentVariable("DATABASE_URL");
+    ?? Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? Environment.GetEnvironmentVariable("DATABASE_PUBLIC_URL");
 
 if (rawConnection?.Contains("${{", StringComparison.Ordinal) == true)
 {
@@ -24,6 +25,8 @@ if (!string.IsNullOrWhiteSpace(normalizedConnection))
         });
 }
 
+var corsOrigins = CorsOrigins.Parse(builder.Configuration["CORS_ORIGINS"]);
+
 builder.Services.AddResponseCaching();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -34,11 +37,11 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(
-        "dev",
+        "app",
         policy =>
         {
             policy
-                .WithOrigins("http://localhost:3000")
+                .WithOrigins(corsOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod();
         });
@@ -47,18 +50,9 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 var startupLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
-await DbSchemaInitializer.EnsurePatientsSpiritualColumnsAsync(
+await DbSchemaBootstrap.EnsureAsync(
     app.Configuration,
-    startupLogger,
-    CancellationToken.None);
-
-await DbSchemaInitializer.EnsurePatientsLegacyAndContactColumnsAsync(
-    app.Configuration,
-    startupLogger,
-    CancellationToken.None);
-
-await DbSchemaInitializer.EnsurePatientsPhoneticColumnsAsync(
-    app.Configuration,
+    app.Environment,
     startupLogger,
     CancellationToken.None);
 
@@ -67,7 +61,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseCors("dev");
+app.UseCors("app");
 app.UseResponseCaching();
 app.UseAuthorization();
 app.MapControllers();

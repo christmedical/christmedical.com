@@ -137,7 +137,20 @@ Also set:
 
 ```text
 ASPNETCORE_ENVIRONMENT=Production
+SEED_DEMO_DATA=true
 ```
+
+`SEED_DEMO_DATA=true` runs `demo/db/99_demo_seed.sql` **once** when the `patients` table is empty (first deploy on fresh Postgres). Leave it on for demo/staging; set `false` after you load real data.
+
+Optional:
+
+```text
+CORS_ORIGINS=https://www.christmedical.com,https://christmedical.com,http://localhost:3000
+```
+
+Defaults include production domains if unset.
+
+On first boot the API applies `conversion/etl/V1__…` through `V7__…` when no `patients` table exists, then serves **`GET /health`** for Railway health checks.
 
 - **Networking** → port **8080** → **Generate Domain**; use that URL as `NEXT_PUBLIC_API_URL` on Vercel.
 

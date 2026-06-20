@@ -1,0 +1,9 @@
+# Christ Medical API — Railway config-as-code (christmedical-api service).
+# Root Dockerfile is the ETL tool image; the HTTP API lives under api/.
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "api/Dockerfile"
+
+[deploy]
+healthcheckPath = "/"
+restartPolicyType = "ON_FAILURE"

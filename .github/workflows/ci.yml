@@ -66,12 +66,16 @@ jobs:
       - name: Install Railway CLI
         run: npm i -g @railway/cli
 
-      # Railway service should use repo root with Dockerfile path api/Dockerfile (COPY api/ ...).
+      # Railway service: repo root, Dockerfile api/Dockerfile (see docs/deploy-production.md).
       - name: Deploy
         working-directory: .
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up --detach
+        run: |
+          railway up --detach \
+            --project 5084d868-f41c-428c-92a8-950e5464b450 \
+            --service 1458908a-791e-470d-b83c-19996bdf6714 \
+            --environment production
 
   deploy-frontend:
     name: Deploy frontend (Vercel)

@@ -151,6 +151,15 @@ In the Railway project, set the **root directory** to the GitHub repo root and t
 
 Set the **production** build command in Vercel to match local checks, e.g. `npm run ci` (or `npm run lint && npm run test && npm run build`).
 
+**Step-by-step production setup** (custom domain, `NEXT_PUBLIC_API_URL`, Railway Postgres, GoDaddy DNS): see **[docs/deploy-production.md](docs/deploy-production.md)**.
+
+Quick secret upload after creating a Railway token:
+
+```bash
+# RAILWAY_TOKEN in .env or export RAILWAY_TOKEN=...
+./scripts/set-railway-github-secret.sh
+```
+
 ### Docker Hub (demo images)
 
 When you push a git tag like `v0.1.0`, the workflow **Publish demo images (Docker Hub)** builds and pushes:

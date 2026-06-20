@@ -61,42 +61,32 @@ vercel env add NEXT_PUBLIC_API_URL production
 vercel deploy --prod
 ```
 
-### Custom domain (GoDaddy registrar + Vercel nameservers)
+### Custom domain — Vercel only (ignore GoDaddy DNS)
 
-**Current setup:** nameservers at GoDaddy point to Vercel (`ns1.vercel-dns.com`, `ns2.vercel-dns.com`). DNS records are managed in **Vercel → Domains → christmedical.com → DNS**, not in GoDaddy’s DNS tab.
+**One-time at GoDaddy (registrar):** set nameservers to Vercel only, then never open GoDaddy DNS again.
 
-At **GoDaddy** (registrar only):
+| Nameserver |
+|------------|
+| `ns1.vercel-dns.com` |
+| `ns2.vercel-dns.com` |
 
-1. **Nameservers** → Custom → `ns1.vercel-dns.com` and `ns2.vercel-dns.com` only.
-2. **Domain Forwarding** → **Off** (forwarding can intercept traffic before Vercel).
-3. Ignore GoDaddy **DNS Records** / **A records** — Vercel owns DNS once nameservers delegate.
-
-In **Vercel DNS** you should have:
+Turn **Domain Forwarding** off at GoDaddy. All DNS records live in **Vercel → Project → Settings → Domains** (or **Vercel → Domains → christmedical.com → DNS**).
 
 | Name | Type | Value |
 |------|------|-------|
-| `@` | ALIAS | (auto) |
-| `www` | CNAME | `cname.vercel-dns.com` |
+| `@` | ALIAS | (Vercel auto — do not delete) |
+| `www` | CNAME | `e1e5f025a892126a.vercel-dns-017.com` |
 
-**Expected behavior:** `https://christmedical.com` → **308 redirect** → `https://www.christmedical.com` → app. That is normal when both domains are on the project.
+Vercel may show “DNS Change Recommended” for `www` until that CNAME matches. Older `cname.vercel-dns.com` still works but update when prompted.
 
-Verify delegation (should **not** show `domaincontrol.com`):
+**Behavior:** `christmedical.com` → 308 redirect → `www.christmedical.com` → app. Both are valid.
+
+Verify:
 
 ```bash
-dig +short christmedical.com NS
-dig +short christmedical.com A
+dig +short christmedical.com NS          # ns1/ns2.vercel-dns.com
+dig +short www.christmedical.com CNAME     # e1e5f025a892126a.vercel-dns-017.com.
 curl -sI https://christmedical.com | grep -i location
-```
-
-If `dig NS` still shows GoDaddy nameservers locally, flush DNS or wait for propagation (up to 24–48h). Public resolvers (8.8.8.8) should already show Vercel.
-
-**Alternative (DNS stays at GoDaddy):** revert nameservers to GoDaddy defaults and use A records `@` and `www` → `76.76.21.21` instead (see Vercel domain settings).
-
-Verify in Vercel:
-
-```bash
-cd frontend
-vercel domains inspect christmedical.com
 ```
 
 ---

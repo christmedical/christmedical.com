@@ -3,8 +3,26 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PatientDto } from "@/lib/patientTypes";
 import { PatientBrowse } from "./PatientList";
 
+const push = vi.fn();
+
 vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push }),
   useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("next/link", () => ({
+  default: ({
+    children,
+    href,
+    ...props
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
 }));
 
 describe("PatientBrowse", () => {
@@ -28,7 +46,7 @@ describe("PatientBrowse", () => {
     });
     globalThis.fetch = fetchMock as typeof fetch;
 
-    render(<PatientBrowse embedded />);
+    render(<PatientBrowse />);
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
 
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: "maria" } });

@@ -7,6 +7,8 @@ import {
   History,
   LogOut,
   Pill,
+  Search,
+  Settings,
   UserPlus,
   Users,
 } from "lucide-react";
@@ -35,5 +37,6 @@ export const EMR_NAV_ICONS = {
   spiritual: Heart,
   discharge: LogOut,
   dashboard: BarChart3,
-  patients: Users,
+  patients: Search,
+  settings: Settings,
 } as const satisfies Record<string, LucideIcon>;

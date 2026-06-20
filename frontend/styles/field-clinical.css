@@ -1,0 +1,42 @@
+/**
+ * Field Clinical — global semantic tokens (warm paper, rust accent).
+ * Source of truth: patient chart screen. All screens consume these variables.
+ */
+:root {
+  --fc-paper: #fdf5e6;
+  --fc-surface: #ffffff;
+  --fc-ink: #4a3728;
+  --fc-ink-muted: #6b5344;
+  --fc-ink-subtle: #8a7262;
+  --fc-accent: #cd7f32;
+  --fc-accent-strong: #b86928;
+  --fc-accent-glow: #e3b448;
+  --fc-accent-tint: #f9efe3;
+  --fc-border: #e8dcc8;
+  --fc-border-strong: #d4c4ad;
+  --fc-status-heard-bg: #e8f3ea;
+  --fc-status-heard-ink: #2d5a36;
+  --fc-status-heard-ring: #b8d4be;
+  --fc-status-hope-bg: #faf0df;
+  --fc-status-hope-ink: #7a4e12;
+  --fc-status-hope-ring: #e8cfa0;
+  --fc-status-none-bg: #f3ebe0;
+  --fc-status-none-ink: #6b5344;
+  --fc-status-none-ring: #e0d2c0;
+  --fc-warn-bg: #faf0df;
+  --fc-warn-ink: #7a4e12;
+  --fc-warn-border: #e8cfa0;
+  --fc-error-bg: #fcebea;
+  --fc-error-ink: #8b2e2e;
+  --fc-error-border: #e8b4b4;
+
+  /* Legacy aliases — bronze components (RiffleChart) map to Field Clinical */
+  --color-bronze-deep: var(--fc-ink);
+  --color-bronze-burnished: var(--fc-accent);
+  --color-bronze-glow: var(--fc-accent-glow);
+  --color-ancient-vellum: var(--fc-paper);
+
+  --background: var(--fc-paper);
+  --foreground: var(--fc-ink);
+  color-scheme: light;
+}

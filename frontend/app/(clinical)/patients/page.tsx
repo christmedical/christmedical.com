@@ -1,14 +1,10 @@
 import { Suspense } from "react";
-import { PatientBrowse } from "@/components/PatientList";
+import { PatientSearch } from "@/components/PatientSearch";
 
 export default function PatientsPage() {
   return (
-    <Suspense
-      fallback={
-        <p className="text-sm text-zinc-600">Loading patients…</p>
-      }
-    >
-      <PatientBrowse embedded />
+    <Suspense fallback={<p className="text-sm text-fc-ink-muted">Loading patients…</p>}>
+      <PatientSearch />
     </Suspense>
   );
 }

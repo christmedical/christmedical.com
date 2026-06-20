@@ -1,11 +1,28 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PatientDto } from "@/lib/patientTypes";
-import { useOnlineStatus } from "@/lib/onlineStatus";
 import { PatientList } from "./PatientList";
 
+const push = vi.fn();
+
 vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push }),
   useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock("next/link", () => ({
+  default: ({
+    children,
+    href,
+    ...props
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
 }));
 
 vi.mock("@/lib/onlineStatus", () => ({
@@ -15,12 +32,14 @@ vi.mock("@/lib/onlineStatus", () => ({
 }));
 
 const P1 = "11111111-1111-1111-1111-111111111111";
-const P2 = "22222222-2222-2222-2222-222222222222";
 
 function patient(partial: Partial<PatientDto> & Pick<PatientDto, "id" | "displayName">): PatientDto {
   return {
     legacyId: partial.legacyId ?? "LEG",
+    displayId: partial.displayId ?? null,
     dateOfBirth: null,
+    calculatedAge: null,
+    gender: null,
     hopeGospel: false,
     heardGospelDate: null,
     spiritualStatusLabel: "No spiritual record",
@@ -34,10 +53,11 @@ function patient(partial: Partial<PatientDto> & Pick<PatientDto, "id" | "display
   };
 }
 
-describe("PatientList", () => {
+describe("PatientList (search)", () => {
   const originalFetch = globalThis.fetch;
 
   beforeEach(() => {
+    push.mockClear();
     vi.stubEnv("NEXT_PUBLIC_API_URL", "http://localhost:5050/api");
   });
 
@@ -47,16 +67,7 @@ describe("PatientList", () => {
     vi.restoreAllMocks();
   });
 
-  it("shows configuration error when API base URL is missing", async () => {
-    vi.unstubAllEnvs();
-    vi.stubEnv("NEXT_PUBLIC_API_URL", "");
-    render(<PatientList />);
-    await waitFor(() =>
-      expect(screen.getByText(/NEXT_PUBLIC_API_URL is not set/)).toBeInTheDocument(),
-    );
-  });
-
-  it("requests the list endpoint with normalized base URL", async () => {
+  it("requests the list endpoint on mount for offline cache", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -72,47 +83,7 @@ describe("PatientList", () => {
     );
   });
 
-  it("renders patient rows after successful fetch", async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      statusText: "OK",
-      json: async () => [
-        patient({ id: P1, displayName: "Alice Alpha" }),
-        patient({
-          id: P2,
-          displayName: "Bob Beta",
-          spiritualStatusKind: "heard",
-          heardGospelDate: "2024-01-01",
-          spiritualStatusLabel: "Heard",
-        }),
-      ],
-    }) as typeof fetch;
-
-    render(<PatientList />);
-    const table = await screen.findByRole("table");
-    await waitFor(() => {
-      expect(within(table).getByText("Alice Alpha")).toBeInTheDocument();
-      expect(within(table).getByText("Bob Beta")).toBeInTheDocument();
-    });
-    expect(screen.getByLabelText(/Search patients/i)).toBeInTheDocument();
-  });
-
-  it("shows API error when response is not ok", async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      ok: false,
-      status: 502,
-      statusText: "Bad Gateway",
-      json: async () => ({}),
-    }) as typeof fetch;
-
-    render(<PatientList />);
-    await waitFor(() =>
-      expect(screen.getByText(/API 502 Bad Gateway/)).toBeInTheDocument(),
-    );
-  });
-
-  it("shows empty state when API returns no rows", async () => {
+  it("shows search prompt before querying", async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -123,66 +94,46 @@ describe("PatientList", () => {
     render(<PatientList />);
     await waitFor(() =>
       expect(
-        screen.getByText(/No patients returned\. Run the ETL/),
+        screen.getByText(/Enter a name, legacy ID, or DOB/),
       ).toBeInTheDocument(),
     );
   });
 
-  it("selects a row and shows details", async () => {
-    globalThis.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      statusText: "OK",
-      json: async () => [
-        patient({ id: P1, displayName: "Alice Alpha", spiritualNotes: "Note one" }),
-        patient({ id: P2, displayName: "Bob Beta", spiritualNotes: "Note two" }),
-      ],
-    }) as typeof fetch;
-
-    render(<PatientList />);
-    const bCell = await screen.findByRole("cell", { name: "Bob Beta" });
-    fireEvent.click(bCell.closest("tr")!);
-    await waitFor(() => expect(screen.getByText("Note two")).toBeInTheDocument());
-  });
-
-  it("sends PATCH when Save is clicked", async () => {
-    const updated = patient({
-      id: P2,
-      displayName: "Bob Beta",
-      spiritualNotes: "Saved note",
-      spiritualStatusKind: "none",
-      spiritualStatusLabel: "No spiritual record",
-    });
-
-    const listJson = [
-      patient({ id: P1, displayName: "Alice Alpha" }),
-      patient({
-        id: P2,
-        displayName: "Bob Beta",
-        spiritualNotes: "Note two",
-      }),
-    ];
-
-    const fetchMock = vi.fn(
-      async (input: RequestInfo | URL, init?: RequestInit) => {
-        const url =
-          typeof input === "string"
-            ? input
-            : input instanceof URL
-              ? input.href
-              : input.url;
-        const method = init?.method ?? "GET";
-
-        if (method === "PATCH" && url.includes(P2)) {
+  it("navigates to chart when a result is selected", async () => {
+    globalThis.fetch = vi.fn(
+      async (input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+        if (url.includes("/search")) {
           return {
             ok: true,
             status: 200,
             statusText: "OK",
-            json: async () => updated,
+            json: async () => [patient({ id: P1, displayName: "Alice Alpha" })],
           } as Response;
         }
+        return {
+          ok: true,
+          status: 200,
+          statusText: "OK",
+          json: async () => [],
+        } as Response;
+      },
+    ) as typeof fetch;
 
-        if (url.includes(`/patients/${P2}/visits`)) {
+    render(<PatientList />);
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "alice" } });
+
+    const row = await screen.findByRole("button", { name: /Alice Alpha/i });
+    fireEvent.click(row);
+
+    expect(push).toHaveBeenCalledWith(`/patients/${P1}`);
+  });
+
+  it("shows no-match register CTA when search returns empty", async () => {
+    globalThis.fetch = vi.fn(
+      async (input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+        if (url.includes("/search")) {
           return {
             ok: true,
             status: 200,
@@ -190,84 +141,22 @@ describe("PatientList", () => {
             json: async () => [],
           } as Response;
         }
-
         return {
           ok: true,
           status: 200,
           statusText: "OK",
-          json: async () => listJson,
+          json: async () => [],
         } as Response;
       },
-    );
-    globalThis.fetch = fetchMock as typeof fetch;
+    ) as typeof fetch;
 
     render(<PatientList />);
-    const bCell = await screen.findByRole("cell", { name: "Bob Beta" });
-    fireEvent.click(bCell.closest("tr")!);
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "nobody" } });
 
-    const spiritual = await screen.findByLabelText(/Spiritual check-up notes/i);
-    fireEvent.change(spiritual, { target: { value: "Saved note" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
-
-    await waitFor(() => {
-      const patchCall = fetchMock.mock.calls.find(
-        (c) => (c[1] as RequestInit | undefined)?.method === "PATCH",
-      );
-      expect(patchCall).toBeDefined();
-    });
-    const patchCall = fetchMock.mock.calls.find(
-      (c) => (c[1] as RequestInit | undefined)?.method === "PATCH",
-    )!;
-    expect(patchCall[0]).toBe(
-      `http://localhost:5050/api/v1/patients/${P2}?tenantId=1`,
+    await waitFor(() => expect(screen.getByText("No match found")).toBeInTheDocument());
+    expect(screen.getByRole("link", { name: /Register new patient/i })).toHaveAttribute(
+      "href",
+      "/patients/new",
     );
-    expect((patchCall[1] as RequestInit).method).toBe("PATCH");
-  });
-
-  it("does not PATCH when offline and shows offline save error", async () => {
-    vi.mocked(useOnlineStatus).mockReturnValue(false);
-
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        statusText: "OK",
-        json: async () => [
-          patient({ id: P1, displayName: "Alice Alpha" }),
-          patient({
-            id: P2,
-            displayName: "Bob Beta",
-            spiritualNotes: "Note two",
-          }),
-        ],
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        statusText: "OK",
-        json: async () => [],
-      });
-    globalThis.fetch = fetchMock as typeof fetch;
-
-    render(<PatientList />);
-    const bCell = await screen.findByRole("cell", { name: "Bob Beta" });
-    fireEvent.click(bCell.closest("tr")!);
-
-    const spiritual = await screen.findByLabelText(/Spiritual check-up notes/i);
-    fireEvent.change(spiritual, { target: { value: "Offline edit" } });
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
-
-    await waitFor(() =>
-      expect(
-        screen.getByText(
-          /Offline — saving is paused\. Your edits are kept on this device until you reconnect\./,
-        ),
-      ).toBeInTheDocument(),
-    );
-    const patchCalls = fetchMock.mock.calls.filter(
-      (c) => (c[1] as RequestInit | undefined)?.method === "PATCH",
-    );
-    expect(patchCalls).toHaveLength(0);
   });
 });

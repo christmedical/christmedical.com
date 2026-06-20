@@ -43,6 +43,8 @@ public sealed class PatientService(IConfiguration configuration) : IPatientServi
                 hope_gospel         AS "HopeGospel",
                 heard_gospel_date   AS "HeardGospelDate",
                 spiritual_notes     AS "SpiritualNotes",
+                first_name_phonetic AS "FirstNamePhonetic",
+                last_name_phonetic  AS "LastNamePhonetic",
                 home_phone          AS "HomePhone",
                 mobile_phone        AS "MobilePhone",
                 device_id           AS "DeviceId",
@@ -99,6 +101,8 @@ public sealed class PatientService(IConfiguration configuration) : IPatientServi
                 hope_gospel         AS "HopeGospel",
                 heard_gospel_date   AS "HeardGospelDate",
                 spiritual_notes     AS "SpiritualNotes",
+                first_name_phonetic AS "FirstNamePhonetic",
+                last_name_phonetic  AS "LastNamePhonetic",
                 home_phone          AS "HomePhone",
                 mobile_phone        AS "MobilePhone",
                 device_id           AS "DeviceId",
@@ -282,8 +286,13 @@ public sealed class PatientService(IConfiguration configuration) : IPatientServi
         {
             Id = r.Id,
             LegacyId = r.LegacyId,
+            DisplayId = r.DisplayId,
             DisplayName = FormatDisplayName(r.FirstName, r.LastName),
             DateOfBirth = r.Dob?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+            CalculatedAge = r.CalculatedAge,
+            Gender = FormatGender(r.Gender),
+            FirstNamePhonetic = r.FirstNamePhonetic,
+            LastNamePhonetic = r.LastNamePhonetic,
             HopeGospel = r.HopeGospel,
             HeardGospelDate = r.HeardGospelDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
             SpiritualStatusLabel = statusLabel,
@@ -307,6 +316,15 @@ public sealed class PatientService(IConfiguration configuration) : IPatientServi
         return ("No spiritual record", "none");
     }
 
+    private static string? FormatGender(string? gender)
+    {
+        if (string.IsNullOrWhiteSpace(gender))
+            return null;
+
+        var g = gender.Trim();
+        return g.Length == 1 ? g.ToUpperInvariant() : g;
+    }
+
     private static string FormatDisplayName(string? firstName, string? lastName)
     {
         var first = string.IsNullOrWhiteSpace(firstName) ? "" : firstName.Trim();
@@ -326,9 +344,14 @@ public sealed class PatientService(IConfiguration configuration) : IPatientServi
         public Guid Id { get; set; }
         public short TenantId { get; set; }
         public string? LegacyId { get; set; }
+        public string? DisplayId { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public DateTime? Dob { get; set; }
+        public int? CalculatedAge { get; set; }
+        public string? Gender { get; set; }
+        public string? FirstNamePhonetic { get; set; }
+        public string? LastNamePhonetic { get; set; }
         public bool HopeGospel { get; set; }
         public DateTime? HeardGospelDate { get; set; }
         public string? SpiritualNotes { get; set; }

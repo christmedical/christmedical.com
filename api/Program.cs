@@ -3,6 +3,19 @@ using ChristMedical.WebAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var rawConnection =
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? Environment.GetEnvironmentVariable("DATABASE_URL");
+var normalizedConnection = PostgresConnectionString.Normalize(rawConnection);
+if (!string.IsNullOrWhiteSpace(normalizedConnection))
+{
+    builder.Configuration.AddInMemoryCollection(
+        new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:DefaultConnection"] = normalizedConnection,
+        });
+}
+
 builder.Services.AddResponseCaching();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();

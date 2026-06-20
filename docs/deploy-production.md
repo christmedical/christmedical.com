@@ -97,7 +97,7 @@ railway add --service christmedical-api
 In the [Railway dashboard](https://railway.com/project/5084d868-f41c-428c-92a8-950e5464b450):
 
 - Service **christmedical-api**: `railway.toml` at repo root sets `dockerfilePath = "api/Dockerfile"` (do **not** use root `Dockerfile` — that is the ETL image and references unavailable .NET 10 preview tags).
-- Add **PostgreSQL** (or external DB) and set `ConnectionStrings__DefaultConnection` for the API
+- Add **PostgreSQL** and on **christmedical-api** → **Variables** set `ConnectionStrings__DefaultConnection` to a **reference** to Postgres **`DATABASE_PRIVATE_URL`** (or `DATABASE_URL`). Railway’s `postgresql://…` form is converted automatically at API startup.
 - Generate a public domain for the API service; use that URL as `NEXT_PUBLIC_API_URL` on Vercel
 
 ### Deploy from laptop

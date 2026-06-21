@@ -43,4 +43,6 @@ docker run --rm --network "$NETWORK" \
   "ghcr.io/k1low/tbls:${VERSION}" \
   -c /work/.tbls.yml doc --rm-dist
 
+bash "$ROOT/scripts/extract-schema-er-mermaid.sh"
+
 echo "Schema docs written to docs/schema/"

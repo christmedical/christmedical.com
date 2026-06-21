@@ -17,9 +17,10 @@ import {
   DEMO_LOGIN_EMAIL,
   DEMO_LOGIN_PASSWORD,
   DEMO_TENANT_SLUG,
+  demoLoginHref,
   isDemoLoginPrefill,
 } from "@/lib/demoAuth";
-import { loginOrigin, tenantAppOrigin } from "@/lib/subdomain";
+import { tenantAppOrigin } from "@/lib/subdomain";
 
 const PICK_TENANT_MEMBERSHIPS_KEY = "cm-pick-tenant-memberships";
 
@@ -50,7 +51,7 @@ export function LoginPageClient() {
   const [loading, setLoading] = useState(false);
 
   const demoSiteHref = tenantAppOrigin(DEMO_TENANT_SLUG);
-  const demoLoginHref = `${loginOrigin()}?tenant=${DEMO_TENANT_SLUG}&returnTo=${encodeURIComponent(returnTo)}`;
+  const demoLoginLink = demoLoginHref(returnTo);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -159,7 +160,7 @@ export function LoginPageClient() {
           </form>
 
           <p className="text-center text-xs text-fc-ink-subtle">
-            <Link href={demoPrefill ? demoSiteHref : demoLoginHref} className="text-fc-accent hover:text-fc-accent-strong">
+            <Link href={demoPrefill ? demoSiteHref : demoLoginLink} className="text-fc-accent hover:text-fc-accent-strong">
               demo site
             </Link>
           </p>

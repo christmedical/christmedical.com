@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SchemaErDiagram } from "@/components/marketing/SchemaErDiagram";
 import {
   FC_CHIP,
   FC_CHIP_ACTIVE,
@@ -135,13 +136,7 @@ export function HowItWorksClient() {
             </p>
           </div>
 
-          <div
-            className={`${FC_SURFACE} flex min-h-[10rem] items-center justify-center border-dashed p-8 text-center`}
-          >
-            <p className="text-sm text-fc-ink-subtle">
-              Component diagram — coming soon.
-            </p>
-          </div>
+          <SchemaErDiagram />
         </section>
       )}
     </div>

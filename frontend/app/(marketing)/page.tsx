@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ChristMedicalWordmark } from "@/components/ChristMedicalWordmark";
 import { FC_BTN_PRIMARY, FC_SURFACE } from "@/components/design/fieldClinical";
-import { DEMO_TENANT_SLUG } from "@/lib/demoAuth";
-import { loginOrigin, tenantAppOrigin } from "@/lib/subdomain";
+import { demoLoginHref } from "@/lib/demoAuth";
+import { loginOrigin } from "@/lib/subdomain";
 
 const FEATURES = [
   {
@@ -25,7 +25,7 @@ const FEATURES = [
 
 export default function MarketingHomePage() {
   const signInHref = loginOrigin();
-  const demoSiteHref = tenantAppOrigin(DEMO_TENANT_SLUG);
+  const demoHref = demoLoginHref("/queue");
 
   return (
     <>
@@ -67,7 +67,7 @@ export default function MarketingHomePage() {
               Clinician sign in
             </a>
             <a
-              href={demoSiteHref}
+              href={demoHref}
               className="inline-flex min-h-11 items-center rounded-lg border-2 px-6 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-[color:var(--cm-brand-gold)]/15"
               style={{
                 borderColor: "var(--cm-brand-gold-soft)",

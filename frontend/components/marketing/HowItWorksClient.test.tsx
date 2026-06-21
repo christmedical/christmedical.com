@@ -26,7 +26,7 @@ describe("HowItWorksClient", () => {
       "true",
     );
     expect(screen.getByRole("img", { name: /isometric deployment/i })).toBeInTheDocument();
-    expect(screen.getByText(/component diagram — coming soon/i)).toBeInTheDocument();
+    expect(screen.getByText(/database schema/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole("tab", { name: /patient journey/i }));
 

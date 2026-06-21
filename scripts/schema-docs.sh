@@ -10,5 +10,6 @@ fi
 
 bash "$ROOT/scripts/apply-api-schema.sh"
 bash "$ROOT/scripts/tbls.sh" doc --rm-dist
+bash "$ROOT/scripts/extract-schema-er-mermaid.sh"
 
 echo "Schema docs written to docs/schema/"

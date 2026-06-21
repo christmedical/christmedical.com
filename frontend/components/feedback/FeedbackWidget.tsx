@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { List, MessageSquare } from "lucide-react";
 import {
   FC_BTN_PRIMARY,
   FC_BTN_SECONDARY,
@@ -11,6 +12,7 @@ import {
   FC_SURFACE,
   FC_TEXTAREA,
 } from "@/components/design/fieldClinical";
+import { CommentPinBubble, PlaceCursorBubble } from "@/components/feedback/FeedbackShapes";
 import { FeedbackProvider, useFeedbackMode } from "@/components/feedback/FeedbackProvider";
 
 function SignInPrompt() {
@@ -70,25 +72,30 @@ function SignInPrompt() {
 }
 
 function PinMarkers() {
-  const { pagePins, selectPin } = useFeedbackMode();
+  const { pagePins, selectedPin, selectPin } = useFeedbackMode();
 
   return (
     <>
-      {pagePins.map((pin, index) => (
-        <button
-          key={pin.id}
-          type="button"
-          className="pointer-events-auto absolute z-[10000] flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-fc-paper bg-fc-accent text-xs font-bold text-fc-paper shadow-md"
-          style={{ left: `${pin.pinX * 100}%`, top: `${pin.pinY * 100}%` }}
-          onClick={(ev) => {
-            ev.stopPropagation();
-            selectPin(pin);
-          }}
-          aria-label={`Feedback pin ${index + 1}`}
-        >
-          {index + 1}
-        </button>
-      ))}
+      {pagePins.map((pin, index) => {
+        const isSelected = selectedPin?.id === pin.id;
+        return (
+          <button
+            key={pin.id}
+            type="button"
+            className={`pointer-events-auto absolute z-[10000] -translate-y-1/2 transition-opacity duration-150 ${
+              isSelected ? "opacity-100" : "opacity-55 hover:opacity-100"
+            }`}
+            style={{ left: `${pin.pinX * 100}%`, top: `${pin.pinY * 100}%`, transform: "translate(-2px, -50%)" }}
+            onClick={(ev) => {
+              ev.stopPropagation();
+              selectPin(pin);
+            }}
+            aria-label={`Feedback note ${index + 1}`}
+          >
+            <CommentPinBubble label={index + 1} size={40} />
+          </button>
+        );
+      })}
     </>
   );
 }
@@ -121,7 +128,7 @@ function NotePopover() {
 
   return (
     <div
-      className="pointer-events-auto absolute z-[10001] w-72 max-w-[90vw] -translate-x-1/2 translate-y-2"
+      className="pointer-events-auto absolute z-[10001] w-72 max-w-[90vw] translate-x-3 -translate-y-1/2"
       style={{ left, top }}
       onClick={(ev) => ev.stopPropagation()}
     >
@@ -174,6 +181,25 @@ function NotePopover() {
   );
 }
 
+function FeedbackPlaceCursor() {
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => setPos({ x: e.clientX, y: e.clientY });
+    window.addEventListener("mousemove", onMove, { passive: true });
+    return () => window.removeEventListener("mousemove", onMove);
+  }, []);
+
+  return (
+    <div
+      className="pointer-events-none fixed z-[10000]"
+      style={{ left: pos.x, top: pos.y, transform: "translate(-2px, -2px)" }}
+    >
+      <PlaceCursorBubble size={36} />
+    </div>
+  );
+}
+
 function FeedbackOverlay() {
   const { active, accessState, dropPin } = useFeedbackMode();
 
@@ -181,49 +207,60 @@ function FeedbackOverlay() {
 
   return (
     <div
-      className="fixed inset-0 z-[9998] cursor-crosshair"
+      className="fixed inset-0 z-[9998] cursor-none"
       onClick={(ev) => {
         const pinX = ev.clientX / window.innerWidth;
         const pinY = ev.clientY / window.innerHeight;
         dropPin(pinX, pinY);
       }}
     >
+      <FeedbackPlaceCursor />
       <PinMarkers />
       <NotePopover />
     </div>
   );
 }
 
-function FeedbackToggleButton() {
+function FeedbackFloatingPill() {
   const { active, accessState, toggleActive, signInError } = useFeedbackMode();
 
   if (accessState === "denied" && signInError) {
     return (
-      <div className="fixed bottom-4 left-4 z-[9999] max-w-xs rounded-lg border border-fc-warn-border bg-fc-warn-bg p-3 text-xs text-fc-warn-ink shadow-lg">
+      <div className="fixed bottom-6 right-6 z-[10002] max-w-xs rounded-xl border border-fc-warn-border bg-fc-warn-bg p-3 text-xs text-fc-warn-ink shadow-lg">
         {signInError}
       </div>
     );
   }
 
   return (
-    <div className="fixed bottom-4 left-4 z-[9999] flex flex-col gap-2">
-      <button
-        type="button"
-        className={
-          active
-            ? "rounded-full border border-fc-accent bg-fc-accent px-4 py-2 text-sm font-medium text-fc-paper shadow-lg"
-            : "rounded-full border border-fc-border-strong bg-fc-surface px-4 py-2 text-sm font-medium text-fc-ink shadow-lg hover:bg-fc-accent-tint"
-        }
-        onClick={toggleActive}
-      >
-        {active ? "Feedback on" : "Feedback"}
-      </button>
-      <Link
-        href="/feedback-review"
-        className="rounded-full border border-fc-border bg-fc-surface/90 px-3 py-1.5 text-center text-xs text-fc-ink-muted shadow hover:text-fc-ink"
-      >
-        Review all
-      </Link>
+    <div
+      className="group/pill fixed bottom-6 right-6 z-[10002] opacity-50 transition-opacity duration-200 hover:opacity-100"
+      aria-label="Feedback tools"
+    >
+      <div className="flex w-11 flex-col overflow-hidden rounded-full bg-zinc-950 shadow-2xl ring-1 ring-white/10">
+        <button
+          type="button"
+          className={`flex h-11 w-11 items-center justify-center transition-colors ${
+            active
+              ? "bg-white/15 text-white"
+              : "text-zinc-300 hover:bg-white/10 hover:text-white"
+          }`}
+          onClick={toggleActive}
+          aria-label={active ? "Turn off feedback mode" : "Leave feedback"}
+          title={active ? "Feedback on" : "Leave feedback"}
+        >
+          <MessageSquare className="h-5 w-5" strokeWidth={2} />
+        </button>
+        <div className="h-px bg-white/10" aria-hidden />
+        <Link
+          href="/feedback-review"
+          className="flex h-11 w-11 items-center justify-center text-zinc-300 transition-colors hover:bg-white/10 hover:text-white"
+          aria-label="Review all feedback"
+          title="Review all"
+        >
+          <List className="h-5 w-5" strokeWidth={2} />
+        </Link>
+      </div>
     </div>
   );
 }
@@ -233,7 +270,7 @@ function FeedbackWidgetInner() {
 
   return (
     <>
-      <FeedbackToggleButton />
+      <FeedbackFloatingPill />
       <FeedbackOverlay />
       {needsSignIn ? <SignInPrompt /> : null}
     </>

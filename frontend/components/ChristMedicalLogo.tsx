@@ -8,7 +8,7 @@ type ChristMedicalLogoProps = {
   priority?: boolean;
 };
 
-/** Square Christ Medical mark for nav, auth, and marketing surfaces. */
+/** Square Christ Medical emblem (no wordmark) for nav, auth, marketing, and PWA. */
 export function ChristMedicalLogo({
   size = 44,
   className = "rounded-lg object-contain",

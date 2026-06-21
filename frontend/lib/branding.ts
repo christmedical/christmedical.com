@@ -1,4 +1,4 @@
-/** Christ Medical logo and PWA icon paths (served from /public/branding). */
+/** Christ Medical emblem (no wordmark) — served from /public/branding. */
 export const CHRIST_MEDICAL_LOGO_SRC = "/branding/icon-512.png";
 
 export const CHRIST_MEDICAL_ICONS = {

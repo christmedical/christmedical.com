@@ -37,9 +37,15 @@ describe("parseHost", () => {
     expect(parseHost("login.localhost:3000")).toEqual({ kind: "login" });
   });
 
-  it("uses DEV_TENANT_SLUG on bare localhost", () => {
+  it("uses DEV_TENANT_SLUG on bare localhost when set", () => {
     vi.stubEnv("DEV_TENANT_SLUG", "demo");
     expect(parseHost("localhost:3000")).toEqual({ kind: "tenant", tenantSlug: "demo" });
+    vi.unstubAllEnvs();
+  });
+
+  it("treats bare localhost as marketing when DEV_TENANT_SLUG is unset", () => {
+    vi.stubEnv("DEV_TENANT_SLUG", "");
+    expect(parseHost("localhost:3000")).toEqual({ kind: "marketing" });
     vi.unstubAllEnvs();
   });
 });

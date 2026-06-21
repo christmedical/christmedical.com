@@ -30,6 +30,12 @@
   --fc-error-ink: #8b2e2e;
   --fc-error-border: #e8b4b4;
 
+  /* Christ Medical wordmark / emblem (marketing hero accents) */
+  --cm-brand-navy: #1a3052;
+  --cm-brand-navy-soft: #243d66;
+  --cm-brand-gold: #c9a227;
+  --cm-brand-gold-soft: #e3c76a;
+
   /* Legacy aliases — bronze components (RiffleChart) map to Field Clinical */
   --color-bronze-deep: var(--fc-ink);
   --color-bronze-burnished: var(--fc-accent);

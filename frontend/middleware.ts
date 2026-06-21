@@ -73,12 +73,15 @@ export async function middleware(request: NextRequest) {
 
   if (parsed.kind === "marketing") {
     if (pathname.startsWith("/api")) return NextResponse.next();
-    if (pathname === "/" || pathname === "")
-      return NextResponse.rewrite(new URL("/marketing", request.url));
+    if (pathname === "/marketing" || pathname.startsWith("/marketing/")) {
+      const target = pathname === "/marketing" ? "/" : pathname.replace(/^\/marketing/, "") || "/";
+      return NextResponse.redirect(new URL(target, request.url));
+    }
     if (
       pathname.startsWith("/queue") ||
       pathname.startsWith("/patients") ||
-      pathname.startsWith("/dashboard")
+      pathname.startsWith("/dashboard") ||
+      pathname.startsWith("/feedback-review")
     ) {
       return NextResponse.redirect(new URL("/", request.url));
     }

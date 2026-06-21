@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { ChristMedicalLogo } from "@/components/ChristMedicalLogo";
@@ -12,6 +13,13 @@ import {
   FC_SURFACE,
   FC_SURFACE_BODY,
 } from "@/components/design/fieldClinical";
+import {
+  DEMO_LOGIN_EMAIL,
+  DEMO_LOGIN_PASSWORD,
+  DEMO_TENANT_SLUG,
+  isDemoLoginPrefill,
+} from "@/lib/demoAuth";
+import { loginOrigin, tenantAppOrigin } from "@/lib/subdomain";
 
 const PICK_TENANT_MEMBERSHIPS_KEY = "cm-pick-tenant-memberships";
 
@@ -33,11 +41,16 @@ export function LoginPageClient() {
   const router = useRouter();
   const params = useSearchParams();
   const returnTo = params.get("returnTo") ?? "/queue";
+  const tenantParam = params.get("tenant");
+  const demoPrefill = isDemoLoginPrefill(tenantParam, params.get("demo"));
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(demoPrefill ? DEMO_LOGIN_EMAIL : "");
+  const [password, setPassword] = useState(demoPrefill ? DEMO_LOGIN_PASSWORD : "");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const demoSiteHref = tenantAppOrigin(DEMO_TENANT_SLUG);
+  const demoLoginHref = `${loginOrigin()}?tenant=${DEMO_TENANT_SLUG}&returnTo=${encodeURIComponent(returnTo)}`;
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -111,6 +124,13 @@ export function LoginPageClient() {
             </div>
           </header>
 
+          {demoPrefill ? (
+            <p className="rounded-lg border border-fc-border bg-fc-accent-tint/60 px-3 py-2 text-center text-xs text-fc-ink-muted">
+              Demo clinic — credentials prefilled for{" "}
+              <span className="font-mono text-fc-ink">demo.christmedical.com</span>
+            </p>
+          ) : null}
+
           {error ? <div className={FC_ERROR_BANNER}>{error}</div> : null}
 
           <form className="space-y-4" onSubmit={onSubmit}>
@@ -141,9 +161,10 @@ export function LoginPageClient() {
             </button>
           </form>
 
-          <p className="text-xs text-fc-ink-subtle">
-            Demo: belize@christmedical.com or multi@christmedical.com — password{" "}
-            <span className="font-mono">ChristMedical1!</span>
+          <p className="text-center text-xs text-fc-ink-subtle">
+            <Link href={demoPrefill ? demoSiteHref : demoLoginHref} className="text-fc-accent hover:text-fc-accent-strong">
+              demo site
+            </Link>
           </p>
         </div>
       </div>

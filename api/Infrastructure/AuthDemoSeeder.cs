@@ -59,6 +59,7 @@ public static class AuthDemoSeeder
         var jameyId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb3");
         var connieId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb4");
         var darciId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb5");
+        var demoId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbb6");
 
         await UpsertUserAsync(conn, jameyId, "jamey@mcelveen.us", "Jamey", "McElveen", hash, cancellationToken);
         jameyId = await ResolveUserIdAsync(conn, "jamey@mcelveen.us", jameyId, cancellationToken);
@@ -78,12 +79,16 @@ public static class AuthDemoSeeder
         await UpsertMembershipAsync(conn, darciId, 2, "clinician", cancellationToken);
         await UpsertMembershipAsync(conn, darciId, 3, "clinician", cancellationToken);
 
+        await UpsertUserAsync(conn, demoId, "demo@christmedical.com", "Demo", "Clinician", hash, cancellationToken);
+        demoId = await ResolveUserIdAsync(conn, "demo@christmedical.com", demoId, cancellationToken);
+        await UpsertMembershipAsync(conn, demoId, 2, "clinician", cancellationToken);
+
         await UpsertFeedbackReviewerAsync(conn, "jamey@mcelveen.us", "Jamey McElveen", cancellationToken);
         await UpsertFeedbackReviewerAsync(conn, "connie@mcelveen.us", "Connie McElveen", cancellationToken);
         await UpsertFeedbackReviewerAsync(conn, "darcis@gmail.com", "Darci Shelly", cancellationToken);
 
         logger.LogInformation(
-            "Ensured dev auth + feedback accounts (password: {Password}): jamey@, connie@, darcis@gmail.com",
+            "Ensured dev auth + feedback accounts (password: {Password}): jamey@, connie@, darcis@, demo@",
             DevPassword);
     }
 

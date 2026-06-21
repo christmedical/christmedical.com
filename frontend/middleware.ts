@@ -34,11 +34,16 @@ function withTenantHeaders(
   return response;
 }
 
-function redirectToLogin(request: NextRequest, returnPath: string): NextResponse {
+function redirectToLogin(
+  request: NextRequest,
+  returnPath: string,
+  tenantSlug?: string,
+): NextResponse {
   const host = request.headers.get("host") ?? "";
   const login = loginOrigin(host);
   const url = new URL("/login", login);
   url.searchParams.set("returnTo", returnPath);
+  if (tenantSlug) url.searchParams.set("tenant", tenantSlug);
   return NextResponse.redirect(url);
 }
 
@@ -128,7 +133,7 @@ async function handleTenantHost(
 
   if (needsAuth && !session) {
     const returnTo = `${request.nextUrl.pathname}${request.nextUrl.search}`;
-    return withTenantHeaders(redirectToLogin(request, returnTo), tenant);
+    return withTenantHeaders(redirectToLogin(request, returnTo, parsed.tenantSlug), tenant);
   }
 
   const response = NextResponse.next();

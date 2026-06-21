@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { ChristMedicalLogo } from "@/components/ChristMedicalLogo";
 import { FC_BTN_PRIMARY, FC_SURFACE } from "@/components/design/fieldClinical";
-import { loginOrigin } from "@/lib/subdomain";
+import { DEMO_TENANT_SLUG } from "@/lib/demoAuth";
+import { loginOrigin, tenantAppOrigin } from "@/lib/subdomain";
 
 const FEATURES = [
   {
@@ -24,6 +25,7 @@ const FEATURES = [
 
 export default function MarketingHomePage() {
   const signInHref = loginOrigin();
+  const demoSiteHref = tenantAppOrigin(DEMO_TENANT_SLUG);
 
   return (
     <>
@@ -61,6 +63,12 @@ export default function MarketingHomePage() {
           <div className="flex flex-wrap items-center justify-center gap-3">
             <a href={signInHref} className={`${FC_BTN_PRIMARY} px-8 py-3 text-base shadow-lg`}>
               Clinician sign in
+            </a>
+            <a
+              href={demoSiteHref}
+              className="inline-flex min-h-11 items-center rounded-lg border border-white/25 bg-white/10 px-6 py-2 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/15"
+            >
+              Try demo site
             </a>
             <Link
               href="/about"

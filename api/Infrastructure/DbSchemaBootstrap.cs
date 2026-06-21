@@ -58,6 +58,10 @@ public static class DbSchemaBootstrap
 
         await EnsureTenantsAndAuthAsync(conn, sqlRoot, configuration, logger, cancellationToken);
 
+        await EnsureFeedbackTableAsync(conn, sqlRoot, logger, cancellationToken);
+
+        await EnsureFeedbackReviewerPrefsAsync(conn, sqlRoot, logger, cancellationToken);
+
         if (ShouldSeedDemoData(configuration))
         {
             await SeedDemoDataIfEmptyAsync(conn, sqlRoot, logger, cancellationToken);
@@ -175,6 +179,66 @@ public static class DbSchemaBootstrap
             throw new InvalidOperationException(
                 $"Missing tenants/auth migration at {path}. Dockerfile must COPY V9__tenants_and_auth.sql.");
         }
+    }
+
+    private static async Task EnsureFeedbackTableAsync(
+        NpgsqlConnection conn,
+        string sqlRoot,
+        ILogger logger,
+        CancellationToken cancellationToken)
+    {
+        var exists = await conn.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                """
+                SELECT EXISTS (
+                  SELECT 1 FROM information_schema.tables
+                  WHERE table_schema = 'public' AND table_name = 'feedback'
+                );
+                """,
+                cancellationToken: cancellationToken));
+
+        if (exists)
+            return;
+
+        var path = Path.Combine(sqlRoot, "V10__feedback.sql");
+        if (!File.Exists(path))
+        {
+            throw new InvalidOperationException(
+                $"Missing feedback migration at {path}. Dockerfile must COPY V10__feedback.sql.");
+        }
+
+        logger.LogInformation("Applying feedback schema from {Path}.", path);
+        await ExecuteSqlFileAsync(conn, path, logger, cancellationToken);
+    }
+
+    private static async Task EnsureFeedbackReviewerPrefsAsync(
+        NpgsqlConnection conn,
+        string sqlRoot,
+        ILogger logger,
+        CancellationToken cancellationToken)
+    {
+        var exists = await conn.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                """
+                SELECT EXISTS (
+                  SELECT 1 FROM information_schema.tables
+                  WHERE table_schema = 'public' AND table_name = 'feedback_reviewer_prefs'
+                );
+                """,
+                cancellationToken: cancellationToken));
+
+        if (exists)
+            return;
+
+        var path = Path.Combine(sqlRoot, "V11__feedback_reviewer_prefs.sql");
+        if (!File.Exists(path))
+        {
+            throw new InvalidOperationException(
+                $"Missing feedback reviewer prefs migration at {path}. Dockerfile must COPY V11__feedback_reviewer_prefs.sql.");
+        }
+
+        logger.LogInformation("Applying feedback reviewer prefs from {Path}.", path);
+        await ExecuteSqlFileAsync(conn, path, logger, cancellationToken);
     }
 
     private static async Task ApplyIncrementalPatchesAsync(

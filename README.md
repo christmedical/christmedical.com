@@ -76,6 +76,7 @@ make setup
 | `make setup` | Dev environment setup |
 | `make run` | **Local app**: stop processes/containers, rebuild images when needed, start db + api + web |
 | `make build` | Full lint/build/test (CI parity) |
+| `make schema-docs` | Regenerate `docs/schema/` from Postgres ([tbls](https://github.com/k1LoW/tbls)); needs `TBLS_DSN` or local `make db-up` |
 | `make db-up` / `make db-down` | Postgres via Docker Compose |
 
 ### Storybook (component library)
@@ -206,7 +207,7 @@ git checkout -b feature/my-fix
 - `scripts/` — setup and maintenance  
 - `.github/workflows/` — CI/CD  
 - `conversion/` — SQL, staging load, ETL, appliance images  
-- `docs/` — architecture, database notes, **`HELP_MANUAL.md`** (draft user help), **`EMR_ROADMAP_CHECKLIST.md`** (EMR + spiritual roadmap)  
+- `docs/` — architecture, database notes, **`docs/schema/`** (auto-generated via `make schema-docs`), **`DATABASE_MODEL.md`** (target design reference), **`HELP_MANUAL.md`** (draft user help), **`EMR_ROADMAP_CHECKLIST.md`** (EMR + spiritual roadmap)  
 - **`.env.example`** — template for local Docker Hub demo/push vars (copy to **`.env`**, gitignored)
 
 ### Dashboard and search (API)

@@ -1,6 +1,9 @@
 # Operating System Files
 # =====================
 
+# tbls default output path when .tbls.yml is not loaded
+dbdoc/
+
 # Private Data
 legacy/
 /**/*.csv

@@ -1,0 +1,77 @@
+# tbls — generated schema docs (do not hand-edit docs/schema/).
+# DSN: set TBLS_DSN in the environment (never commit credentials).
+# https://github.com/k1LoW/tbls
+
+dsn: ${TBLS_DSN}
+docPath: docs/schema
+
+name: christ_medical
+desc: |
+  Auto-generated from the live PostgreSQL `public` schema after API bootstrap migrations.
+  Design reference (hand-maintained target model): docs/DATABASE_MODEL.md
+
+include:
+  - public.trips
+  - public.patients
+  - public.visits
+  - public.vitals_core
+  - public.lab_results
+  - public.treatments
+  - public.prescriptions
+  - public.procedure_details
+  - public.tenants
+  - public.users
+  - public.user_tenant_memberships
+  - public.feedback
+  - public.feedback_reviewer_prefs
+
+er:
+  skip: false
+  format: mermaid
+  comment: true
+  distance: 2
+
+format:
+  sort: true
+
+comments:
+  - table: patients
+    tableComment: Mission patient chart (tenant-scoped).
+    labels:
+      - clinical
+  - table: visits
+    labels:
+      - clinical
+  - table: vitals_core
+    labels:
+      - clinical
+  - table: lab_results
+    labels:
+      - clinical
+  - table: treatments
+    labels:
+      - clinical
+  - table: prescriptions
+    labels:
+      - clinical
+  - table: procedure_details
+    labels:
+      - clinical
+  - table: trips
+    labels:
+      - clinical
+  - table: tenants
+    labels:
+      - auth
+  - table: users
+    labels:
+      - auth
+  - table: user_tenant_memberships
+    labels:
+      - auth
+  - table: feedback
+    labels:
+      - feedback
+  - table: feedback_reviewer_prefs
+    labels:
+      - feedback

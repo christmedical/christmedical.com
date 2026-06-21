@@ -4,12 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 
 /** Viewport below this width auto-collapses the nav rail (icon-only). */
 export const NAV_RAIL_AUTO_COLLAPSE_MAX_PX = 1023;
+/** Viewport below this width swaps the nav rail for the mobile workflow bar. */
+export const NAV_RAIL_MOBILE_MAX_PX = 767;
 
 export type NavRailManualMode = "expanded" | "collapsed" | null;
 
-function readNarrowViewport(): boolean {
+function readMaxWidthViewport(maxWidthPx: number): boolean {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
-  return window.matchMedia(`(max-width: ${NAV_RAIL_AUTO_COLLAPSE_MAX_PX}px)`).matches;
+  return window.matchMedia(`(max-width: ${maxWidthPx}px)`).matches;
 }
 
 function isCollapsed(manual: NavRailManualMode, narrow: boolean): boolean {
@@ -23,16 +25,25 @@ function isCollapsed(manual: NavRailManualMode, narrow: boolean): boolean {
  */
 export function useNavRailCollapse() {
   const [manual, setManual] = useState<NavRailManualMode>(null);
-  const [narrow, setNarrow] = useState(readNarrowViewport);
+  const [narrow, setNarrow] = useState(() => readMaxWidthViewport(NAV_RAIL_AUTO_COLLAPSE_MAX_PX));
+  const [mobile, setMobile] = useState(() => readMaxWidthViewport(NAV_RAIL_MOBILE_MAX_PX));
 
   useEffect(() => {
     if (typeof window.matchMedia !== "function") return;
 
-    const mq = window.matchMedia(`(max-width: ${NAV_RAIL_AUTO_COLLAPSE_MAX_PX}px)`);
-    const onChange = () => setNarrow(mq.matches);
+    const autoCollapseMq = window.matchMedia(`(max-width: ${NAV_RAIL_AUTO_COLLAPSE_MAX_PX}px)`);
+    const mobileMq = window.matchMedia(`(max-width: ${NAV_RAIL_MOBILE_MAX_PX}px)`);
+    const onChange = () => {
+      setNarrow(autoCollapseMq.matches);
+      setMobile(mobileMq.matches);
+    };
     onChange();
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
+    autoCollapseMq.addEventListener("change", onChange);
+    mobileMq.addEventListener("change", onChange);
+    return () => {
+      autoCollapseMq.removeEventListener("change", onChange);
+      mobileMq.removeEventListener("change", onChange);
+    };
   }, []);
 
   const collapsed = isCollapsed(manual, narrow);
@@ -44,5 +55,5 @@ export function useNavRailCollapse() {
     });
   }, [narrow]);
 
-  return { collapsed, toggleManual, narrow, manual };
+  return { collapsed, toggleManual, narrow, mobile, manual };
 }

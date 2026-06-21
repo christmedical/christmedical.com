@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import type { ReactNode, RefObject } from "react";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { ChristMedicalLogo } from "@/components/ChristMedicalLogo";
 import { useCommandPalette } from "@/components/command-palette/CommandPaletteContext";
@@ -19,14 +19,85 @@ const SECTION_LABEL: Record<string, string> = {
   admin: "Admin",
 };
 
+function isActivePath(pathname: string, href: string): boolean {
+  return (
+    pathname === href ||
+    pathname.startsWith(`${href}/`) ||
+    (href === "/patients" && pathname.startsWith("/patients"))
+  );
+}
+
+function MobileWorkflowBar({
+  pathname,
+  isOpen,
+  openPalette,
+  searchTriggerRef,
+}: {
+  pathname: string;
+  isOpen: boolean;
+  openPalette: () => void;
+  searchTriggerRef: RefObject<HTMLButtonElement | null>;
+}) {
+  return (
+    <nav
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-fc-border bg-fc-surface/95 px-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 shadow-[0_-10px_30px_rgba(15,23,42,0.12)] backdrop-blur md:hidden"
+      aria-label="Mobile workflow"
+    >
+      <div className="flex items-stretch gap-2 overflow-x-auto">
+        <button
+          ref={searchTriggerRef}
+          type="button"
+          onClick={openPalette}
+          aria-haspopup="dialog"
+          aria-expanded={isOpen}
+          aria-label="Search patients"
+          className="flex min-h-14 min-w-[4.75rem] flex-col items-center justify-center gap-1 rounded-xl border border-fc-border-strong bg-fc-paper px-3 text-xs font-medium text-fc-ink transition-colors hover:border-fc-accent/40 hover:bg-fc-accent-tint focus:border-fc-accent focus:outline-none focus:ring-2 focus:ring-fc-accent/20"
+        >
+          <Search className="h-4 w-4 shrink-0 text-fc-accent" aria-hidden />
+          <span>Search</span>
+        </button>
+        {EMR_NAV.map((item) => {
+          const active = isActivePath(pathname, item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex min-h-14 min-w-[4.75rem] flex-col items-center justify-center gap-1 rounded-xl px-3 text-xs transition-colors ${
+                active ? FC_NAV_ACTIVE : FC_NAV_IDLE
+              }`}
+            >
+              <EmrIcon icon={item.icon} />
+              <span className="max-w-16 truncate">{item.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
 export function EmrShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const tenantId = getTenantId();
   const branding = getTenantBranding(tenantId);
   const { isOpen, openPalette, searchTriggerRef } = useCommandPalette();
-  const { collapsed, toggleManual } = useNavRailCollapse();
+  const { collapsed, mobile, toggleManual } = useNavRailCollapse();
 
   const sections = ["clinical", "support", "admin"] as const;
+
+  if (mobile) {
+    return (
+      <div className="flex min-h-screen bg-fc-paper text-fc-ink">
+        <div className="flex min-w-0 flex-1 flex-col pb-24">{children}</div>
+        <MobileWorkflowBar
+          pathname={pathname}
+          isOpen={isOpen}
+          openPalette={openPalette}
+          searchTriggerRef={searchTriggerRef}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-fc-paper text-fc-ink">
@@ -87,10 +158,7 @@ export function EmrShell({ children }: { children: ReactNode }) {
                 <div className={`px-4 py-2 ${FC_SECTION_LABEL}`}>{SECTION_LABEL[section]}</div>
               ) : null}
               {EMR_NAV.filter((item) => item.section === section).map((item) => {
-                const active =
-                  pathname === item.href ||
-                  pathname.startsWith(`${item.href}/`) ||
-                  (item.href === "/patients" && pathname.startsWith("/patients"));
+                const active = isActivePath(pathname, item.href);
                 return (
                   <Link
                     key={item.href}

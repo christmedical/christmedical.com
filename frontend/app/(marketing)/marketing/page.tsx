@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChristMedicalLogo } from "@/components/ChristMedicalLogo";
 import { FC_BTN_PRIMARY, FC_PAGE_STACK, FC_SURFACE, FC_SURFACE_BODY } from "@/components/design/fieldClinical";
 
 export default function MarketingPage() {
@@ -6,6 +7,7 @@ export default function MarketingPage() {
     <main className="min-h-dvh bg-fc-paper text-fc-ink">
       <div className="mx-auto flex max-w-3xl flex-col gap-8 px-6 py-16">
         <header className="space-y-3">
+          <ChristMedicalLogo size={72} className="rounded-xl shadow-sm ring-1 ring-fc-border/60" priority />
           <p className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-fc-accent">
             Christ Medical
           </p>

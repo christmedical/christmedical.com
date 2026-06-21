@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { ChevronLeft, ChevronRight, Search, Stethoscope } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChristMedicalLogo } from "@/components/ChristMedicalLogo";
 import { useCommandPalette } from "@/components/command-palette/CommandPaletteContext";
 import { FC_NAV_ACTIVE, FC_NAV_IDLE, FC_SECTION_LABEL } from "@/components/design/fieldClinical";
 import { EmrIcon } from "@/lib/emrIcons";
@@ -39,13 +40,11 @@ export function EmrShell({ children }: { children: ReactNode }) {
           className={`border-b border-fc-border ${collapsed ? "flex justify-center px-2 py-3" : "px-4 py-4"}`}
         >
           <div className={`flex items-center ${collapsed ? "justify-center" : "gap-3"}`}>
-            <div
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-fc-accent text-fc-paper shadow-sm"
-              aria-hidden
-              title={collapsed ? "Christ Medical" : undefined}
-            >
-              <Stethoscope className="h-5 w-5" strokeWidth={2.25} />
-            </div>
+            <ChristMedicalLogo
+              size={44}
+              className="h-11 w-11 shrink-0 rounded-lg bg-fc-paper shadow-sm ring-1 ring-fc-border/60"
+              priority
+            />
             {!collapsed ? (
               <div className="min-w-0">
                 <div className="font-display text-sm font-semibold tracking-tight text-fc-ink">

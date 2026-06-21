@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { ChristMedicalLogo } from "@/components/ChristMedicalLogo";
 import {
   FC_BTN_PRIMARY,
   FC_ERROR_BANNER,
@@ -96,15 +97,18 @@ export function LoginPageClient() {
     <main className="flex min-h-dvh items-center justify-center bg-fc-paper px-4 py-12">
       <div className={`w-full max-w-md ${FC_SURFACE} ${FC_PAGE_STACK}`}>
         <div className={`${FC_SURFACE_BODY} space-y-6`}>
-          <header className="space-y-1">
-            <p className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-fc-accent">
-              Christ Medical
-            </p>
-            <h1 className="font-display text-2xl font-semibold text-fc-ink">Clinician sign in</h1>
-            <p className="text-sm text-fc-ink-muted">
-              One login for all mission clinics. You&apos;ll land on your clinic subdomain after
-              authentication.
-            </p>
+          <header className="space-y-3">
+            <ChristMedicalLogo size={56} className="mx-auto rounded-xl shadow-sm ring-1 ring-fc-border/60" priority />
+            <div className="space-y-1 text-center">
+              <p className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-fc-accent">
+                Christ Medical
+              </p>
+              <h1 className="font-display text-2xl font-semibold text-fc-ink">Clinician sign in</h1>
+              <p className="text-sm text-fc-ink-muted">
+                One login for all mission clinics. You&apos;ll land on your clinic subdomain after
+                authentication.
+              </p>
+            </div>
           </header>
 
           {error ? <div className={FC_ERROR_BANNER}>{error}</div> : null}

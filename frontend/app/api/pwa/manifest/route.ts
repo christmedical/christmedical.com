@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { getTenantBranding, tenantIconUrl } from "@/lib/tenantConfig";
-import { normalizeApiBaseUrl } from "@/lib/patientApi";
+import { CHRIST_MEDICAL_ICONS } from "@/lib/branding";
+import { getTenantBranding } from "@/lib/tenantConfig";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +11,6 @@ export async function GET(req: NextRequest) {
     Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
 
   const b = getTenantBranding(tenantId);
-  const apiBase = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL);
-  const iconSrc = apiBase
-    ? tenantIconUrl(tenantId, apiBase)
-    : `/api/v1/assets/icon?tenantId=${tenantId}`;
 
   const manifest = {
     name: `CM - ${b.name}`,
@@ -25,18 +21,18 @@ export async function GET(req: NextRequest) {
     display: "standalone" as const,
     orientation: "portrait-primary" as const,
     theme_color: b.themeColor,
-    background_color: b.themeColor,
+    background_color: "#faf8f5",
     icons: [
       {
-        src: iconSrc,
+        src: CHRIST_MEDICAL_ICONS.pwa512,
         sizes: "512x512",
-        type: "image/svg+xml",
+        type: "image/png",
         purpose: "any maskable",
       },
       {
-        src: iconSrc,
+        src: CHRIST_MEDICAL_ICONS.pwa192,
         sizes: "192x192",
-        type: "image/svg+xml",
+        type: "image/png",
         purpose: "any",
       },
     ],

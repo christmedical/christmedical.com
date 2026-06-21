@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { normalizeApiBaseUrl } from "@/lib/patientApi";
-import { tenantIconUrl } from "@/lib/tenantConfig";
+import { CHRIST_MEDICAL_ICONS } from "@/lib/branding";
 import { getResolvedTenant } from "@/lib/tenantRuntime";
 
 function upsertMetaByName(name: string, content: string) {
@@ -14,6 +13,21 @@ function upsertMetaByName(name: string, content: string) {
     document.head.appendChild(el);
   }
   el.setAttribute("content", content);
+}
+
+function upsertLink(rel: string, href: string, sizes?: string) {
+  if (typeof document === "undefined") return;
+  const selector = sizes
+    ? `link[rel="${rel}"][sizes="${sizes}"]`
+    : `link[rel="${rel}"]`;
+  let link = document.querySelector(selector);
+  if (!link) {
+    link = document.createElement("link");
+    link.setAttribute("rel", rel);
+    if (sizes) link.setAttribute("sizes", sizes);
+    document.head.appendChild(link);
+  }
+  link.setAttribute("href", href);
 }
 
 /** Client-side PWA head: dynamic manifest, Apple meta, theme color, document title. */
@@ -28,26 +42,9 @@ export function PwaHead() {
     upsertMetaByName("apple-mobile-web-app-status-bar-style", "default");
     upsertMetaByName("apple-mobile-web-app-title", branding.shortName);
 
-    const manifestHref = `/api/pwa/manifest?tenantId=${id}`;
-    let link = document.querySelector('link[rel="manifest"]');
-    if (!link) {
-      link = document.createElement("link");
-      link.setAttribute("rel", "manifest");
-      document.head.appendChild(link);
-    }
-    link.setAttribute("href", manifestHref);
-
-    const api = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_URL);
-    if (api) {
-      const href = tenantIconUrl(id, api);
-      let apple = document.querySelector('link[rel="apple-touch-icon"]');
-      if (!apple) {
-        apple = document.createElement("link");
-        apple.setAttribute("rel", "apple-touch-icon");
-        document.head.appendChild(apple);
-      }
-      apple.setAttribute("href", href);
-    }
+    upsertLink("manifest", `/api/pwa/manifest?tenantId=${id}`);
+    upsertLink("apple-touch-icon", CHRIST_MEDICAL_ICONS.appleTouch);
+    upsertLink("icon", CHRIST_MEDICAL_ICONS.favicon32, "32x32");
   }, []);
 
   return null;

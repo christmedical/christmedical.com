@@ -4,6 +4,7 @@ import { ConnectivityBanner } from "@/components/ConnectivityBanner";
 import { FeedbackModeHost } from "@/components/feedback/FeedbackModeHost";
 import { PwaHead } from "@/components/PwaHead";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
+import { CHRIST_MEDICAL_ICONS } from "@/lib/branding";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -30,6 +31,14 @@ export const metadata: Metadata = {
   description: "Multi-tenant mission clinical workspace (PWA)",
   applicationName: "Christ Medical",
   formatDetection: { telephone: false },
+  icons: {
+    icon: [
+      { url: CHRIST_MEDICAL_ICONS.favicon32, sizes: "32x32", type: "image/png" },
+      { url: CHRIST_MEDICAL_ICONS.pwa192, sizes: "192x192", type: "image/png" },
+      { url: CHRIST_MEDICAL_ICONS.pwa512, sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: CHRIST_MEDICAL_ICONS.appleTouch, sizes: "180x180", type: "image/png" }],
+  },
 };
 
 /** Default until `PwaHead` sets tenant theme client-side. */

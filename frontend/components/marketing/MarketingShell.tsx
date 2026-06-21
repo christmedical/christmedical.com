@@ -10,7 +10,7 @@ import { loginOrigin } from "@/lib/subdomain";
 const NAV = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
-  { href: "/architecture", label: "Architecture" },
+  { href: "/how-it-works", label: "How It Works" },
 ] as const;
 
 function navClass(active: boolean): string {
@@ -30,15 +30,12 @@ export function MarketingShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-dvh flex-col bg-fc-paper text-fc-ink">
       <header className="border-b border-fc-border bg-fc-surface/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-4">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center" aria-label="Christ Medical home">
             <ChristMedicalLogo
               size={44}
               className="rounded-lg ring-1 ring-fc-border/60"
               priority
             />
-            <span className="font-display text-sm font-semibold tracking-tight text-fc-ink">
-              Christ Medical
-            </span>
           </Link>
           <nav className="hidden items-center gap-8 text-sm sm:flex" aria-label="Product">
             {NAV.map(({ href, label }) => (

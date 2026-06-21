@@ -1,0 +1,117 @@
+<svg viewBox="0 0 1280 940" xmlns="http://www.w3.org/2000/svg" font-family="Bricolage Grotesque, Public Sans, Segoe UI, system-ui, sans-serif">
+  <defs>
+    <marker id="da" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#B94700"/>
+    </marker>
+    <marker id="ga" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#685C53"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="940" fill="#FAF7F0"/>
+
+  <!-- header -->
+  <text x="56" y="66" font-size="32" font-weight="700" fill="#2E2A26">Deployment Architecture</text>
+  <text x="58" y="96" font-size="14.5" fill="#6B645C">Christ Medical &#8212; mostly-connected field model. Hosting marked &#8220;verify&#8221;; confirm and I&#8217;ll lock it.</text>
+
+  <!-- ================= RAILWAY platform (back) ================= -->
+  <polygon points="949,526 1209,676 897,856 637,706" fill="#D2CABF"/>
+  <polygon points="949,510 1209,660 897,840 637,690" fill="#E9E4DE" stroke="#B7AFA4" stroke-width="1.5"/>
+  <text x="660" y="712" font-size="14" font-weight="700" letter-spacing="1" fill="#685C53">RAILWAY</text>
+  <text x="660" y="730" font-size="11" fill="#8C8279">verify: Railway or Neon</text>
+
+  <!-- API card -->
+  <g>
+    <ellipse cx="940" cy="636" rx="96" ry="20" fill="#000000" fill-opacity="0.06"/>
+    <rect x="848" y="566" width="190" height="62" rx="12" fill="#FFFFFF" stroke="#C9C0B6" stroke-width="1.5"/>
+    <text x="864" y="592" font-size="14.5" font-weight="700" fill="#2E2A26">ASP.NET Core 9 API</text>
+    <text x="864" y="612" font-size="11" fill="#6B645C">container &#183; outbox replay, idempotent writes</text>
+  </g>
+
+  <!-- Postgres cylinder -->
+  <g>
+    <ellipse cx="1040" cy="690" rx="42" ry="16" fill="#000000" fill-opacity="0.06"/>
+    <path d="M1006,628 a34,13 0 0 0 68,0 v44 a34,13 0 0 1 -68,0 z" fill="#7C7268"/>
+    <ellipse cx="1040" cy="628" rx="34" ry="13" fill="#A79E95" stroke="#685C53" stroke-width="1"/>
+    <path d="M1006,628 v44 a34,13 0 0 0 68,0 v-44" fill="none" stroke="#5A5048" stroke-width="1"/>
+    <text x="1000" y="712" font-size="13" font-weight="700" fill="#2E2A26">PostgreSQL</text>
+  </g>
+
+  <!-- ================= VERCEL platform (mid) ================= -->
+  <polygon points="654,356 914,506 602,686 342,536" fill="#E2C9B4"/>
+  <polygon points="654,340 914,490 602,670 342,520" fill="#F4E4D6" stroke="#B7AFA4" stroke-width="1.5"/>
+  <text x="364" y="542" font-size="14" font-weight="700" letter-spacing="1" fill="#B94700">VERCEL</text>
+  <text x="364" y="560" font-size="11" fill="#a06a45">edge &#183; CDN &#183; hostname routing</text>
+
+  <!-- PWA card -->
+  <g>
+    <ellipse cx="645" cy="476" rx="100" ry="20" fill="#000000" fill-opacity="0.06"/>
+    <rect x="552" y="404" width="190" height="62" rx="12" fill="#FFFFFF" stroke="#C9C0B6" stroke-width="1.5"/>
+    <text x="568" y="430" font-size="14.5" font-weight="700" fill="#2E2A26">Next.js 15 PWA</text>
+    <text x="568" y="450" font-size="11" fill="#6B645C">marketing apex &#183; login. &#183; {tenant}.</text>
+  </g>
+  <!-- subdomain chips -->
+  <g font-size="10" font-weight="600">
+    <rect x="552" y="476" width="78" height="20" rx="10" fill="#F6E7DD"/>
+    <text x="562" y="490" fill="#B94700">apex &#183; market</text>
+    <rect x="636" y="476" width="48" height="20" rx="10" fill="#F6E7DD"/>
+    <text x="646" y="490" fill="#B94700">login.</text>
+    <rect x="690" y="476" width="62" height="20" rx="10" fill="#F6E7DD"/>
+    <text x="700" y="490" fill="#B94700">{tenant}.</text>
+  </g>
+
+  <!-- ================= FIELD platform (front) ================= -->
+  <polygon points="360,186 620,336 308,516 48,366" fill="#D6D7BE"/>
+  <polygon points="360,170 620,320 308,500 48,350" fill="#EAEAD9" stroke="#B7AFA4" stroke-width="1.5"/>
+  <text x="86" y="372" font-size="14" font-weight="700" letter-spacing="1" fill="#546223">FIELD &#8212; BELIZE CLINIC</text>
+  <text x="86" y="390" font-size="11" fill="#71794f">tablets &#183; Starlink &#183; nightly refresh</text>
+
+  <!-- tablet card -->
+  <g>
+    <ellipse cx="250" cy="296" rx="92" ry="18" fill="#000000" fill-opacity="0.06"/>
+    <rect x="160" y="232" width="180" height="58" rx="12" fill="#FFFFFF" stroke="#C9C0B6" stroke-width="1.5"/>
+    <text x="176" y="257" font-size="14.5" font-weight="700" fill="#2E2A26">Field tablets</text>
+    <text x="176" y="276" font-size="11" fill="#6B645C">PWA in browser, installable</text>
+  </g>
+  <!-- outbox chip -->
+  <rect x="160" y="300" width="270" height="22" rx="11" fill="#EDF0E0"/>
+  <text x="172" y="315" font-size="10.5" font-weight="600" fill="#546223">IndexedDB cache + write outbox (retry on reconnect)</text>
+
+  <!-- Starlink glyph -->
+  <g>
+    <line x1="450" y1="250" x2="450" y2="300" stroke="#685C53" stroke-width="3"/>
+    <ellipse cx="450" cy="244" rx="30" ry="12" fill="#A79E95" stroke="#685C53" stroke-width="1.5" transform="rotate(-20 450 244)"/>
+    <circle cx="450" cy="244" r="3" fill="#B94700"/>
+    <path d="M470,214 a26,26 0 0 1 8,18" fill="none" stroke="#B94700" stroke-width="2"/>
+    <path d="M478,206 a36,36 0 0 1 11,25" fill="none" stroke="#B94700" stroke-width="2"/>
+    <text x="416" y="332" font-size="11" font-weight="600" fill="#685C53">Starlink</text>
+  </g>
+
+  <!-- ================= connectors ================= -->
+  <!-- field -> vercel : blip-tolerant -->
+  <line x1="340" y1="270" x2="556" y2="430" stroke="#B94700" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#da)"/>
+  <g transform="rotate(36 448 350)">
+    <rect x="372" y="340" width="172" height="20" rx="10" fill="#FAF7F0"/>
+    <text x="380" y="354" font-size="10.5" font-weight="600" fill="#B94700">HTTPS &#183; tolerates blips</text>
+  </g>
+
+  <!-- vercel -> railway api -->
+  <line x1="742" y1="438" x2="846" y2="586" stroke="#685C53" stroke-width="2.5" marker-end="url(#ga)"/>
+  <g transform="rotate(55 794 512)">
+    <rect x="752" y="502" width="92" height="20" rx="10" fill="#FAF7F0"/>
+    <text x="760" y="516" font-size="10.5" font-weight="600" fill="#685C53">REST / HTTPS</text>
+  </g>
+
+  <!-- api -> postgres -->
+  <line x1="1000" y1="612" x2="1030" y2="620" stroke="#685C53" stroke-width="2.5" marker-end="url(#ga)"/>
+  <text x="1004" y="600" font-size="10.5" font-weight="600" fill="#685C53">SQL</text>
+
+  <!-- legend -->
+  <g font-size="11.5" fill="#6B645C">
+    <line x1="56" y1="892" x2="96" y2="892" stroke="#B94700" stroke-width="2.5" stroke-dasharray="7 5"/>
+    <text x="104" y="896" fill="#2E2A26">Connectivity that tolerates blips (Starlink)</text>
+    <line x1="470" y1="892" x2="510" y2="892" stroke="#685C53" stroke-width="2.5"/>
+    <text x="518" y="896" fill="#2E2A26">In-cloud call</text>
+    <text x="650" y="896">No DB-to-DB sync &#8212; one Postgres source of truth; writes queue locally and replay on reconnect.</text>
+  </g>
+</svg>

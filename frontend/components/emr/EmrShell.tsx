@@ -46,11 +46,8 @@ export function EmrShell({ children }: { children: ReactNode }) {
               priority
             />
             {!collapsed ? (
-              <div className="min-w-0">
-                <div className="font-display text-sm font-semibold tracking-tight text-fc-ink">
-                  Christ Medical
-                </div>
-                <div className="text-[10px] text-fc-ink-subtle">{branding.shortName} mission</div>
+              <div className="min-w-0 font-display text-sm font-semibold tracking-tight text-fc-ink">
+                {branding.shortName}
               </div>
             ) : null}
           </div>

@@ -77,6 +77,9 @@ export async function middleware(request: NextRequest) {
   }
 
   if (parsed.kind === "marketing") {
+    if (pathname === "/architecture" || pathname.startsWith("/architecture/")) {
+      return NextResponse.redirect(new URL("/how-it-works", request.url));
+    }
     if (pathname.startsWith("/api")) return NextResponse.next();
     if (pathname === "/marketing" || pathname.startsWith("/marketing/")) {
       const target = pathname === "/marketing" ? "/" : pathname.replace(/^\/marketing/, "") || "/";

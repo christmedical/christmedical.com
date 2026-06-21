@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChristMedicalLogo } from "@/components/ChristMedicalLogo";
+import { ChristMedicalWordmark } from "@/components/ChristMedicalWordmark";
 import { FC_BTN_PRIMARY, FC_SURFACE } from "@/components/design/fieldClinical";
 import { DEMO_TENANT_SLUG } from "@/lib/demoAuth";
 import { loginOrigin, tenantAppOrigin } from "@/lib/subdomain";
@@ -39,9 +39,9 @@ export default function MarketingHomePage() {
         <div className="pointer-events-none absolute -bottom-16 left-1/4 h-48 w-48 rounded-full opacity-10 blur-3xl" style={{ background: "var(--fc-accent-glow)" }} />
 
         <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-8 px-6 py-20 text-center sm:py-28">
-          <ChristMedicalLogo
-            size={96}
-            className="rounded-2xl shadow-lg ring-1 ring-white/20"
+          <ChristMedicalWordmark
+            width={384}
+            className="h-auto w-full max-w-[min(100%,18rem)] object-contain drop-shadow-lg sm:max-w-[22rem]"
             priority
           />
           <div className="max-w-2xl space-y-4">
@@ -114,8 +114,8 @@ export default function MarketingHomePage() {
               <span className="font-mono text-fc-ink">belize.christmedical.com</span>.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/architecture" className="text-sm font-medium text-fc-accent hover:text-fc-accent-strong">
-                Architecture overview →
+              <Link href="/how-it-works" className="text-sm font-medium text-fc-accent hover:text-fc-accent-strong">
+                How it works →
               </Link>
               <Link href="/about" className="text-sm font-medium text-fc-accent hover:text-fc-accent-strong">
                 About the project →

@@ -22,4 +22,9 @@ sips -z 32 32 "$SRC" --out "$DST/favicon-32.png" >/dev/null
 cp "$DST/icon-512.png" "$APP/icon.png"
 cp "$DST/apple-touch-icon.png" "$APP/apple-icon.png"
 
+WORDMARK_SRC="$ROOT/docs/branding/ChristMedical_Logo.png"
+if [[ -f "$WORDMARK_SRC" ]]; then
+  cp "$WORDMARK_SRC" "$DST/logo-wordmark.png"
+fi
+
 echo "Generated branding icons from emblem-only logo in $DST"

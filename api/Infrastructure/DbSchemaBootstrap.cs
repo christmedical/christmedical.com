@@ -168,6 +168,8 @@ public static class DbSchemaBootstrap
             await ExecuteSqlFileAsync(conn, path, logger, cancellationToken);
         }
 
+        await EnsureUsersFirstLastNameAsync(conn, sqlRoot, logger, cancellationToken);
+
         await AuthDemoSeeder.EnsureDevAccountsAsync(conn, logger, cancellationToken);
 
         if (ShouldSeedDemoData(configuration))
@@ -180,6 +182,50 @@ public static class DbSchemaBootstrap
         {
             throw new InvalidOperationException(
                 $"Missing tenants/auth migration at {path}. Dockerfile must COPY V9__tenants_and_auth.sql.");
+        }
+    }
+
+    private static async Task EnsureUsersFirstLastNameAsync(
+        NpgsqlConnection conn,
+        string sqlRoot,
+        ILogger logger,
+        CancellationToken cancellationToken)
+    {
+        var usersExists = await conn.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                """
+                SELECT EXISTS (
+                  SELECT 1 FROM information_schema.tables
+                  WHERE table_schema = 'public' AND table_name = 'users'
+                );
+                """,
+                cancellationToken: cancellationToken));
+
+        if (!usersExists)
+            return;
+
+        var hasFirstName = await conn.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                """
+                SELECT EXISTS (
+                  SELECT 1 FROM information_schema.columns
+                  WHERE table_schema = 'public'
+                    AND table_name = 'users'
+                    AND column_name = 'first_name'
+                );
+                """,
+                cancellationToken: cancellationToken));
+
+        if (!hasFirstName)
+        {
+            const string ddl = """
+                ALTER TABLE public.users
+                    ADD COLUMN IF NOT EXISTS first_name VARCHAR(100),
+                    ADD COLUMN IF NOT EXISTS last_name VARCHAR(100);
+                """;
+
+            await conn.ExecuteAsync(new CommandDefinition(ddl, cancellationToken: cancellationToken));
+            logger.LogInformation("Applied users first_name and last_name columns.");
         }
     }
 

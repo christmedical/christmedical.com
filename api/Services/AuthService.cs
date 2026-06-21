@@ -80,7 +80,14 @@ public sealed class AuthService(
             throw new InvalidOperationException("Database is not configured.");
 
         const string sql = """
-            SELECT id, email, display_name AS DisplayName, password_hash AS PasswordHash, is_active AS IsActive
+            SELECT
+                id,
+                email,
+                first_name AS FirstName,
+                last_name AS LastName,
+                display_name AS DisplayName,
+                password_hash AS PasswordHash,
+                is_active AS IsActive
             FROM public.users
             WHERE lower(email) = lower(@email);
             """;
@@ -155,6 +162,8 @@ public sealed class AuthService(
     {
         public Guid Id { get; init; }
         public string Email { get; init; } = "";
+        public string FirstName { get; init; } = "";
+        public string LastName { get; init; } = "";
         public string PasswordHash { get; init; } = "";
         public bool IsActive { get; init; }
     }

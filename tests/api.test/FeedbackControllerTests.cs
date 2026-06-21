@@ -2,6 +2,7 @@ using ChristMedical.WebAPI.Controllers;
 using ChristMedical.WebAPI.Infrastructure;
 using ChristMedical.WebAPI.Models;
 using ChristMedical.WebAPI.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -81,6 +82,8 @@ public sealed class FeedbackControllerTests
             },
             CancellationToken.None);
 
-        Assert.IsType<CreatedAtActionResult>(result.Result);
+        var created = Assert.IsType<CreatedResult>(result.Result);
+        Assert.Equal(StatusCodes.Status201Created, created.StatusCode);
+        Assert.Equal(record, created.Value);
     }
 }

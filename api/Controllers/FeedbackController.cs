@@ -32,7 +32,7 @@ public sealed class FeedbackController(IFeedbackService feedback, IConfiguration
             return BadRequest(new { message = "Invalid feedback payload." });
         }
 
-        return CreatedAtAction(nameof(ListAsync), new { id = created.Id }, created);
+        return Created($"/api/v1/feedback/{created.Id}", created);
     }
 
     /// <summary>Lists feedback notes newest first, optionally filtered by status.</summary>

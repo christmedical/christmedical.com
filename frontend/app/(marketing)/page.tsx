@@ -114,8 +114,8 @@ export default function MarketingHomePage() {
               <span className="font-mono text-fc-ink">belize.christmedical.com</span>.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/architecture" className="text-sm font-medium text-fc-accent hover:text-fc-accent-strong">
-                Architecture overview →
+              <Link href="/how-it-works" className="text-sm font-medium text-fc-accent hover:text-fc-accent-strong">
+                How it works →
               </Link>
               <Link href="/about" className="text-sm font-medium text-fc-accent hover:text-fc-accent-strong">
                 About the project →

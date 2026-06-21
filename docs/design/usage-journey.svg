@@ -1,0 +1,122 @@
+<svg viewBox="0 0 1440 920" xmlns="http://www.w3.org/2000/svg" font-family="Bricolage Grotesque, Public Sans, Segoe UI, system-ui, sans-serif">
+  <defs>
+    <marker id="rustArrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#B94700"/>
+    </marker>
+  </defs>
+
+  <!-- paper ground -->
+  <rect x="0" y="0" width="1440" height="920" fill="#FAF7F0"/>
+
+  <!-- header -->
+  <text x="56" y="74" font-size="34" font-weight="700" fill="#2E2A26">Patient Journey</text>
+  <text x="58" y="106" font-size="15" fill="#6B645C">Christ Medical &#183; Belize mission &#8212; how a patient moves through the clinic, and which screen serves each step.</text>
+
+  <!-- swimlane bands -->
+  <!-- L1 -->
+  <rect x="40" y="150" width="1370" height="136" fill="#FBF8F2" stroke="#E7DFD4" stroke-width="1"/>
+  <!-- L2 -->
+  <rect x="40" y="294" width="1370" height="136" fill="#F4EFE6" stroke="#E7DFD4" stroke-width="1"/>
+  <!-- L3 -->
+  <rect x="40" y="438" width="1370" height="136" fill="#FBF8F2" stroke="#E7DFD4" stroke-width="1"/>
+  <!-- L4 -->
+  <rect x="40" y="582" width="1370" height="136" fill="#F4EFE6" stroke="#E7DFD4" stroke-width="1"/>
+  <!-- L5 -->
+  <rect x="40" y="726" width="1370" height="136" fill="#FBF8F2" stroke="#E7DFD4" stroke-width="1"/>
+
+  <!-- lane labels -->
+  <g font-size="12" font-weight="700" letter-spacing="1.5" fill="#6B645C">
+    <circle cx="60" cy="214" r="5" fill="#B94700"/>
+    <text x="74" y="218">REGISTRATION</text>
+    <circle cx="60" cy="358" r="5" fill="#546223"/>
+    <text x="74" y="362">NURSE</text>
+    <circle cx="60" cy="502" r="5" fill="#B94700"/>
+    <text x="74" y="506">DOCTOR</text>
+    <circle cx="60" cy="646" r="5" fill="#546223"/>
+    <text x="74" y="650">PHARMACY</text>
+    <circle cx="60" cy="790" r="5" fill="#B94700"/>
+    <text x="74" y="794">FOLLOW-UP &amp; SPIRITUAL</text>
+  </g>
+
+  <!-- connectors (drawn before nodes so arrows tuck under) -->
+  <g fill="none" stroke="#B94700" stroke-width="2.5" marker-end="url(#rustArrow)">
+    <path d="M450,218 L483,218"/>
+    <path d="M561,258 L561,300 L591,300 L591,319"/>
+    <path d="M696,362 L711,362 L711,506 L723,506"/>
+    <path d="M966,506 L983,506 L983,650 L997,650"/>
+    <path d="M1200,650 L1300,650 L1300,751"/>
+    <path d="M1300,754 L1300,261"/>
+  </g>
+
+  <!-- NODE A: Arrive & Check-in (L1) -->
+  <g>
+    <rect x="240" y="178" width="210" height="80" rx="14" fill="#FFFFFF" stroke="#D8CFC4" stroke-width="1.5"/>
+    <text x="256" y="206" font-size="16" font-weight="700" fill="#2E2A26">Arrive &amp; Check-in</text>
+    <text x="256" y="226" font-size="11.5" fill="#6B645C">Search first; register if new</text>
+    <rect x="256" y="234" width="118" height="18" rx="9" fill="#F6E7DD"/>
+    <text x="266" y="247" font-size="10.5" font-weight="600" fill="#B94700">Check-in / Search</text>
+  </g>
+
+  <!-- QUEUE (L1) -->
+  <g>
+    <rect x="486" y="178" width="150" height="80" rx="14" fill="#F6E7DD" stroke="#B94700" stroke-width="1.5"/>
+    <text x="502" y="210" font-size="15" font-weight="700" fill="#B94700">Patient Queue</text>
+    <text x="502" y="230" font-size="11.5" fill="#8a5a3a">Waiting list;</text>
+    <text x="502" y="245" font-size="11.5" fill="#8a5a3a">urgent floats to top</text>
+  </g>
+
+  <!-- NODE B: Vitals (L2) -->
+  <g>
+    <rect x="486" y="322" width="210" height="80" rx="14" fill="#FFFFFF" stroke="#D8CFC4" stroke-width="1.5"/>
+    <text x="502" y="350" font-size="16" font-weight="700" fill="#2E2A26">Call back &amp; Vitals</text>
+    <text x="502" y="370" font-size="11.5" fill="#6B645C">BP, HR, temp, wt &#183; trends vs last</text>
+    <rect x="502" y="378" width="158" height="18" rx="9" fill="#F6E7DD"/>
+    <text x="512" y="391" font-size="10.5" font-weight="600" fill="#B94700">Patient chart &#183; Overall</text>
+  </g>
+
+  <!-- NODE C: Exam & Charting (L3) -->
+  <g>
+    <rect x="726" y="466" width="240" height="80" rx="14" fill="#FFFFFF" stroke="#D8CFC4" stroke-width="1.5"/>
+    <text x="742" y="494" font-size="16" font-weight="700" fill="#2E2A26">Exam &amp; Charting</text>
+    <text x="742" y="514" font-size="11.5" fill="#6B645C">Dx from dictionary &#183; treatments &#183; Rx</text>
+    <rect x="742" y="522" width="206" height="18" rx="9" fill="#F6E7DD"/>
+    <text x="752" y="535" font-size="10.5" font-weight="600" fill="#B94700">Encounter (SOAP) &#183; Treatments</text>
+  </g>
+
+  <!-- NODE D: Dispense Meds (L4) -->
+  <g>
+    <rect x="1000" y="610" width="200" height="80" rx="14" fill="#FFFFFF" stroke="#D8CFC4" stroke-width="1.5"/>
+    <text x="1016" y="638" font-size="16" font-weight="700" fill="#2E2A26">Dispense Meds</text>
+    <text x="1016" y="658" font-size="11.5" fill="#6B645C">From formulary &#183; mark dispensed</text>
+    <rect x="1016" y="666" width="96" height="18" rx="9" fill="#F6E7DD"/>
+    <text x="1026" y="679" font-size="10.5" font-weight="600" fill="#B94700">Medications</text>
+  </g>
+
+  <!-- NODE E: Follow-up & Prayer (L5) -->
+  <g>
+    <rect x="1200" y="754" width="200" height="80" rx="14" fill="#FFFFFF" stroke="#D8CFC4" stroke-width="1.5"/>
+    <text x="1216" y="782" font-size="16" font-weight="700" fill="#2E2A26">Follow-up &amp; Prayer</text>
+    <text x="1216" y="802" font-size="11.5" fill="#6B645C">Resolve flagged &#183; medical or spiritual</text>
+    <rect x="1216" y="810" width="166" height="18" rx="9" fill="#F6E7DD"/>
+    <text x="1226" y="823" font-size="10.5" font-weight="600" fill="#B94700">Follow-up queue &#183; Spiritual</text>
+  </g>
+
+  <!-- NODE F: Discharge (L1 right, terminal) -->
+  <g>
+    <rect x="1200" y="178" width="200" height="80" rx="14" fill="#B94700" stroke="#9A3D00" stroke-width="1.5"/>
+    <text x="1216" y="206" font-size="16" font-weight="700" fill="#FFFFFF">Discharge &amp; Take-home</text>
+    <text x="1216" y="226" font-size="11.5" fill="#F6DfD2">Summary + meds &#183; paper backup</text>
+    <rect x="1216" y="234" width="118" height="18" rx="9" fill="#FFFFFF" fill-opacity="0.85"/>
+    <text x="1226" y="247" font-size="10.5" font-weight="700" fill="#B94700">Discharge &#183; Print</text>
+  </g>
+
+  <!-- legend -->
+  <g font-size="12" fill="#6B645C">
+    <line x1="56" y1="892" x2="92" y2="892" stroke="#B94700" stroke-width="2.5" marker-end="url(#rustArrow)"/>
+    <text x="100" y="896" fill="#2E2A26">Patient path</text>
+    <rect x="220" y="884" width="64" height="16" rx="8" fill="#F6E7DD"/>
+    <text x="232" y="896" font-size="10.5" font-weight="600" fill="#B94700">Screen</text>
+    <text x="300" y="896">= the app screen used at that step</text>
+    <text x="660" y="896" fill="#546223">Search-first at check-in prevents duplicate patient records.</text>
+  </g>
+</svg>

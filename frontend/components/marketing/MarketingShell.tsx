@@ -10,7 +10,7 @@ import { loginOrigin } from "@/lib/subdomain";
 const NAV = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
-  { href: "/architecture", label: "Architecture" },
+  { href: "/how-it-works", label: "How It Works" },
 ] as const;
 
 function navClass(active: boolean): string {

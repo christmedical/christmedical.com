@@ -113,9 +113,6 @@ export function LoginPageClient() {
           <header className="space-y-3">
             <ChristMedicalLogo size={56} className="mx-auto rounded-xl shadow-sm ring-1 ring-fc-border/60" priority />
             <div className="space-y-1 text-center">
-              <p className="font-display text-xs font-semibold uppercase tracking-[0.2em] text-fc-accent">
-                Christ Medical
-              </p>
               <h1 className="font-display text-2xl font-semibold text-fc-ink">Clinician sign in</h1>
               <p className="text-sm text-fc-ink-muted">
                 One login for all mission clinics. You&apos;ll land on your clinic subdomain after

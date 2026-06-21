@@ -1,30 +1,37 @@
 #!/usr/bin/env bash
-# Regenerate frontend/public/branding icons from docs/branding/ChristMedical_Logo_Icon.png
-# (emblem only — no wordmark). Full logo with text: ChristMedical_Logo.png
+# Regenerate emblem + wordmark assets for frontend/public/branding.
+# Emblem: top-center square crop from ChristMedical_Logo.png (no wordmark text).
+# Wordmark: full ChristMedical_Logo.png (hero only).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SRC="$ROOT/docs/branding/ChristMedical_Logo_Icon.png"
+FULL="$ROOT/docs/branding/ChristMedical_Logo.png"
+ICON_DOC="$ROOT/docs/branding/ChristMedical_Logo_Icon.png"
 DST="$ROOT/frontend/public/branding"
 APP="$ROOT/frontend/app"
 
-if [[ ! -f "$SRC" ]]; then
-  echo "Missing icon source: $SRC" >&2
-  echo "Crop emblem from ChristMedical_Logo.png or add ChristMedical_Logo_Icon.png" >&2
+# Emblem crop on the 1024×1024 artboard — emblem only, no CHRIST/MEDICAL text.
+EMBLEM_CROP=580
+EMBLEM_OFFSET_X=222
+
+if [[ ! -f "$FULL" ]]; then
+  echo "Missing full logo: $FULL" >&2
   exit 1
 fi
 
 mkdir -p "$DST"
-sips -z 512 512 "$SRC" --out "$DST/icon-512.png" >/dev/null
-sips -z 192 192 "$SRC" --out "$DST/icon-192.png" >/dev/null
-sips -z 180 180 "$SRC" --out "$DST/apple-touch-icon.png" >/dev/null
-sips -z 32 32 "$SRC" --out "$DST/favicon-32.png" >/dev/null
+EMBLEM_TMP="$(mktemp "${TMPDIR:-/tmp}/cm-emblem.XXXXXX.png")"
+trap 'rm -f "$EMBLEM_TMP"' EXIT
+
+sips -c "$EMBLEM_CROP" "$EMBLEM_CROP" --cropOffset 0 "$EMBLEM_OFFSET_X" "$FULL" --out "$EMBLEM_TMP" >/dev/null
+sips -z 1024 1024 "$EMBLEM_TMP" --out "$ICON_DOC" >/dev/null
+
+sips -z 512 512 "$EMBLEM_TMP" --out "$DST/icon-512.png" >/dev/null
+sips -z 192 192 "$EMBLEM_TMP" --out "$DST/icon-192.png" >/dev/null
+sips -z 180 180 "$EMBLEM_TMP" --out "$DST/apple-touch-icon.png" >/dev/null
+sips -z 32 32 "$EMBLEM_TMP" --out "$DST/favicon-32.png" >/dev/null
 cp "$DST/icon-512.png" "$APP/icon.png"
 cp "$DST/apple-touch-icon.png" "$APP/apple-icon.png"
+cp "$FULL" "$DST/logo-wordmark.png"
 
-WORDMARK_SRC="$ROOT/docs/branding/ChristMedical_Logo.png"
-if [[ -f "$WORDMARK_SRC" ]]; then
-  cp "$WORDMARK_SRC" "$DST/logo-wordmark.png"
-fi
-
-echo "Generated branding icons from emblem-only logo in $DST"
+echo "Generated emblem (no wordmark) and wordmark in $DST"

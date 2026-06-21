@@ -11,7 +11,7 @@ type ChristMedicalLogoProps = {
 /** Square Christ Medical emblem (no wordmark) for nav, auth, marketing, and PWA. */
 export function ChristMedicalLogo({
   size = 44,
-  className = "rounded-lg object-contain",
+  className = "rounded-lg object-contain object-center",
   alt = "Christ Medical",
   priority = false,
 }: ChristMedicalLogoProps) {

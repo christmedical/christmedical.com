@@ -4,8 +4,6 @@ import type { PatientDto } from "@/lib/patientTypes";
 import { useOnlineStatus } from "@/lib/onlineStatus";
 import { PatientChart } from "./PatientChart";
 
-import { PatientChart } from "./PatientChart";
-
 vi.mock("next/link", () => ({
   default: ({
     children,
@@ -25,6 +23,17 @@ vi.mock("@/lib/onlineStatus", () => ({
   getIsOnline: () => true,
   subscribeOnlineStatus: () => () => {},
   useOnlineStatus: vi.fn(() => true),
+}));
+
+vi.mock("@/lib/authSession", () => ({
+  bootstrapAccessToken: vi.fn().mockResolvedValue(null),
+  getAccessToken: vi.fn().mockReturnValue(null),
+  setAccessToken: vi.fn(),
+  clearAccessToken: vi.fn(),
+}));
+
+vi.mock("@/lib/apiFetch", () => ({
+  apiFetch: (url: string, init?: RequestInit) => fetch(url, init),
 }));
 
 const P2 = "22222222-2222-2222-2222-222222222222";

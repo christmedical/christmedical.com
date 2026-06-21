@@ -17,6 +17,7 @@ public static class DbSchemaBootstrap
         "V4__Patients_spiritual.sql",
         "V6__patients_phonetic.sql",
         "V7__patients_legacy_contact.sql",
+        "V9__tenants_and_auth.sql",
     ];
 
     public static async Task EnsureAsync(
@@ -54,6 +55,8 @@ public static class DbSchemaBootstrap
         }
 
         await ApplyIncrementalPatchesAsync(conn, logger, cancellationToken);
+
+        await EnsureTenantsAndAuthAsync(conn, sqlRoot, configuration, logger, cancellationToken);
 
         await EnsureFeedbackTableAsync(conn, sqlRoot, logger, cancellationToken);
 
@@ -137,6 +140,45 @@ public static class DbSchemaBootstrap
 
         logger.LogInformation("Seeding demo patients (SEED_DEMO_DATA enabled).");
         await ExecuteSqlFileAsync(conn, seedPath, logger, cancellationToken);
+        await AuthDemoSeeder.EnsureAsync(conn, logger, cancellationToken);
+    }
+
+    private static async Task EnsureTenantsAndAuthAsync(
+        NpgsqlConnection conn,
+        string sqlRoot,
+        IConfiguration configuration,
+        ILogger logger,
+        CancellationToken cancellationToken)
+    {
+        var tenantsExists = await conn.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                """
+                SELECT EXISTS (
+                  SELECT 1 FROM information_schema.tables
+                  WHERE table_schema = 'public' AND table_name = 'tenants'
+                );
+                """,
+                cancellationToken: cancellationToken));
+
+        if (!tenantsExists)
+        {
+            var path = Path.Combine(sqlRoot, "V9__tenants_and_auth.sql");
+            EnsureSqlScriptsPresentForTenants(path);
+            logger.LogInformation("Applying tenants/auth schema from {Path}.", path);
+            await ExecuteSqlFileAsync(conn, path, logger, cancellationToken);
+        }
+
+        if (ShouldSeedDemoData(configuration))
+            await AuthDemoSeeder.EnsureAsync(conn, logger, cancellationToken);
+    }
+
+    private static void EnsureSqlScriptsPresentForTenants(string path)
+    {
+        if (!File.Exists(path))
+        {
+            throw new InvalidOperationException(
+                $"Missing tenants/auth migration at {path}. Dockerfile must COPY V9__tenants_and_auth.sql.");
+        }
     }
 
     private static async Task EnsureFeedbackTableAsync(

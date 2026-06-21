@@ -9,6 +9,7 @@ public static class TenantBranding
     {
         [1] = new Info("Belize", "Belize", "#0d9488"),
         [2] = new Info("Demo Mission", "Demo", "#2563eb"),
+        [3] = new Info("Cornerstone Clinic", "Cornerstone", "#cd7f32"),
     };
 
     public static bool TryGet(short tenantId, out Info info) =>

@@ -13,6 +13,7 @@ import {
   FC_WARN_BANNER,
 } from "@/components/design/fieldClinical";
 import { formatDobWithAge } from "@/lib/patientAge";
+import { apiFetch } from "@/lib/apiFetch";
 import {
   normalizeApiBaseUrl,
   patientsListUrl,
@@ -68,7 +69,7 @@ export function PatientSearch() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         patientsListUrl(base, { tenantId: tid, limit: OFFLINE_PATIENT_CAP }),
         { cache: "no-store" },
       );
@@ -113,7 +114,7 @@ export function PatientSearch() {
     setSearchLoading(true);
     setSearchError(null);
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         patientsSearchUrl(base, {
           tenantId: tid,
           q: debouncedQ.trim() || undefined,

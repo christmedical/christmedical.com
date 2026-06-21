@@ -1,0 +1,1573 @@
+{
+  "name": "christ_medical",
+  "desc": "Auto-generated from the live PostgreSQL `public` schema after API bootstrap migrations.\nDesign reference (hand-maintained target model): docs/DATABASE_MODEL.md\n",
+  "tables": [
+    {
+      "name": "public.feedback",
+      "type": "BASE TABLE",
+      "comment": "Early-reviewer UI feedback pins; standalone from clinical data.",
+      "columns": [
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()"
+        },
+        {
+          "name": "note",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "page_path",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "pin_x",
+          "type": "real",
+          "nullable": false
+        },
+        {
+          "name": "pin_y",
+          "type": "real",
+          "nullable": false
+        },
+        {
+          "name": "reviewer_label",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "status",
+          "type": "varchar(10)",
+          "nullable": false,
+          "default": "'open'::character varying"
+        },
+        {
+          "name": "user_agent",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "viewport_h",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "name": "viewport_w",
+          "type": "integer",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "feedback_pkey",
+          "def": "CREATE UNIQUE INDEX feedback_pkey ON public.feedback USING btree (id)",
+          "table": "public.feedback",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "ix_feedback_created_at",
+          "def": "CREATE INDEX ix_feedback_created_at ON public.feedback USING btree (created_at DESC)",
+          "table": "public.feedback",
+          "columns": [
+            "created_at"
+          ]
+        },
+        {
+          "name": "ix_feedback_page_path",
+          "def": "CREATE INDEX ix_feedback_page_path ON public.feedback USING btree (page_path)",
+          "table": "public.feedback",
+          "columns": [
+            "page_path"
+          ]
+        },
+        {
+          "name": "ix_feedback_status",
+          "def": "CREATE INDEX ix_feedback_status ON public.feedback USING btree (status)",
+          "table": "public.feedback",
+          "columns": [
+            "status"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "feedback_pin_x_check",
+          "type": "CHECK",
+          "def": "CHECK (((pin_x \u003e= (0)::double precision) AND (pin_x \u003c= (1)::double precision)))",
+          "table": "public.feedback",
+          "referenced_table": "",
+          "columns": [
+            "pin_x"
+          ]
+        },
+        {
+          "name": "feedback_pin_y_check",
+          "type": "CHECK",
+          "def": "CHECK (((pin_y \u003e= (0)::double precision) AND (pin_y \u003c= (1)::double precision)))",
+          "table": "public.feedback",
+          "referenced_table": "",
+          "columns": [
+            "pin_y"
+          ]
+        },
+        {
+          "name": "feedback_pkey",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "public.feedback",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "feedback_status_check",
+          "type": "CHECK",
+          "def": "CHECK (((status)::text = ANY ((ARRAY['open'::character varying, 'done'::character varying])::text[])))",
+          "table": "public.feedback",
+          "referenced_table": "",
+          "columns": [
+            "status"
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "name": "feedback",
+          "virtual": true
+        }
+      ]
+    },
+    {
+      "name": "public.feedback_reviewer_prefs",
+      "type": "BASE TABLE",
+      "comment": "Owner-controlled allowlist for who may use the in-app feedback widget.",
+      "columns": [
+        {
+          "name": "display_name",
+          "type": "varchar(120)",
+          "nullable": false,
+          "default": "''::character varying"
+        },
+        {
+          "name": "email",
+          "type": "varchar(256)",
+          "nullable": false
+        },
+        {
+          "name": "feedback_enabled",
+          "type": "boolean",
+          "nullable": false,
+          "default": "false"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "feedback_reviewer_prefs_pkey",
+          "def": "CREATE UNIQUE INDEX feedback_reviewer_prefs_pkey ON public.feedback_reviewer_prefs USING btree (email)",
+          "table": "public.feedback_reviewer_prefs",
+          "columns": [
+            "email"
+          ]
+        },
+        {
+          "name": "ux_feedback_reviewer_prefs_email",
+          "def": "CREATE UNIQUE INDEX ux_feedback_reviewer_prefs_email ON public.feedback_reviewer_prefs USING btree (lower((email)::text))",
+          "table": "public.feedback_reviewer_prefs",
+          "columns": [
+            "lower"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "feedback_reviewer_prefs_pkey",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (email)",
+          "table": "public.feedback_reviewer_prefs",
+          "referenced_table": "",
+          "columns": [
+            "email"
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "name": "feedback",
+          "virtual": true
+        }
+      ]
+    },
+    {
+      "name": "public.lab_results",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "client_updated_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        {
+          "name": "device_id",
+          "type": "varchar(50)",
+          "nullable": true
+        },
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()"
+        },
+        {
+          "name": "is_deleted",
+          "type": "boolean",
+          "nullable": true,
+          "default": "false"
+        },
+        {
+          "name": "result_value",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "server_restored_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "name": "tenant_id",
+          "type": "smallint",
+          "nullable": false,
+          "default": "1"
+        },
+        {
+          "name": "test_name",
+          "type": "varchar(100)",
+          "nullable": true
+        },
+        {
+          "name": "visit_id",
+          "type": "uuid",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "lab_results_pkey",
+          "def": "CREATE UNIQUE INDEX lab_results_pkey ON public.lab_results USING btree (id)",
+          "table": "public.lab_results",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "lab_results_pkey",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "public.lab_results",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "lab_results_visit_id_fkey",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (visit_id) REFERENCES visits(id)",
+          "table": "public.lab_results",
+          "referenced_table": "public.visits",
+          "columns": [
+            "visit_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "name": "clinical",
+          "virtual": true
+        }
+      ]
+    },
+    {
+      "name": "public.patients",
+      "type": "BASE TABLE",
+      "comment": "Mission patient chart (tenant-scoped).",
+      "columns": [
+        {
+          "name": "alcohol",
+          "type": "boolean",
+          "nullable": true,
+          "default": "false"
+        },
+        {
+          "name": "calculated_age",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "name": "client_updated_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        {
+          "name": "device_id",
+          "type": "varchar(50)",
+          "nullable": true
+        },
+        {
+          "name": "display_id",
+          "type": "varchar(50)",
+          "nullable": true
+        },
+        {
+          "name": "dob",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "drug_allergies",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "family_history",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "first_name",
+          "type": "varchar(100)",
+          "nullable": true
+        },
+        {
+          "name": "first_name_phonetic",
+          "type": "varchar(32)",
+          "nullable": true
+        },
+        {
+          "name": "gender",
+          "type": "varchar(10)",
+          "nullable": true
+        },
+        {
+          "name": "gov_id",
+          "type": "varchar(50)",
+          "nullable": true
+        },
+        {
+          "name": "heard_gospel_date",
+          "type": "date",
+          "nullable": true,
+          "comment": "Date the patient heard the gospel (from legacy heardgospel)."
+        },
+        {
+          "name": "home_phone",
+          "type": "varchar(30)",
+          "nullable": true
+        },
+        {
+          "name": "hope_gospel",
+          "type": "boolean",
+          "nullable": true,
+          "default": "false"
+        },
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()"
+        },
+        {
+          "name": "is_deleted",
+          "type": "boolean",
+          "nullable": true,
+          "default": "false"
+        },
+        {
+          "name": "last_name",
+          "type": "varchar(100)",
+          "nullable": true
+        },
+        {
+          "name": "last_name_phonetic",
+          "type": "varchar(32)",
+          "nullable": true
+        },
+        {
+          "name": "legacy_id",
+          "type": "varchar(50)",
+          "nullable": true
+        },
+        {
+          "name": "marital_status",
+          "type": "varchar(50)",
+          "nullable": true
+        },
+        {
+          "name": "medical_history",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "mobile_phone",
+          "type": "varchar(30)",
+          "nullable": true
+        },
+        {
+          "name": "next_of_kin_id",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "server_restored_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "name": "smoke",
+          "type": "boolean",
+          "nullable": true,
+          "default": "false"
+        },
+        {
+          "name": "spiritual_notes",
+          "type": "text",
+          "nullable": true,
+          "comment": "Free-text spiritual check-up notes (church, personal notes, hope, etc.)."
+        },
+        {
+          "name": "surgical_history",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "tenant_id",
+          "type": "smallint",
+          "nullable": false,
+          "default": "1"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "patients_display_id_key",
+          "def": "CREATE UNIQUE INDEX patients_display_id_key ON public.patients USING btree (display_id)",
+          "table": "public.patients",
+          "columns": [
+            "display_id"
+          ]
+        },
+        {
+          "name": "patients_pkey",
+          "def": "CREATE UNIQUE INDEX patients_pkey ON public.patients USING btree (id)",
+          "table": "public.patients",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "patients_display_id_key",
+          "type": "UNIQUE",
+          "def": "UNIQUE (display_id)",
+          "table": "public.patients",
+          "referenced_table": "",
+          "columns": [
+            "display_id"
+          ]
+        },
+        {
+          "name": "patients_next_of_kin_id_fkey",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (next_of_kin_id) REFERENCES patients(id)",
+          "table": "public.patients",
+          "referenced_table": "public.patients",
+          "columns": [
+            "next_of_kin_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "patients_pkey",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "public.patients",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "name": "clinical",
+          "virtual": true
+        }
+      ]
+    },
+    {
+      "name": "public.prescriptions",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "client_updated_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        {
+          "name": "device_id",
+          "type": "varchar(50)",
+          "nullable": true
+        },
+        {
+          "name": "directions",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "dose",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()"
+        },
+        {
+          "name": "is_deleted",
+          "type": "boolean",
+          "nullable": true,
+          "default": "false"
+        },
+        {
+          "name": "medication_name",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "quantity",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "name": "server_restored_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "varchar(50)",
+          "nullable": true
+        },
+        {
+          "name": "treatment_id",
+          "type": "uuid",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "prescriptions_pkey",
+          "def": "CREATE UNIQUE INDEX prescriptions_pkey ON public.prescriptions USING btree (id)",
+          "table": "public.prescriptions",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "prescriptions_pkey",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "public.prescriptions",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "prescriptions_treatment_id_fkey",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (treatment_id) REFERENCES treatments(id)",
+          "table": "public.prescriptions",
+          "referenced_table": "public.treatments",
+          "columns": [
+            "treatment_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "name": "clinical",
+          "virtual": true
+        }
+      ]
+    },
+    {
+      "name": "public.procedure_details",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "client_updated_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        {
+          "name": "device_id",
+          "type": "varchar(50)",
+          "nullable": true
+        },
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()"
+        },
+        {
+          "name": "is_deleted",
+          "type": "boolean",
+          "nullable": true,
+          "default": "false"
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb",
+          "nullable": true
+        },
+        {
+          "name": "server_restored_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "name": "treatment_id",
+          "type": "uuid",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "procedure_details_pkey",
+          "def": "CREATE UNIQUE INDEX procedure_details_pkey ON public.procedure_details USING btree (id)",
+          "table": "public.procedure_details",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "procedure_details_pkey",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "public.procedure_details",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "procedure_details_treatment_id_fkey",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (treatment_id) REFERENCES treatments(id)",
+          "table": "public.procedure_details",
+          "referenced_table": "public.treatments",
+          "columns": [
+            "treatment_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "name": "clinical",
+          "virtual": true
+        }
+      ]
+    },
+    {
+      "name": "public.tenants",
+      "type": "BASE TABLE",
+      "comment": "Mission/clinic registry; subdomain slug maps to tenants.slug.",
+      "columns": [
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        {
+          "name": "id",
+          "type": "smallint",
+          "nullable": false
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "nullable": false,
+          "default": "true"
+        },
+        {
+          "name": "name",
+          "type": "varchar(120)",
+          "nullable": false
+        },
+        {
+          "name": "short_name",
+          "type": "varchar(40)",
+          "nullable": false
+        },
+        {
+          "name": "slug",
+          "type": "varchar(63)",
+          "nullable": false
+        },
+        {
+          "name": "theme_color_hex",
+          "type": "varchar(7)",
+          "nullable": false,
+          "default": "'#0d9488'::character varying"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "tenants_pkey",
+          "def": "CREATE UNIQUE INDEX tenants_pkey ON public.tenants USING btree (id)",
+          "table": "public.tenants",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "ux_tenants_slug",
+          "def": "CREATE UNIQUE INDEX ux_tenants_slug ON public.tenants USING btree (lower((slug)::text))",
+          "table": "public.tenants",
+          "columns": [
+            "lower"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "tenants_pkey",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "public.tenants",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "name": "auth",
+          "virtual": true
+        }
+      ]
+    },
+    {
+      "name": "public.treatments",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "client_updated_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        {
+          "name": "device_id",
+          "type": "varchar(50)",
+          "nullable": true
+        },
+        {
+          "name": "general_notes",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()"
+        },
+        {
+          "name": "is_deleted",
+          "type": "boolean",
+          "nullable": true,
+          "default": "false"
+        },
+        {
+          "name": "is_flagged",
+          "type": "boolean",
+          "nullable": true,
+          "default": "false"
+        },
+        {
+          "name": "provider_name",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "server_restored_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "name": "type",
+          "type": "varchar(50)",
+          "nullable": true
+        },
+        {
+          "name": "visit_id",
+          "type": "uuid",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "treatments_pkey",
+          "def": "CREATE UNIQUE INDEX treatments_pkey ON public.treatments USING btree (id)",
+          "table": "public.treatments",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "treatments_pkey",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "public.treatments",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "treatments_visit_id_fkey",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (visit_id) REFERENCES visits(id)",
+          "table": "public.treatments",
+          "referenced_table": "public.visits",
+          "columns": [
+            "visit_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "name": "clinical",
+          "virtual": true
+        }
+      ]
+    },
+    {
+      "name": "public.trips",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "client_updated_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        {
+          "name": "device_id",
+          "type": "varchar(50)",
+          "nullable": true
+        },
+        {
+          "name": "end_date",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()"
+        },
+        {
+          "name": "is_deleted",
+          "type": "boolean",
+          "nullable": true,
+          "default": "false"
+        },
+        {
+          "name": "name",
+          "type": "varchar(255)",
+          "nullable": false
+        },
+        {
+          "name": "server_restored_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "name": "start_date",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "varchar(20)",
+          "nullable": true,
+          "default": "'Open'::character varying"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "trips_pkey",
+          "def": "CREATE UNIQUE INDEX trips_pkey ON public.trips USING btree (id)",
+          "table": "public.trips",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "trips_pkey",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "public.trips",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "name": "clinical",
+          "virtual": true
+        }
+      ]
+    },
+    {
+      "name": "public.user_tenant_memberships",
+      "type": "BASE TABLE",
+      "comment": "Users may belong to multiple tenants; JWT carries one active tenant per session.",
+      "columns": [
+        {
+          "name": "role",
+          "type": "varchar(20)",
+          "nullable": false,
+          "default": "'clinician'::character varying"
+        },
+        {
+          "name": "tenant_id",
+          "type": "smallint",
+          "nullable": false
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "user_tenant_memberships_pkey",
+          "def": "CREATE UNIQUE INDEX user_tenant_memberships_pkey ON public.user_tenant_memberships USING btree (user_id, tenant_id)",
+          "table": "public.user_tenant_memberships",
+          "columns": [
+            "user_id",
+            "tenant_id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "user_tenant_memberships_pkey",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (user_id, tenant_id)",
+          "table": "public.user_tenant_memberships",
+          "referenced_table": "",
+          "columns": [
+            "user_id",
+            "tenant_id"
+          ]
+        },
+        {
+          "name": "user_tenant_memberships_role_check",
+          "type": "CHECK",
+          "def": "CHECK (((role)::text = ANY ((ARRAY['clinician'::character varying, 'coordinator'::character varying, 'admin'::character varying])::text[])))",
+          "table": "public.user_tenant_memberships",
+          "referenced_table": "",
+          "columns": [
+            "role"
+          ]
+        },
+        {
+          "name": "user_tenant_memberships_tenant_id_fkey",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE",
+          "table": "public.user_tenant_memberships",
+          "referenced_table": "public.tenants",
+          "columns": [
+            "tenant_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "user_tenant_memberships_user_id_fkey",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE",
+          "table": "public.user_tenant_memberships",
+          "referenced_table": "public.users",
+          "columns": [
+            "user_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "name": "auth",
+          "virtual": true
+        }
+      ]
+    },
+    {
+      "name": "public.users",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        {
+          "name": "display_name",
+          "type": "varchar(120)",
+          "nullable": false
+        },
+        {
+          "name": "email",
+          "type": "varchar(256)",
+          "nullable": false
+        },
+        {
+          "name": "first_name",
+          "type": "varchar(100)",
+          "nullable": true,
+          "comment": "Given name for sign-in accounts."
+        },
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()"
+        },
+        {
+          "name": "is_active",
+          "type": "boolean",
+          "nullable": false,
+          "default": "true"
+        },
+        {
+          "name": "last_name",
+          "type": "varchar(100)",
+          "nullable": true,
+          "comment": "Family name for sign-in accounts."
+        },
+        {
+          "name": "password_hash",
+          "type": "text",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "users_pkey",
+          "def": "CREATE UNIQUE INDEX users_pkey ON public.users USING btree (id)",
+          "table": "public.users",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "ux_users_email",
+          "def": "CREATE UNIQUE INDEX ux_users_email ON public.users USING btree (lower((email)::text))",
+          "table": "public.users",
+          "columns": [
+            "lower"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "users_pkey",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "public.users",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "name": "auth",
+          "virtual": true
+        }
+      ]
+    },
+    {
+      "name": "public.visits",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "chief_complaint",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "client_updated_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        {
+          "name": "device_id",
+          "type": "varchar(50)",
+          "nullable": true
+        },
+        {
+          "name": "diagnosis_text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()"
+        },
+        {
+          "name": "is_deleted",
+          "type": "boolean",
+          "nullable": true,
+          "default": "false"
+        },
+        {
+          "name": "location_name",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "patient_id",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "referral_notes",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "server_restored_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "name": "tenant_id",
+          "type": "smallint",
+          "nullable": false,
+          "default": "1"
+        },
+        {
+          "name": "trip_id",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "visit_date",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "visits_pkey",
+          "def": "CREATE UNIQUE INDEX visits_pkey ON public.visits USING btree (id)",
+          "table": "public.visits",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "visits_patient_id_fkey",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (patient_id) REFERENCES patients(id)",
+          "table": "public.visits",
+          "referenced_table": "public.patients",
+          "columns": [
+            "patient_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "visits_pkey",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "public.visits",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "visits_trip_id_fkey",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (trip_id) REFERENCES trips(id)",
+          "table": "public.visits",
+          "referenced_table": "public.trips",
+          "columns": [
+            "trip_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "name": "clinical",
+          "virtual": true
+        }
+      ]
+    },
+    {
+      "name": "public.vitals_core",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "bp",
+          "type": "varchar(20)",
+          "nullable": true
+        },
+        {
+          "name": "client_updated_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": "CURRENT_TIMESTAMP"
+        },
+        {
+          "name": "device_id",
+          "type": "varchar(50)",
+          "nullable": true
+        },
+        {
+          "name": "glucose",
+          "type": "numeric(6,2)",
+          "nullable": true
+        },
+        {
+          "name": "height",
+          "type": "numeric(5,2)",
+          "nullable": true
+        },
+        {
+          "name": "hemoglobin",
+          "type": "numeric(4,1)",
+          "nullable": true
+        },
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()"
+        },
+        {
+          "name": "is_deleted",
+          "type": "boolean",
+          "nullable": true,
+          "default": "false"
+        },
+        {
+          "name": "oxygen_sat",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "name": "pulse",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "name": "resp",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "name": "server_restored_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "name": "temp_f",
+          "type": "numeric(4,1)",
+          "nullable": true
+        },
+        {
+          "name": "tenant_id",
+          "type": "smallint",
+          "nullable": false,
+          "default": "1"
+        },
+        {
+          "name": "visit_id",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "name": "weight",
+          "type": "numeric(5,2)",
+          "nullable": true
+        }
+      ],
+      "indexes": [
+        {
+          "name": "vitals_core_pkey",
+          "def": "CREATE UNIQUE INDEX vitals_core_pkey ON public.vitals_core USING btree (id)",
+          "table": "public.vitals_core",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "vitals_core_pkey",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "public.vitals_core",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "vitals_core_visit_id_fkey",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (visit_id) REFERENCES visits(id)",
+          "table": "public.vitals_core",
+          "referenced_table": "public.visits",
+          "columns": [
+            "visit_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        }
+      ],
+      "labels": [
+        {
+          "name": "clinical",
+          "virtual": true
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "table": "public.lab_results",
+      "columns": [
+        "visit_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "public.visits",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "zero_or_one",
+      "def": "FOREIGN KEY (visit_id) REFERENCES visits(id)"
+    },
+    {
+      "table": "public.patients",
+      "columns": [
+        "next_of_kin_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "public.patients",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "zero_or_one",
+      "def": "FOREIGN KEY (next_of_kin_id) REFERENCES patients(id)"
+    },
+    {
+      "table": "public.prescriptions",
+      "columns": [
+        "treatment_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "public.treatments",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "zero_or_one",
+      "def": "FOREIGN KEY (treatment_id) REFERENCES treatments(id)"
+    },
+    {
+      "table": "public.procedure_details",
+      "columns": [
+        "treatment_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "public.treatments",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "zero_or_one",
+      "def": "FOREIGN KEY (treatment_id) REFERENCES treatments(id)"
+    },
+    {
+      "table": "public.treatments",
+      "columns": [
+        "visit_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "public.visits",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "zero_or_one",
+      "def": "FOREIGN KEY (visit_id) REFERENCES visits(id)"
+    },
+    {
+      "table": "public.user_tenant_memberships",
+      "columns": [
+        "tenant_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "public.tenants",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE"
+    },
+    {
+      "table": "public.user_tenant_memberships",
+      "columns": [
+        "user_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "public.users",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE"
+    },
+    {
+      "table": "public.visits",
+      "columns": [
+        "trip_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "public.trips",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "zero_or_one",
+      "def": "FOREIGN KEY (trip_id) REFERENCES trips(id)"
+    },
+    {
+      "table": "public.visits",
+      "columns": [
+        "patient_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "public.patients",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "zero_or_one",
+      "def": "FOREIGN KEY (patient_id) REFERENCES patients(id)"
+    },
+    {
+      "table": "public.vitals_core",
+      "columns": [
+        "visit_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "public.visits",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "zero_or_one",
+      "def": "FOREIGN KEY (visit_id) REFERENCES visits(id)"
+    }
+  ],
+  "driver": {
+    "name": "postgres",
+    "database_version": "PostgreSQL 16.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit",
+    "meta": {
+      "current_schema": "public",
+      "search_paths": [
+        "postgres",
+        "public"
+      ],
+      "dict": {
+        "Functions": "Stored procedures and functions"
+      }
+    }
+  }
+}

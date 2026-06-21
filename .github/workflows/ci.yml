@@ -50,6 +50,40 @@ jobs:
           npx playwright install chromium --with-deps
           npm run ci
 
+  schema-docs:
+    name: Schema docs (tbls drift)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: christ_medical
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d christ_medical"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Setup tbls
+        uses: k1low/setup-tbls@v1
+        with:
+          version: v1.94.5
+
+      - name: Verify schema docs match migrated database
+        env:
+          TBLS_DSN: postgresql://postgres:password@localhost:5432/christ_medical?sslmode=disable
+        run: bash scripts/schema-docs-check.sh
+
   deploy-api:
     name: Deploy API (Railway)
     needs: [build]

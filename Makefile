@@ -1,4 +1,4 @@
-.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down demo-up demo-down docker-up deploy deploy-login build ci run lockfile-sync
+.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down demo-up demo-down docker-up deploy deploy-login build ci run lockfile-sync schema-docs schema-docs-check
 
 # Default target
 .DEFAULT_GOAL := help
@@ -54,6 +54,16 @@ build: ## Full local CI: dotnet format, build, test; frontend lint, test, build
 	@echo "$(GREEN)All checks passed.$(NC)"
 
 ci: build ## Alias for build (CI parity)
+
+schema-docs: ## Regenerate docs/schema from Postgres via tbls (Docker ephemeral DB if daemon is up)
+	@if docker info >/dev/null 2>&1; then \
+		bash scripts/schema-docs-docker.sh; \
+	else \
+		bash scripts/schema-docs.sh; \
+	fi
+
+schema-docs-check: ## Fail when docs/schema drifts from migrated database (requires TBLS_DSN)
+	@bash scripts/schema-docs-check.sh
 
 help: ## Display this help message
 	@echo "$(BLUE)━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$(NC)"

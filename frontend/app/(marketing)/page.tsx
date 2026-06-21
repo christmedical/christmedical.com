@@ -30,20 +30,22 @@ export default function MarketingHomePage() {
   return (
     <>
       <section
-        className="relative overflow-hidden border-b border-fc-border"
+        className="relative -mt-28 overflow-hidden border-b border-fc-border pt-28 sm:-mt-[4.75rem] sm:pt-[4.75rem]"
         style={{
-          background: `linear-gradient(165deg, var(--cm-brand-navy) 0%, var(--cm-brand-navy-soft) 42%, var(--fc-paper) 72%)`,
+          background: `linear-gradient(165deg, var(--cm-brand-navy) 0%, var(--cm-brand-navy-soft) 58%, #2a4470 100%)`,
         }}
       >
         <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full opacity-20 blur-3xl" style={{ background: "var(--cm-brand-gold)" }} />
         <div className="pointer-events-none absolute -bottom-16 left-1/4 h-48 w-48 rounded-full opacity-10 blur-3xl" style={{ background: "var(--fc-accent-glow)" }} />
 
         <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-8 px-6 py-20 text-center sm:py-28">
-          <ChristMedicalWordmark
-            width={384}
-            className="h-auto w-full max-w-[min(100%,18rem)] object-contain drop-shadow-lg sm:max-w-[22rem]"
-            priority
-          />
+          <div className="rounded-2xl bg-white/[0.08] px-8 py-6 ring-1 ring-white/15 backdrop-blur-[2px]">
+            <ChristMedicalWordmark
+              width={384}
+              className="h-auto w-full max-w-[min(100%,18rem)] object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.35)] sm:max-w-[22rem]"
+              priority
+            />
+          </div>
           <div className="max-w-2xl space-y-4">
             <p
               className="font-display text-xs font-semibold uppercase tracking-[0.25em]"
@@ -66,13 +68,21 @@ export default function MarketingHomePage() {
             </a>
             <a
               href={demoSiteHref}
-              className="inline-flex min-h-11 items-center rounded-lg border border-white/25 bg-white/10 px-6 py-2 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/15"
+              className="inline-flex min-h-11 items-center rounded-lg border-2 px-6 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-[color:var(--cm-brand-gold)]/15"
+              style={{
+                borderColor: "var(--cm-brand-gold-soft)",
+                color: "var(--cm-brand-gold-soft)",
+              }}
             >
               Try demo site
             </a>
             <Link
               href="/about"
-              className="inline-flex min-h-11 items-center rounded-lg border border-white/25 bg-white/10 px-6 py-2 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/15"
+              className="inline-flex min-h-11 items-center rounded-lg border-2 px-6 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-[color:var(--cm-brand-gold)]/15"
+              style={{
+                borderColor: "var(--cm-brand-gold-soft)",
+                color: "var(--cm-brand-gold-soft)",
+              }}
             >
               Learn more
             </Link>

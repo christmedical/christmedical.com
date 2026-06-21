@@ -1,0 +1,8 @@
+{
+  "name": "christmedical-monorepo",
+  "private": true,
+  "description": "Monorepo root — Next.js app lives in frontend/",
+  "scripts": {
+    "vercel-build": "cd frontend && npm ci && npm run build"
+  }
+}

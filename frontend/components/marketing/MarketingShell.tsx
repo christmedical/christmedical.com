@@ -28,12 +28,12 @@ export function MarketingShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-dvh flex-col bg-fc-paper text-fc-ink">
-      <header className="border-b border-fc-border bg-fc-surface/80 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 border-b border-fc-border/35 bg-fc-paper/55 shadow-sm backdrop-blur-lg">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-4">
           <Link href="/" className="flex items-center" aria-label="Christ Medical home">
             <ChristMedicalLogo
               size={44}
-              className="rounded-lg ring-1 ring-fc-border/60"
+              className="rounded-lg ring-1 ring-fc-border/50"
               priority
             />
           </Link>

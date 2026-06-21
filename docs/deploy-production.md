@@ -43,6 +43,13 @@ Railway IDs wired in CI:
 
 ## 2. Vercel — frontend
 
+The Next.js app lives in **`frontend/`** (monorepo root is .NET + docs + ETL).
+
+**Git deploys:** In Vercel → Project → **Settings → General → Root Directory**, set **`frontend`**.
+The repo also ships root `vercel.json` + `package.json` (`vercel-build`) so builds succeed if Root Directory is the repo root.
+
+**CI deploys:** `.github/workflows/ci.yml` runs `vercel deploy --prod` from `frontend/` (no root-directory issue).
+
 ### Link project (once per machine)
 
 ```bash

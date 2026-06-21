@@ -55,6 +55,8 @@ public static class DbSchemaBootstrap
 
         await ApplyIncrementalPatchesAsync(conn, logger, cancellationToken);
 
+        await EnsureFeedbackTableAsync(conn, sqlRoot, logger, cancellationToken);
+
         if (ShouldSeedDemoData(configuration))
         {
             await SeedDemoDataIfEmptyAsync(conn, sqlRoot, logger, cancellationToken);
@@ -133,6 +135,36 @@ public static class DbSchemaBootstrap
 
         logger.LogInformation("Seeding demo patients (SEED_DEMO_DATA enabled).");
         await ExecuteSqlFileAsync(conn, seedPath, logger, cancellationToken);
+    }
+
+    private static async Task EnsureFeedbackTableAsync(
+        NpgsqlConnection conn,
+        string sqlRoot,
+        ILogger logger,
+        CancellationToken cancellationToken)
+    {
+        var exists = await conn.ExecuteScalarAsync<bool>(
+            new CommandDefinition(
+                """
+                SELECT EXISTS (
+                  SELECT 1 FROM information_schema.tables
+                  WHERE table_schema = 'public' AND table_name = 'feedback'
+                );
+                """,
+                cancellationToken: cancellationToken));
+
+        if (exists)
+            return;
+
+        var path = Path.Combine(sqlRoot, "V10__feedback.sql");
+        if (!File.Exists(path))
+        {
+            throw new InvalidOperationException(
+                $"Missing feedback migration at {path}. Dockerfile must COPY V10__feedback.sql.");
+        }
+
+        logger.LogInformation("Applying feedback schema from {Path}.", path);
+        await ExecuteSqlFileAsync(conn, path, logger, cancellationToken);
     }
 
     private static async Task ApplyIncrementalPatchesAsync(

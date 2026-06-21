@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Public_Sans } from "next/font/google";
 import { ConnectivityBanner } from "@/components/ConnectivityBanner";
+import { FeedbackModeHost } from "@/components/feedback/FeedbackModeHost";
 import { PwaHead } from "@/components/PwaHead";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import "./globals.css";
@@ -52,6 +53,7 @@ export default function RootLayout({
         <PwaHead />
         <ConnectivityBanner />
         {children}
+        <FeedbackModeHost />
         <PwaInstallPrompt />
       </body>
     </html>

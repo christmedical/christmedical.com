@@ -1,7 +1,7 @@
 import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
-import { isFeedbackModeEnabled } from "@/lib/feedbackMode";
+import { isFeedbackModeDisabled } from "@/lib/feedbackMode";
 
 export function FeedbackModeHost() {
-  if (!isFeedbackModeEnabled()) return null;
+  if (isFeedbackModeDisabled()) return null;
   return <FeedbackWidget />;
 }

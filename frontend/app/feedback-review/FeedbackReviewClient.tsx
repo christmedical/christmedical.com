@@ -15,6 +15,7 @@ import {
   patchFeedbackStatus,
   type FeedbackItem,
 } from "@/lib/feedbackApi";
+import { ReviewerAccessPanel } from "@/components/feedback/ReviewerAccessPanel";
 
 export function FeedbackReviewClient() {
   const [items, setItems] = useState<FeedbackItem[]>([]);
@@ -33,7 +34,7 @@ export function FeedbackReviewClient() {
     try {
       setItems(await fetchFeedbackList(base));
     } catch {
-      setError("Could not load feedback (is FEEDBACK_MODE=on on the API?).");
+      setError("Could not load feedback notes.");
     } finally {
       setLoading(false);
     }
@@ -75,6 +76,8 @@ export function FeedbackReviewClient() {
             Back to app
           </Link>
         </header>
+
+        <ReviewerAccessPanel />
 
         {loading ? <p className="text-sm text-fc-ink-muted">Loading…</p> : null}
         {error ? (

@@ -140,4 +140,35 @@ public static class DbSchemaInitializer
         await conn.ExecuteAsync(new CommandDefinition(ddl, cancellationToken: cancellationToken));
         logger.LogInformation("Ensured public.feedback table exists.");
     }
+
+    /// <summary>Per-reviewer feedback widget allowlist.</summary>
+    public static async Task EnsureFeedbackReviewerPrefsAsync(
+        IConfiguration configuration,
+        ILogger logger,
+        CancellationToken cancellationToken = default)
+    {
+        var cs = configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrWhiteSpace(cs))
+        {
+            logger.LogWarning("Skipping feedback reviewer prefs patch: DefaultConnection is not set.");
+            return;
+        }
+
+        const string ddl = """
+            CREATE TABLE IF NOT EXISTS public.feedback_reviewer_prefs (
+                email VARCHAR(256) PRIMARY KEY,
+                display_name VARCHAR(120) NOT NULL DEFAULT '',
+                feedback_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+
+            CREATE UNIQUE INDEX IF NOT EXISTS ux_feedback_reviewer_prefs_email
+                ON public.feedback_reviewer_prefs (lower(email));
+            """;
+
+        await using var conn = new NpgsqlConnection(cs);
+        await conn.OpenAsync(cancellationToken);
+        await conn.ExecuteAsync(new CommandDefinition(ddl, cancellationToken: cancellationToken));
+        logger.LogInformation("Ensured public.feedback_reviewer_prefs table exists.");
+    }
 }

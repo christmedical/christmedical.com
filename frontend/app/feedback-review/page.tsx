@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { FeedbackReviewClient } from "./FeedbackReviewClient";
-import { isFeedbackModeEnabled } from "@/lib/feedbackMode";
+import { isFeedbackModeDisabled } from "@/lib/feedbackMode";
 
 export default function FeedbackReviewPage() {
-  if (!isFeedbackModeEnabled()) notFound();
+  if (isFeedbackModeDisabled()) notFound();
   return <FeedbackReviewClient />;
 }

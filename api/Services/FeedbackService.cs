@@ -9,6 +9,16 @@ public interface IFeedbackService
     Task<FeedbackRecord?> CreateAsync(CreateFeedbackRequest request, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<FeedbackRecord>> ListAsync(string? status, CancellationToken cancellationToken = default);
     Task<FeedbackRecord?> UpdateStatusAsync(Guid id, string status, CancellationToken cancellationToken = default);
+    Task<FeedbackReviewerPref?> GetReviewerPrefAsync(string email, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<FeedbackReviewerPref>> ListReviewerPrefsAsync(CancellationToken cancellationToken = default);
+    Task<FeedbackReviewerPref?> UpsertReviewerPrefAsync(
+        UpsertFeedbackReviewerRequest request,
+        CancellationToken cancellationToken = default);
+    Task<FeedbackReviewerPref?> SetReviewerEnabledAsync(
+        string email,
+        bool enabled,
+        CancellationToken cancellationToken = default);
+    Task<bool> IsReviewerEnabledAsync(string email, CancellationToken cancellationToken = default);
 }
 
 public sealed class FeedbackService(IConfiguration configuration) : IFeedbackService
@@ -28,9 +38,17 @@ public sealed class FeedbackService(IConfiguration configuration) : IFeedbackSer
         if (pagePath.Length == 0)
             return null;
 
+        var email = NormalizeEmail(request.ReviewerEmail);
+        if (email is null)
+            return null;
+
+        if (!await IsReviewerEnabledAsync(email, cancellationToken))
+            return null;
+
+        var pref = await GetReviewerPrefAsync(email, cancellationToken);
         var label = request.ReviewerLabel.Trim();
         if (label.Length == 0)
-            label = "Reviewer";
+            label = pref?.DisplayName ?? email;
 
         const string sql = """
             INSERT INTO public.feedback (
@@ -149,6 +167,117 @@ public sealed class FeedbackService(IConfiguration configuration) : IFeedbackSer
             new CommandDefinition(sql, new { id, status = normalized }, cancellationToken: cancellationToken));
     }
 
+    public async Task<FeedbackReviewerPref?> GetReviewerPrefAsync(
+        string email,
+        CancellationToken cancellationToken = default)
+    {
+        var normalized = NormalizeEmail(email);
+        if (normalized is null)
+            return null;
+
+        const string sql = """
+            SELECT
+                email AS Email,
+                display_name AS DisplayName,
+                feedback_enabled AS FeedbackEnabled,
+                updated_at AS UpdatedAt
+            FROM public.feedback_reviewer_prefs
+            WHERE lower(email) = lower(@email);
+            """;
+
+        await using var conn = await OpenAsync(cancellationToken);
+        return await conn.QuerySingleOrDefaultAsync<FeedbackReviewerPref>(
+            new CommandDefinition(sql, new { email = normalized }, cancellationToken: cancellationToken));
+    }
+
+    public async Task<IReadOnlyList<FeedbackReviewerPref>> ListReviewerPrefsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+            SELECT
+                email AS Email,
+                display_name AS DisplayName,
+                feedback_enabled AS FeedbackEnabled,
+                updated_at AS UpdatedAt
+            FROM public.feedback_reviewer_prefs
+            ORDER BY lower(email);
+            """;
+
+        await using var conn = await OpenAsync(cancellationToken);
+        var rows = await conn.QueryAsync<FeedbackReviewerPref>(
+            new CommandDefinition(sql, cancellationToken: cancellationToken));
+        return rows.ToList();
+    }
+
+    public async Task<FeedbackReviewerPref?> UpsertReviewerPrefAsync(
+        UpsertFeedbackReviewerRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var email = NormalizeEmail(request.Email);
+        if (email is null)
+            return null;
+
+        const string sql = """
+            INSERT INTO public.feedback_reviewer_prefs (email, display_name, feedback_enabled, updated_at)
+            VALUES (@email, @displayName, @feedbackEnabled, CURRENT_TIMESTAMP)
+            ON CONFLICT (email) DO UPDATE SET
+                display_name = EXCLUDED.display_name,
+                feedback_enabled = EXCLUDED.feedback_enabled,
+                updated_at = CURRENT_TIMESTAMP
+            RETURNING
+                email AS Email,
+                display_name AS DisplayName,
+                feedback_enabled AS FeedbackEnabled,
+                updated_at AS UpdatedAt;
+            """;
+
+        await using var conn = await OpenAsync(cancellationToken);
+        return await conn.QuerySingleOrDefaultAsync<FeedbackReviewerPref>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    email,
+                    displayName = request.DisplayName.Trim(),
+                    feedbackEnabled = request.FeedbackEnabled,
+                },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task<FeedbackReviewerPref?> SetReviewerEnabledAsync(
+        string email,
+        bool enabled,
+        CancellationToken cancellationToken = default)
+    {
+        var normalized = NormalizeEmail(email);
+        if (normalized is null)
+            return null;
+
+        const string sql = """
+            UPDATE public.feedback_reviewer_prefs
+            SET feedback_enabled = @enabled, updated_at = CURRENT_TIMESTAMP
+            WHERE lower(email) = lower(@email)
+            RETURNING
+                email AS Email,
+                display_name AS DisplayName,
+                feedback_enabled AS FeedbackEnabled,
+                updated_at AS UpdatedAt;
+            """;
+
+        await using var conn = await OpenAsync(cancellationToken);
+        return await conn.QuerySingleOrDefaultAsync<FeedbackReviewerPref>(
+            new CommandDefinition(
+                sql,
+                new { email = normalized, enabled },
+                cancellationToken: cancellationToken));
+    }
+
+    public async Task<bool> IsReviewerEnabledAsync(string email, CancellationToken cancellationToken = default)
+    {
+        var pref = await GetReviewerPrefAsync(email, cancellationToken);
+        return pref?.FeedbackEnabled == true;
+    }
+
     private async Task<NpgsqlConnection> OpenAsync(CancellationToken cancellationToken)
     {
         var cs = configuration.GetConnectionString("DefaultConnection");
@@ -161,6 +290,14 @@ public sealed class FeedbackService(IConfiguration configuration) : IFeedbackSer
     }
 
     private static bool IsValidPin(float value) => value is >= 0f and <= 1f;
+
+    private static string? NormalizeEmail(string raw)
+    {
+        var email = raw.Trim().ToLowerInvariant();
+        if (email.Length == 0 || !email.Contains('@'))
+            return null;
+        return email;
+    }
 
     private static string? NormalizeStatus(string? status)
     {

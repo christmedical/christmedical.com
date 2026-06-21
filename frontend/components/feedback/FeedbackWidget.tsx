@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react";
 import {
   FC_BTN_PRIMARY,
   FC_BTN_SECONDARY,
+  FC_ERROR_BANNER,
   FC_FIELD_LABEL,
   FC_INPUT,
   FC_SURFACE,
@@ -12,38 +13,56 @@ import {
 } from "@/components/design/fieldClinical";
 import { FeedbackProvider, useFeedbackMode } from "@/components/feedback/FeedbackProvider";
 
-function LabelPrompt() {
-  const { confirmLabel } = useFeedbackMode();
-  const [name, setName] = useState("");
+function SignInPrompt() {
+  const { confirmReviewer, signInError } = useFeedbackMode();
+  const [email, setEmail] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  function onSubmit(e: FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    confirmLabel(name);
+    setSubmitting(true);
+    try {
+      await confirmReviewer(email, displayName);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
     <div className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/30 px-4">
       <form
-        onSubmit={onSubmit}
+        onSubmit={(e) => void onSubmit(e)}
         className={`w-full max-w-sm ${FC_SURFACE} space-y-4 p-4 shadow-lg`}
       >
-        <h2 className="font-display text-lg font-semibold text-fc-ink">Reviewer name</h2>
+        <h2 className="font-display text-lg font-semibold text-fc-ink">Reviewer sign-in</h2>
         <p className="text-sm text-fc-ink-muted">
-          Shown on feedback notes for this session only (not stored in the browser).
+          Enter the email the owner enabled for feedback. Your name is shown on notes you leave.
         </p>
+        {signInError ? <div className={FC_ERROR_BANNER}>{signInError}</div> : null}
         <label className="block">
-          <span className={FC_FIELD_LABEL}>Your name or label</span>
+          <span className={FC_FIELD_LABEL}>Email</span>
           <input
             className={FC_INPUT}
-            value={name}
-            onChange={(ev) => setName(ev.target.value)}
-            placeholder="Reviewer"
-            autoFocus
+            type="email"
+            value={email}
+            onChange={(ev) => setEmail(ev.target.value)}
+            autoComplete="email"
             required
+            autoFocus
           />
         </label>
-        <button type="submit" className={`${FC_BTN_PRIMARY} w-full`}>
-          Continue
+        <label className="block">
+          <span className={FC_FIELD_LABEL}>Display name</span>
+          <input
+            className={FC_INPUT}
+            value={displayName}
+            onChange={(ev) => setDisplayName(ev.target.value)}
+            placeholder="Optional"
+          />
+        </label>
+        <button type="submit" className={`${FC_BTN_PRIMARY} w-full`} disabled={submitting}>
+          {submitting ? "Checking…" : "Continue"}
         </button>
       </form>
     </div>
@@ -108,7 +127,7 @@ function NotePopover() {
     >
       <div className={`${FC_SURFACE} space-y-3 p-3 shadow-lg`}>
         {pendingPin ? (
-          <form onSubmit={onSave} className="space-y-3">
+          <form onSubmit={(e) => void onSave(e)} className="space-y-3">
             <p className="font-display text-sm font-medium text-fc-ink">Leave a note</p>
             <textarea
               className={FC_TEXTAREA}
@@ -156,9 +175,9 @@ function NotePopover() {
 }
 
 function FeedbackOverlay() {
-  const { active, dropPin } = useFeedbackMode();
+  const { active, accessState, dropPin } = useFeedbackMode();
 
-  if (!active) return null;
+  if (!active || accessState !== "granted") return null;
 
   return (
     <div
@@ -176,7 +195,15 @@ function FeedbackOverlay() {
 }
 
 function FeedbackToggleButton() {
-  const { active, toggleActive } = useFeedbackMode();
+  const { active, accessState, toggleActive, signInError } = useFeedbackMode();
+
+  if (accessState === "denied" && signInError) {
+    return (
+      <div className="fixed bottom-4 left-4 z-[9999] max-w-xs rounded-lg border border-fc-warn-border bg-fc-warn-bg p-3 text-xs text-fc-warn-ink shadow-lg">
+        {signInError}
+      </div>
+    );
+  }
 
   return (
     <div className="fixed bottom-4 left-4 z-[9999] flex flex-col gap-2">
@@ -202,13 +229,13 @@ function FeedbackToggleButton() {
 }
 
 function FeedbackWidgetInner() {
-  const { needsLabel } = useFeedbackMode();
+  const { needsSignIn } = useFeedbackMode();
 
   return (
     <>
       <FeedbackToggleButton />
       <FeedbackOverlay />
-      {needsLabel ? <LabelPrompt /> : null}
+      {needsSignIn ? <SignInPrompt /> : null}
     </>
   );
 }

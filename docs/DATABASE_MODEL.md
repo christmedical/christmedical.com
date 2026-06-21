@@ -194,11 +194,40 @@ Notes:
 - Tenant isolation: every clinical table carries tenant_id (directly or via its parent). Confirm and test that a query for one tenant cannot read another's rows.
 - The client-side write outbox lives in IndexedDB, not Postgres. Server-side, an idempotency-key store (or a unique constraint on a client-supplied request id) prevents duplicate writes on retry; add that table if not present.
 
-## Keeping this current (the actual requirement)
+## Keeping this current
 
-Generate the schema docs from the live database so they cannot drift, and fail CI when they do:
+**Authoritative schema:** [`docs/schema/`](schema/README.md) — auto-generated from Postgres by [tbls](https://github.com/k1LoW/tbls). Do not hand-edit those files.
 
-- Tool: **tbls** (https://github.com/k1LoW/tbls). `tbls doc` writes per-table Markdown + a Mermaid ER diagram; `tbls diff` fails CI when committed docs differ from the live schema.
-- Lighter alternative (diagram only): **mermerd**, which emits a single Mermaid file from the DB.
+**This document:** target / design reference only. When it disagrees with `docs/schema/`, fix this file or the migrations, then regenerate.
 
-See the wiring task in the repo PR for setup.
+### Regenerate after a migration
+
+```bash
+make schema-docs
+```
+
+Requires Docker (ephemeral Postgres) or a running local DB. Optional override in `.env`:
+
+```bash
+TBLS_DSN=postgresql://USER:PASSWORD@HOST:5432/christ_medical?sslmode=disable
+```
+
+Use a read-only role if pointing at production or staging. tbls introspects only; it never writes to the database.
+
+Config: `.tbls.yml` (pinned version in `.tbls-version`). Migrations applied before docgen match `api/Infrastructure/DbSchemaBootstrap.cs` via `scripts/apply-api-schema.sh`.
+
+### CI drift check
+
+GitHub Actions job **Schema docs (tbls drift)** migrates ephemeral Postgres 16, runs `tbls diff`, and **fails** if committed `docs/schema/` does not match the live schema. A migration PR that forgets `make schema-docs` will not pass.
+
+Verify locally:
+
+```bash
+TBLS_DSN='postgresql://postgres:password@localhost:5432/christ_medical?sslmode=disable' make schema-docs-check
+```
+
+### What gets generated
+
+- [`docs/schema/README.md`](schema/README.md) — table index + Mermaid ER diagram
+- `docs/schema/public.<table>.md` — per-table column, index, and FK docs
+- `docs/schema/schema.json` — machine-readable snapshot (for tooling)

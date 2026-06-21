@@ -168,6 +168,8 @@ public static class DbSchemaBootstrap
             await ExecuteSqlFileAsync(conn, path, logger, cancellationToken);
         }
 
+        await AuthDemoSeeder.EnsureDevAccountsAsync(conn, logger, cancellationToken);
+
         if (ShouldSeedDemoData(configuration))
             await AuthDemoSeeder.EnsureAsync(conn, logger, cancellationToken);
     }

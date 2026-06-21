@@ -77,10 +77,12 @@ Turn **Domain Forwarding** off at GoDaddy. All DNS records live in **Vercel → 
 |------|------|-------|
 | `@` | ALIAS | (Vercel auto — do not delete) |
 | `www` | CNAME | `e1e5f025a892126a.vercel-dns-017.com` |
+| `login` | CNAME | (Vercel auto when added to project) |
+| `belize`, `demo`, `cornerstone` | CNAME | (Vercel auto — tenant subdomains) |
 
-Vercel may show “DNS Change Recommended” for `www` until that CNAME matches. Older `cname.vercel-dns.com` still works but update when prompted.
+Add each hostname in **Vercel → Project → Settings → Domains** (or `vercel domains add login.christmedical.com` from `frontend/`). Without this, subdomains resolve in DNS but TLS/login routing will fail.
 
-**Behavior:** `christmedical.com` → 308 redirect → `www.christmedical.com` → app. Both are valid.
+**Behavior:** `christmedical.com` → 308 redirect → `www.christmedical.com` → marketing. `login.christmedical.com` → sign-in. `{tenant}.christmedical.com` → clinical app (e.g. `belize.christmedical.com/queue`).
 
 Verify:
 
@@ -146,10 +148,13 @@ SEED_DEMO_DATA=true
 Optional:
 
 ```text
-CORS_ORIGINS=https://www.christmedical.com,https://christmedical.com,http://localhost:3000
+CORS_ORIGINS=https://www.christmedical.com,https://christmedical.com,https://login.christmedical.com,https://belize.christmedical.com,http://localhost:3000
+JWT_SECRET=<random 32+ chars for production>
 ```
 
 Defaults include production domains if unset.
+
+On boot the API upserts dev sign-in accounts (`jamey@mcelveen.us`, `connie@mcelveen.us`, password `password`) and enables them for the feedback widget. Change before go-live.
 
 On first boot the API applies `conversion/etl/V1__…` through `V7__…` when no `patients` table exists, then serves **`GET /health`** for Railway health checks.
 

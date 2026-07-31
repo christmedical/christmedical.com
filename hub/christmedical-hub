@@ -1,0 +1,190 @@
+#!/usr/bin/env bash
+# Christ Medical hub CLI — thin wrapper around docker compose (API + Postgres).
+# Usage: ./christmedical-hub <install|start|stop|restart|status|logs|pull>
+set -euo pipefail
+
+HUB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMPOSE_FILE="${HUB_DIR}/docker-compose.yml"
+ENV_FILE="${HUB_DIR}/.env"
+ENV_EXAMPLE="${HUB_DIR}/.env.example"
+API_PORT_DEFAULT=5050
+
+COMPOSE=(docker compose -p christmedical-hub --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" --project-directory "${HUB_DIR}")
+
+die() {
+  echo "error: $*" >&2
+  exit 1
+}
+
+need_docker() {
+  if ! command -v docker >/dev/null 2>&1; then
+    cat >&2 <<'EOF'
+error: Docker is not installed or not on PATH.
+
+Install Docker Engine (Linux) or Docker Desktop, then re-run this command:
+  https://docs.docker.com/engine/install/
+EOF
+    exit 1
+  fi
+
+  if ! docker info >/dev/null 2>&1; then
+    cat >&2 <<'EOF'
+error: Docker is installed but the daemon is not running (or this user cannot talk to it).
+
+Start Docker, then re-run. On Linux you may need:
+  sudo systemctl start docker
+  sudo usermod -aG docker "$USER"   # then log out/in
+EOF
+    exit 1
+  fi
+
+  if ! docker compose version >/dev/null 2>&1; then
+    die "Docker Compose v2 plugin is required (docker compose). See https://docs.docker.com/compose/install/"
+  fi
+}
+
+ensure_env() {
+  if [[ ! -f "${ENV_FILE}" ]]; then
+    if [[ ! -f "${ENV_EXAMPLE}" ]]; then
+      die "missing ${ENV_EXAMPLE}"
+    fi
+    cp "${ENV_EXAMPLE}" "${ENV_FILE}"
+    echo "Created ${ENV_FILE} from .env.example — edit secrets before production use."
+  fi
+}
+
+warn_placeholder_secrets() {
+  if grep -Eq 'change-me' "${ENV_FILE}" 2>/dev/null; then
+    echo "warning: ${ENV_FILE} still contains 'change-me' placeholders — set real POSTGRES_PASSWORD, JWT_SECRET, and HUB_ADMIN_PASSWORD before a real clinic trip." >&2
+  fi
+}
+
+api_base_url() {
+  local port
+  port="$(grep -E '^[[:space:]]*API_PORT=' "${ENV_FILE}" 2>/dev/null | tail -1 | cut -d= -f2- | tr -d '[:space:]' || true)"
+  if [[ -z "${port}" ]]; then
+    port="${API_PORT_DEFAULT}"
+  fi
+  echo "http://127.0.0.1:${port}"
+}
+
+cmd_install() {
+  need_docker
+  ensure_env
+  echo "Pulling hub images (builds API from Dockerfile if pull fails)..."
+  if ! "${COMPOSE[@]}" pull api db 2>/dev/null; then
+    echo "Image pull incomplete; will build API on start if needed."
+  fi
+  echo "Hub install ready. Next:"
+  echo "  1. Edit ${ENV_FILE} (JWT_SECRET, POSTGRES_PASSWORD, HUB_ADMIN_*)."
+  echo "  2. Run: ${0##*/} start"
+}
+
+cmd_start() {
+  need_docker
+  ensure_env
+  warn_placeholder_secrets
+  echo "Starting Christ Medical hub..."
+  "${COMPOSE[@]}" up -d --build --remove-orphans
+  echo "Waiting for readiness..."
+  local base url i
+  base="$(api_base_url)"
+  url="${base}/ready"
+  for i in $(seq 1 60); do
+    if curl -fsS "${url}" >/dev/null 2>&1; then
+      echo "Hub is ready."
+      echo "  Health: ${base}/health"
+      echo "  Ready:  ${url}"
+      echo "  API:    ${base}/api"
+      return 0
+    fi
+    sleep 2
+  done
+  echo "warning: stack is up but /ready did not succeed within ~2 minutes." >&2
+  echo "Check: ${0##*/} logs" >&2
+  "${COMPOSE[@]}" ps
+  return 1
+}
+
+cmd_stop() {
+  need_docker
+  ensure_env
+  echo "Stopping Christ Medical hub (Postgres volume is kept)..."
+  "${COMPOSE[@]}" down
+  echo "Stopped."
+}
+
+cmd_restart() {
+  cmd_stop
+  cmd_start
+}
+
+cmd_status() {
+  need_docker
+  ensure_env
+  echo "=== compose ==="
+  "${COMPOSE[@]}" ps || true
+  echo
+  local base
+  base="$(api_base_url)"
+  echo "=== probes (${base}) ==="
+  if curl -fsS "${base}/health" 2>/dev/null; then
+    echo
+  else
+    echo "health: unreachable"
+  fi
+  if curl -fsS "${base}/ready" 2>/dev/null; then
+    echo
+  else
+    echo "ready: unreachable or not ready"
+  fi
+}
+
+cmd_logs() {
+  need_docker
+  ensure_env
+  "${COMPOSE[@]}" logs --tail=200 -f "$@"
+}
+
+cmd_pull() {
+  need_docker
+  ensure_env
+  "${COMPOSE[@]}" pull
+}
+
+usage() {
+  cat <<EOF
+Christ Medical hub — Docker Compose supervisor (Linux CLI)
+
+Usage: ${0##*/} <command>
+
+Commands:
+  install   Check Docker, create .env from example if missing, pull images
+  start     Start API + Postgres; wait until /ready succeeds
+  stop      Stop containers (keeps the Postgres named volume)
+  restart   stop + start
+  status    Compose status + /health + /ready
+  logs      Follow compose logs (pass extra args through)
+  pull      Pull latest images from the registry
+
+Docs: ${HUB_DIR}/README.md
+EOF
+}
+
+main() {
+  local cmd="${1:-}"
+  shift || true
+  case "${cmd}" in
+    install)  cmd_install "$@" ;;
+    start)    cmd_start "$@" ;;
+    stop)     cmd_stop "$@" ;;
+    restart)  cmd_restart "$@" ;;
+    status)   cmd_status "$@" ;;
+    logs)     cmd_logs "$@" ;;
+    pull)     cmd_pull "$@" ;;
+    -h|--help|help|"") usage ;;
+    *) die "unknown command: ${cmd} (try --help)" ;;
+  esac
+}
+
+main "$@"

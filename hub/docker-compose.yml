@@ -1,0 +1,70 @@
+# Field hub stack — API + Postgres only.
+# Prerequisite: Docker Engine / Docker Desktop.
+# Config: copy .env.example → .env and edit secrets before first start.
+#
+# From this directory:
+#   docker compose up -d
+# Or via the Linux CLI:
+#   ./christmedical-hub start
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: christmedical_hub_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-christ_medical}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-strong-db-password}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - hub_postgres_data:/var/lib/postgresql/data
+    networks:
+      - hub_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  api:
+    # Built from the existing api/Dockerfile (same as demo/deploy). Override API_IMAGE
+    # to run a pre-published tag without rebuilding, e.g. christmedical/christmedical-api:latest
+    image: ${API_IMAGE:-christmedical-hub-api:local}
+    build:
+      context: ..
+      dockerfile: api/Dockerfile
+    container_name: christmedical_hub_api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB:-christ_medical};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-change-me-strong-db-password}
+      JWT_SECRET: ${JWT_SECRET:-change-me-to-a-long-random-secret-at-least-32-chars}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://www.christmedical.com,https://christmedical.com,http://localhost:3000}
+      SEED_DEMO_DATA: "${SEED_DEMO_DATA:-false}"
+      HUB_ADMIN_EMAIL: "${HUB_ADMIN_EMAIL:-}"
+      HUB_ADMIN_PASSWORD: "${HUB_ADMIN_PASSWORD:-}"
+      HUB_ADMIN_FIRST_NAME: "${HUB_ADMIN_FIRST_NAME:-Admin}"
+      HUB_ADMIN_LAST_NAME: "${HUB_ADMIN_LAST_NAME:-User}"
+      HUB_TENANT_ID: "${HUB_TENANT_ID:-1}"
+      HUB_ADMIN_ROLE: "${HUB_ADMIN_ROLE:-admin}"
+      HUB_TRIP_ID: "${HUB_TRIP_ID:-}"
+      HUB_TENANT_SLUG: "${HUB_TENANT_SLUG:-}"
+    ports:
+      - "${API_PORT:-5050}:8080"
+    networks:
+      - hub_net
+    depends_on:
+      db:
+        condition: service_healthy
+
+networks:
+  hub_net:
+    name: christmedical_hub_net
+
+volumes:
+  hub_postgres_data:
+    name: christmedical_hub_postgres_data

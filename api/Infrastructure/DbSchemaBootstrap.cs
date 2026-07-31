@@ -56,11 +56,18 @@ public static class DbSchemaBootstrap
 
         await ApplyIncrementalPatchesAsync(conn, logger, cancellationToken);
 
-        await EnsureTenantsAndAuthAsync(conn, sqlRoot, configuration, logger, cancellationToken);
+        await EnsureTenantsAndAuthAsync(conn, sqlRoot, logger, cancellationToken);
 
         await EnsureFeedbackTableAsync(conn, sqlRoot, logger, cancellationToken);
 
         await EnsureFeedbackReviewerPrefsAsync(conn, sqlRoot, logger, cancellationToken);
+
+        await AuthDemoSeeder.EnsureDevAccountsAsync(conn, logger, cancellationToken);
+
+        if (ShouldSeedDemoData(configuration))
+            await AuthDemoSeeder.EnsureAsync(conn, logger, cancellationToken);
+
+        await HubAdminSeeder.EnsureAsync(conn, configuration, logger, cancellationToken);
 
         if (ShouldSeedDemoData(configuration))
         {
@@ -146,7 +153,6 @@ public static class DbSchemaBootstrap
     private static async Task EnsureTenantsAndAuthAsync(
         NpgsqlConnection conn,
         string sqlRoot,
-        IConfiguration configuration,
         ILogger logger,
         CancellationToken cancellationToken)
     {
@@ -169,11 +175,6 @@ public static class DbSchemaBootstrap
         }
 
         await EnsureUsersFirstLastNameAsync(conn, sqlRoot, logger, cancellationToken);
-
-        await AuthDemoSeeder.EnsureDevAccountsAsync(conn, logger, cancellationToken);
-
-        if (ShouldSeedDemoData(configuration))
-            await AuthDemoSeeder.EnsureAsync(conn, logger, cancellationToken);
     }
 
     private static void EnsureSqlScriptsPresentForTenants(string path)

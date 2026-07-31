@@ -1,4 +1,4 @@
-.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down demo-up demo-down docker-up deploy deploy-login build ci run lockfile-sync schema-docs schema-docs-check mobile-test mobile-ios-test mobile-android-test
+.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down demo-up demo-down docker-up deploy deploy-login build ci run lockfile-sync schema-docs schema-docs-check mobile-test mobile-ios-test mobile-android-test hub-up hub-down hub-status hub-logs
 
 # Default target
 .DEFAULT_GOAL := help
@@ -66,6 +66,18 @@ mobile-android-test: ## Run Android unit tests (requires JDK 11+ and Android SDK
 	@echo "$(BLUE)Android unit tests...$(NC)"
 	cd "$(ROOT_DIR)/mobile/android" && ./gradlew testDebugUnitTest --quiet
 	@echo "$(GREEN)Android unit tests passed.$(NC)"
+
+hub-up: ## Start field hub (API + Postgres) via hub/christmedical-hub
+	@bash "$(ROOT_DIR)/hub/christmedical-hub" start
+
+hub-down: ## Stop field hub (keeps Postgres volume)
+	@bash "$(ROOT_DIR)/hub/christmedical-hub" stop
+
+hub-status: ## Hub compose status + /health + /ready
+	@bash "$(ROOT_DIR)/hub/christmedical-hub" status
+
+hub-logs: ## Follow hub compose logs
+	@bash "$(ROOT_DIR)/hub/christmedical-hub" logs
 
 schema-docs: ## Regenerate docs/schema from Postgres via tbls (Docker ephemeral DB if daemon is up)
 	@if docker info >/dev/null 2>&1; then \

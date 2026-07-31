@@ -23,6 +23,7 @@
 | ETL | `conversion/etl-tool/` | Staging → Postgres clinical migration; **`bin/` / `obj/` are gitignored** (build with `dotnet build` / `make build`) |
 | UI | `frontend/` | Next.js 15 PWA on **Vercel** — sidebar **EMR workflow** (`/queue` → discharge + `/dashboard`); **Patient search** and **Patient list** under the same shell; **Storybook** (`npm run storybook`) |
 | Mobile | `mobile/` | **iOS (Swift)** + **Android (Kotlin)** WebView shells → `https://login.christmedical.com/` (phone + tablet); see [`mobile/README.md`](mobile/README.md) |
+| Field hub | `hub/` | Docker Compose **API + Postgres** for clinic machines; Linux CLI `christmedical-hub`; see [`hub/README.md`](hub/README.md) |
 | Tests | `tests/`, `frontend/**/*.test.*`, `mobile/**` | .NET xUnit under `tests/`; **Vitest** + **Testing Library** in `frontend/`; XCTest / JUnit for mobile shells |
 | Help (draft) | `docs/HELP_MANUAL.md` | Staff-facing help; keep updated as features ship |
 
@@ -84,6 +85,21 @@ make setup
 | `make mobile-test` | iOS XCTest + Android unit tests |
 | `make mobile-ios-test` | iOS simulator unit tests only |
 | `make mobile-android-test` | Android `./gradlew testDebugUnitTest` |
+| `make hub-up` / `make hub-down` | Field hub compose stack (API + Postgres) |
+| `make hub-status` | Hub compose status + health probes |
+
+### Field hub (clinic server)
+
+Docker Compose stack under `hub/` (API + Postgres). Linux operators use the CLI:
+
+```bash
+cd hub
+cp .env.example .env   # edit secrets
+./christmedical-hub install
+./christmedical-hub start
+```
+
+Full “server person” guide: [`hub/README.md`](hub/README.md).
 
 ### Mobile (WebView shells)
 

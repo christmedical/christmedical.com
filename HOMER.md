@@ -71,11 +71,16 @@ Hi **Homer** — Garfield here 🖖. Protocol answers received; initial codebase
 
 1. **Auth on API** (Homer priority #2) — next work prompt.
 2. **Deploy workflow green (optional):** fix Railway/Vercel secrets or make deploy jobs non-blocking until configured — needed for full workflow `success`, not for build/test gate.
-3. **Documentation reconciliation** — align `docs/ARCHITECTURE.md` with PWA + API path (no Dotmim/Electron/Dexie).
+3. **Documentation reconciliation** — align `docs/ARCHITECTURE.md` with PWA + API + `clients/` shells (drop stale Dotmim/Dexie laptop-sync narrative where it conflicts with `docs/CHRIST_MEDICAL_SPEC_2026.md`).
 4. **Offline write queue** — after auth; scope notes/visits/vitals per PWA UI.
 5. **Delete Dotmim** — separate prompt when PO ready.
+6. **Hub discovery in client shells** — once hub architecture is finalized; native shells only (not browser extensions).
 
 ## Session History
+
+### 2026-07-31 — Clients restructure + Electron desktop
+
+Renamed `mobile/` → `clients/` (`ios/`, `android/`, `desktop/`). Added thin Electron clinician shell (configurable portal URL, electron-builder Mac/Windows). PR [#35](https://github.com/christmedical/christmedical.com/pull/35). Tag `v0.6.0-clients-electron`.
 
 ### 2026-06-01 — CI lockfile + Playwright; build job green
 
@@ -194,7 +199,7 @@ Removed failing CI/branch-protection README badges; squash-merged PR #14 to `mai
 **Client-side sync (frontend / other)**
 
 - **Next.js PWA does not use Dotmim.** Offline path: **`frontend/lib/offlinePatientsDb.ts`** — raw **IndexedDB** stores up to 2000 patients per tenant (snapshot cache after `GET /api/v1/patients?limit=2000`).
-- **No Electron app** in repo (only mentioned in docs).
+- **Client shells** live under **`clients/`** (iOS / Android WebView + Electron desktop) — thin windows that load the portal URL; **no hub discovery yet**. Linux/browsers use the PWA.
 - **No Dexie** dependency in `package.json`.
 - Patient notes: **`PATCH /api/v1/patients/{id}`** when online; UI blocks save when offline (tested in `PatientList.test.tsx`).
 
@@ -291,7 +296,7 @@ Patient display ID format documented in architecture: `Location-Trip-Machine-Aut
 - GitHub **CI failing** on frontend lockfile sync
 - **Sync library** not hosted or invoked; no sync UI
 - **Auth/JWT** documented but not built
-- **Electron desktop** documented, not in repo
+- **Electron desktop** shipped as `clients/desktop/` (portal shell only; no discovery)
 - Schema/doc naming drift: `server_restored_at` in SQL vs `server_synced_at` in some docs
 - `treatments` table in V1 vs sync list uses `medications`/`diagnoses` — API visit writes may not cover full clinical surface (visits + vitals exercised in UI)
 

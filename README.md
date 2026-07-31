@@ -245,6 +245,8 @@ git checkout -b feature/my-fix
 
 ## Project layout (quick)
 
+- `clients/` — iOS / Android / Electron shells (see [`clients/README.md`](clients/README.md))
+- `hub/` — field clinic Compose stack + Linux CLI
 - `scripts/` — setup and maintenance  
 - `.github/workflows/` — CI/CD  
 - `conversion/` — SQL, staging load, ETL, appliance images  

@@ -15,8 +15,9 @@
 [![.NET](https://img.shields.io/badge/.NET-9%20%2F%2010-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-data-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![iOS](https://img.shields.io/badge/iOS-Swift-F05138?logo=swift&logoColor=white)](mobile/ios/)
-[![Android](https://img.shields.io/badge/Android-Kotlin-7F52FF?logo=kotlin&logoColor=white)](mobile/android/)
+[![iOS](https://img.shields.io/badge/iOS-Swift-F05138?logo=swift&logoColor=white)](clients/ios/)
+[![Android](https://img.shields.io/badge/Android-Kotlin-7F52FF?logo=kotlin&logoColor=white)](clients/android/)
+[![Desktop](https://img.shields.io/badge/Desktop-Electron-47848F?logo=electron&logoColor=white)](clients/desktop/)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
 
 </p>
@@ -31,9 +32,9 @@
 | Mission sync | `sync/` | Dotmim sync helpers for laptop ↔ hub |
 | ETL | `conversion/etl-tool/` | Staging → Postgres clinical migration; **`bin/` / `obj/` are gitignored** (build with `dotnet build` / `make build`) |
 | UI | `frontend/` | Next.js 15 PWA on **Vercel** — sidebar **EMR workflow** (`/queue` → discharge + `/dashboard`); **Patient search** and **Patient list** under the same shell; **Storybook** (`npm run storybook`) |
-| Mobile | `mobile/` | **iOS (Swift)** + **Android (Kotlin)** WebView shells → `https://login.christmedical.com/` (phone + tablet); see [`mobile/README.md`](mobile/README.md) |
+| Clients | `clients/` | **iOS (Swift)** + **Android (Kotlin)** + **Desktop (Electron)** shells → `https://login.christmedical.com/`; Linux/browsers use the PWA; see [`clients/README.md`](clients/README.md) |
 | Field hub | `hub/` | Docker Compose **API + Postgres** for clinic machines; Linux CLI `christmedical-hub`; see [`hub/README.md`](hub/README.md) |
-| Tests | `tests/`, `frontend/**/*.test.*`, `mobile/**` | .NET xUnit under `tests/`; **Vitest** + **Testing Library** in `frontend/`; XCTest / JUnit for mobile shells |
+| Tests | `tests/`, `frontend/**/*.test.*`, `clients/**` | .NET xUnit under `tests/`; **Vitest** + **Testing Library** in `frontend/`; XCTest / JUnit / Node for client shells |
 | Help (draft) | `docs/HELP_MANUAL.md` | Staff-facing help; keep updated as features ship |
 
 ---
@@ -91,9 +92,10 @@ make setup
 | `make build` | Full lint/build/test (CI parity) |
 | `make schema-docs` | Regenerate `docs/schema/` from Postgres ([tbls](https://github.com/k1LoW/tbls)); needs `TBLS_DSN` or local `make db-up` |
 | `make db-up` / `make db-down` | Postgres via Docker Compose |
-| `make mobile-test` | iOS XCTest + Android unit tests |
-| `make mobile-ios-test` | iOS simulator unit tests only |
-| `make mobile-android-test` | Android `./gradlew testDebugUnitTest` |
+| `make clients-test` | iOS + Android + desktop client unit tests |
+| `make clients-ios-test` | iOS SwiftPM unit tests (no Simulator) |
+| `make clients-android-test` | Android `./gradlew testDebugUnitTest` |
+| `make clients-desktop-test` | Electron desktop config unit tests |
 | `make hub-up` / `make hub-down` | Field hub compose stack (API + Postgres) |
 | `make hub-status` | Hub compose status + health probes |
 
@@ -110,12 +112,12 @@ cp .env.example .env   # edit secrets
 
 Full “server person” guide: [`hub/README.md`](hub/README.md).
 
-### Mobile (WebView shells)
+### Clients (native / installable shells)
 
-Native wrappers live under `mobile/` and load the production login portal. Details and open-in-IDE steps: [`mobile/README.md`](mobile/README.md).
+iOS, Android, and Electron desktop shells live under `clients/` and load the production login portal (configurable on desktop). Linux and browsers use the PWA directly — see [`clients/README.md`](clients/README.md).
 
 ```bash
-make mobile-test
+make clients-test
 ```
 
 ### Storybook (component library)

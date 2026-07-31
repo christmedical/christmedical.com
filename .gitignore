@@ -262,6 +262,24 @@ test-results/
 playwright-report/
 playwright/.cache/
 
+# Mobile (iOS / Android)
+# ======================
+
+mobile/ios/**/xcuserdata/
+mobile/ios/**/DerivedData/
+mobile/ios/**/*.xcuserstate
+mobile/ios/.build/
+mobile/android/.gradle/
+mobile/android/**/build/
+mobile/android/local.properties
+mobile/android/*.iml
+mobile/android/captures/
+*.apk
+*.aab
+*.ipa
+*.dSYM.zip
+*.dSYM
+
 # Misc
 # ====
 

@@ -7,6 +7,8 @@
 [![.NET](https://img.shields.io/badge/.NET-9%20%2F%2010-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-data-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![iOS](https://img.shields.io/badge/iOS-Swift-F05138?logo=swift&logoColor=white)](mobile/ios/)
+[![Android](https://img.shields.io/badge/Android-Kotlin-7F52FF?logo=kotlin&logoColor=white)](mobile/android/)
 
 </p>
 
@@ -20,7 +22,8 @@
 | Mission sync | `sync/` | Dotmim sync helpers for laptop ↔ hub |
 | ETL | `conversion/etl-tool/` | Staging → Postgres clinical migration; **`bin/` / `obj/` are gitignored** (build with `dotnet build` / `make build`) |
 | UI | `frontend/` | Next.js 15 PWA on **Vercel** — sidebar **EMR workflow** (`/queue` → discharge + `/dashboard`); **Patient search** and **Patient list** under the same shell; **Storybook** (`npm run storybook`) |
-| Tests | `tests/`, `frontend/**/*.test.*` | .NET xUnit under `tests/`; **Vitest** + **Testing Library** in `frontend/` |
+| Mobile | `mobile/` | **iOS (Swift)** + **Android (Kotlin)** WebView shells → `https://login.christmedical.com/` (phone + tablet); see [`mobile/README.md`](mobile/README.md) |
+| Tests | `tests/`, `frontend/**/*.test.*`, `mobile/**` | .NET xUnit under `tests/`; **Vitest** + **Testing Library** in `frontend/`; XCTest / JUnit for mobile shells |
 | Help (draft) | `docs/HELP_MANUAL.md` | Staff-facing help; keep updated as features ship |
 
 ---
@@ -78,6 +81,17 @@ make setup
 | `make build` | Full lint/build/test (CI parity) |
 | `make schema-docs` | Regenerate `docs/schema/` from Postgres ([tbls](https://github.com/k1LoW/tbls)); needs `TBLS_DSN` or local `make db-up` |
 | `make db-up` / `make db-down` | Postgres via Docker Compose |
+| `make mobile-test` | iOS XCTest + Android unit tests |
+| `make mobile-ios-test` | iOS simulator unit tests only |
+| `make mobile-android-test` | Android `./gradlew testDebugUnitTest` |
+
+### Mobile (WebView shells)
+
+Native wrappers live under `mobile/` and load the production login portal. Details and open-in-IDE steps: [`mobile/README.md`](mobile/README.md).
+
+```bash
+make mobile-test
+```
 
 ### Storybook (component library)
 

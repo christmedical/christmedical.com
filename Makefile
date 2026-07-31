@@ -1,4 +1,4 @@
-.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down demo-up demo-down docker-up deploy deploy-login build ci run lockfile-sync schema-docs schema-docs-check
+.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down demo-up demo-down docker-up deploy deploy-login build ci run lockfile-sync schema-docs schema-docs-check mobile-test mobile-ios-test mobile-android-test
 
 # Default target
 .DEFAULT_GOAL := help
@@ -54,6 +54,18 @@ build: ## Full local CI: dotnet format, build, test; frontend lint, test, build
 	@echo "$(GREEN)All checks passed.$(NC)"
 
 ci: build ## Alias for build (CI parity)
+
+mobile-test: mobile-ios-test mobile-android-test ## Run iOS + Android mobile unit tests
+
+mobile-ios-test: ## Run iOS ChristMedicalKit unit tests (SwiftPM; no Simulator required)
+	@echo "$(BLUE)iOS unit tests (SwiftPM)...$(NC)"
+	cd "$(ROOT_DIR)/mobile/ios" && swift test
+	@echo "$(GREEN)iOS unit tests passed.$(NC)"
+
+mobile-android-test: ## Run Android unit tests (requires JDK 11+ and Android SDK)
+	@echo "$(BLUE)Android unit tests...$(NC)"
+	cd "$(ROOT_DIR)/mobile/android" && ./gradlew testDebugUnitTest --quiet
+	@echo "$(GREEN)Android unit tests passed.$(NC)"
 
 schema-docs: ## Regenerate docs/schema from Postgres via tbls (Docker ephemeral DB if daemon is up)
 	@if docker info >/dev/null 2>&1; then \

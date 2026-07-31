@@ -6,5 +6,7 @@
     <!-- IDE0040, etc. surface as build warnings when rules are set in .editorconfig -->
     <AnalysisLevel>latest</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
+    <Copyright>Copyright (C) 2026 Jamey McElveen</Copyright>
   </PropertyGroup>
 </Project>

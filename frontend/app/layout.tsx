@@ -1,3 +1,12 @@
+/**
+ * Copyright (C) 2026 Jamey McElveen
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ * This file is part of Christ Medical.
+ * Christ Medical is free software under the GNU Affero General Public License
+ * v3.0 or later. See the LICENSE file or <https://www.gnu.org/licenses/>.
+ */
+
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Public_Sans } from "next/font/google";
 import { ConnectivityBanner } from "@/components/ConnectivityBanner";

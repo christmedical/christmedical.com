@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+# Copyright (C) 2026 Jamey McElveen
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This file is part of Christ Medical.
+# Christ Medical is free software under the GNU Affero General Public License
+# v3.0 or later. See the LICENSE file or <https://www.gnu.org/licenses/>.
+#
 # Christ Medical hub CLI — thin wrapper around docker compose (API + Postgres).
 # Usage: ./christmedical-hub <install|start|stop|restart|status|logs|pull>
 set -euo pipefail

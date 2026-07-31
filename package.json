@@ -1,6 +1,7 @@
 {
   "name": "christmedical-monorepo",
   "private": true,
+  "license": "AGPL-3.0-or-later",
   "description": "Monorepo root — Next.js app lives in frontend/",
   "scripts": {
     "vercel-build": "cd frontend && npm ci && npm run build"

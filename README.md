@@ -3,12 +3,21 @@
 **Mission clinic data stack** — .NET API & ETL, Next.js dashboard, Postgres, and connectivity-aware UX.
 
 <p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/architecture-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/assets/architecture-light.svg">
+    <img alt="Christ Medical architecture" src="docs/assets/architecture-dark.svg" width="100%">
+  </picture>
+</p>
+
+<p align="center">
 
 [![.NET](https://img.shields.io/badge/.NET-9%20%2F%2010-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-data-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![iOS](https://img.shields.io/badge/iOS-Swift-F05138?logo=swift&logoColor=white)](mobile/ios/)
 [![Android](https://img.shields.io/badge/Android-Kotlin-7F52FF?logo=kotlin&logoColor=white)](mobile/android/)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
 
 </p>
 
@@ -249,5 +258,15 @@ git checkout -b feature/my-fix
 Phonetic columns are in **`conversion/etl/V6__patients_phonetic.sql`**; legacy id and phone fields for list/search are in **`V7__patients_legacy_contact.sql`** (also applied on API startup via **`EnsurePatientsLegacyAndContactColumnsAsync`** for older DB volumes).
 
 ---
+
+## License
+
+Christ Medical is dual-licensed:
+
+- **Open source:** [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).  
+  SPDX: `SPDX-License-Identifier: AGPL-3.0-or-later`
+- **Commercial option:** for hosting or redistribution without AGPL obligations — see [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md).
+
+Contributions require agreement to the [Contributor License Agreement](CLA.md). See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Questions or improvements — open an issue or PR.

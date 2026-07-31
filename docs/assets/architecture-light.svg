@@ -1,0 +1,110 @@
+<svg viewBox="0 0 1280 900" xmlns="http://www.w3.org/2000/svg" font-family="ui-sans-serif, -apple-system, Segoe UI, Roboto, system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bronzeL" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#C0813C"/>
+      <stop offset="100%" stop-color="#8A5A2B"/>
+    </linearGradient>
+    <marker id="arL" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#A5622A"/></marker>
+  </defs>
+
+  <rect width="1280" height="900" fill="#FAF7F0"/>
+
+  <!-- header -->
+  <rect x="56" y="34" width="64" height="64" rx="16" fill="url(#bronzeL)"/>
+  <g stroke="#FBF3E3" stroke-width="4" stroke-linecap="round" fill="none">
+    <path d="M78,52 v14 a10,10 0 0 0 20,0 v-14"/>
+    <circle cx="78" cy="50" r="3.2" fill="#FBF3E3" stroke="none"/>
+    <circle cx="98" cy="50" r="3.2" fill="#FBF3E3" stroke="none"/>
+    <circle cx="88" cy="82" r="5.5"/>
+  </g>
+  <text x="136" y="66" font-size="31" font-weight="700" fill="#2E2A26">Christ Medical</text>
+  <text x="138" y="92" font-size="14" fill="#6B645C">Mission clinic data stack &#183; .NET 9 &#183; Next.js 15 &#183; PostgreSQL &#183; connectivity-aware</text>
+
+  <!-- CLIENTS -->
+  <text x="265" y="134" font-size="12" letter-spacing="2" fill="#8A7B60" font-weight="600">CLIENTS</text>
+  <rect x="265" y="148" width="230" height="92" rx="14" fill="#FFFFFF" stroke="#DCC9A6" stroke-width="1.5"/>
+  <g stroke="#A5622A" stroke-width="2" fill="none"><rect x="287" y="176" width="36" height="30" rx="5"/><line x1="287" y1="185" x2="323" y2="185"/></g>
+  <circle cx="293" cy="180.5" r="1.5" fill="#A5622A"/><circle cx="299" cy="180.5" r="1.5" fill="#A5622A"/>
+  <text x="337" y="188" font-size="15.5" font-weight="600" fill="#2E2A26">Tablet &#183; PWA</text>
+  <text x="337" y="208" font-size="11" fill="#6B645C">installable, offline-tolerant</text>
+  <rect x="525" y="148" width="230" height="92" rx="14" fill="#FFFFFF" stroke="#DCC9A6" stroke-width="1.5"/>
+  <g stroke="#A5622A" stroke-width="2" fill="none"><rect x="551" y="172" width="24" height="38" rx="5"/><line x1="558" y1="204" x2="568" y2="204"/></g>
+  <text x="589" y="188" font-size="15.5" font-weight="600" fill="#2E2A26">iOS</text>
+  <text x="589" y="208" font-size="11" fill="#6B645C">Swift WebView shell</text>
+  <rect x="785" y="148" width="230" height="92" rx="14" fill="#FFFFFF" stroke="#DCC9A6" stroke-width="1.5"/>
+  <g stroke="#6E7A3E" stroke-width="2" fill="none"><rect x="811" y="172" width="24" height="38" rx="5"/><line x1="818" y1="204" x2="828" y2="204"/></g>
+  <text x="849" y="188" font-size="15.5" font-weight="600" fill="#2E2A26">Android</text>
+  <text x="849" y="208" font-size="11" fill="#6B645C">Kotlin WebView shell</text>
+
+  <path d="M380,240 L380,250 L900,250 L900,240" fill="none" stroke="#A5622A" stroke-width="1.5" opacity="0.7"/>
+  <line x1="640" y1="250" x2="640" y2="286" stroke="#A5622A" stroke-width="2" marker-end="url(#arL)"/>
+  <text x="650" y="272" font-size="11" fill="#B87333">HTTPS</text>
+
+  <!-- CLOUD -->
+  <rect x="245" y="286" width="790" height="150" rx="18" fill="#F3EAD9" stroke="#DCC9A6" stroke-width="1.5" stroke-dasharray="5 5"/>
+  <text x="266" y="309" font-size="12" letter-spacing="2" fill="#8A7B60" font-weight="600">CLOUD &#183; VERCEL + RAILWAY</text>
+  <rect x="265" y="322" width="230" height="96" rx="14" fill="#FFFFFF" stroke="#DCC9A6" stroke-width="1.5"/>
+  <path d="M303,352 L321,382 L285,382 Z" fill="#2E2A26"/>
+  <text x="337" y="362" font-size="15" font-weight="600" fill="#2E2A26">Next.js 15 PWA</text>
+  <text x="337" y="382" font-size="11" fill="#6B645C">Vercel &#183; subdomain routing</text>
+  <text x="337" y="399" font-size="11" fill="#6B645C">dashboard &#183; search &#183; EMR flow</text>
+  <rect x="525" y="322" width="230" height="96" rx="14" fill="#FFFFFF" stroke="#DCC9A6" stroke-width="1.5"/>
+  <g stroke="#A5622A" stroke-width="2" fill="none"><rect x="549" y="352" width="34" height="30" rx="4"/><line x1="549" y1="362" x2="583" y2="362"/><line x1="549" y1="372" x2="583" y2="372"/></g>
+  <circle cx="555" cy="357" r="1.5" fill="#A5622A"/><circle cx="555" cy="367" r="1.5" fill="#A5622A"/>
+  <text x="597" y="362" font-size="15" font-weight="600" fill="#2E2A26">ASP.NET Core 9 API</text>
+  <text x="597" y="382" font-size="11" fill="#6B645C">Railway &#183; Docker</text>
+  <text x="597" y="399" font-size="11" fill="#6B645C">REST &#183; JWT auth</text>
+  <rect x="785" y="322" width="230" height="96" rx="14" fill="#FFFFFF" stroke="#DCC9A6" stroke-width="1.5"/>
+  <g stroke="#B5623C" stroke-width="2" fill="none"><ellipse cx="825" cy="356" rx="16" ry="6"/><path d="M809,356 v22 a16,6 0 0 0 32,0 v-22"/><path d="M809,367 a16,6 0 0 0 32,0"/></g>
+  <text x="853" y="362" font-size="15" font-weight="600" fill="#2E2A26">PostgreSQL</text>
+  <text x="853" y="382" font-size="11" fill="#6B645C">phonetic search</text>
+  <text x="853" y="399" font-size="11" fill="#6B645C">Double Metaphone</text>
+  <line x1="495" y1="370" x2="525" y2="370" stroke="#A5622A" stroke-width="2" marker-end="url(#arL)"/>
+  <line x1="755" y1="370" x2="785" y2="370" stroke="#A5622A" stroke-width="2" marker-end="url(#arL)"/>
+
+  <!-- FIELD -->
+  <text x="265" y="466" font-size="12" letter-spacing="2" fill="#8A7B60" font-weight="600">FIELD (OFFLINE-FIRST)</text>
+  <rect x="265" y="480" width="500" height="106" rx="16" fill="#FFFFFF" stroke="#DCC9A6" stroke-width="1.5"/>
+  <g stroke="#6E7A3E" stroke-width="2" fill="none">
+    <rect x="291" y="516" width="40" height="28" rx="3"/>
+    <rect x="299" y="502" width="24" height="16" rx="3"/>
+    <line x1="311" y1="516" x2="311" y2="544"/>
+  </g>
+  <text x="349" y="516" font-size="16" font-weight="600" fill="#2E2A26">Field Hub &#8212; Docker: API + Postgres</text>
+  <text x="349" y="538" font-size="11.5" fill="#6B645C">clinic LAN &#183; multi-tablet &#183; the box the mission &#8220;checks out&#8221;</text>
+  <text x="349" y="556" font-size="11.5" fill="#6B645C">Linux CLI &#183; Windows/Mac tray &#183; nightly one-way backup to cloud</text>
+  <rect x="349" y="566" width="92" height="18" rx="9" fill="#F0E2CB"/>
+  <text x="360" y="579" font-size="10" font-weight="600" fill="#A5622A">offline-first</text>
+
+  <path d="M285,240 L150,240 L150,532 L263,532" fill="none" stroke="#6E7A3E" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#arL)"/>
+  <text x="96" y="392" font-size="10.5" fill="#6E7A3E" transform="rotate(-90 96 392)">clinic LAN (offline)</text>
+  <path d="M700,480 C740,450 820,440 890,420" fill="none" stroke="#A5622A" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#arL)"/>
+  <text x="726" y="452" font-size="10.5" fill="#B87333">nightly backup &#8594;</text>
+
+  <line x1="56" y1="626" x2="1224" y2="626" stroke="#E4D8C2" stroke-width="1.5"/>
+  <text x="184" y="652" font-size="12" letter-spacing="2" fill="#8A7B60" font-weight="600">PLATFORM &amp; TOOLING</text>
+
+  <rect x="184" y="666" width="210" height="88" rx="12" fill="#FFFFFF" stroke="#DCC9A6" stroke-width="1.5"/>
+  <g stroke="#A5622A" stroke-width="2" fill="none"><path d="M204,692 L234,692 L224,706 L214,706 Z"/><line x1="219" y1="706" x2="219" y2="718"/></g>
+  <path d="M215,720 L219,726 L223,720 Z" fill="#A5622A"/>
+  <text x="250" y="700" font-size="14" font-weight="600" fill="#2E2A26">ETL / Conversion</text>
+  <text x="250" y="720" font-size="10.5" fill="#6B645C">Access &#8594; Postgres</text>
+  <rect x="418" y="666" width="210" height="88" rx="12" fill="#FFFFFF" stroke="#DCC9A6" stroke-width="1.5"/>
+  <g stroke="#A5622A" stroke-width="2" fill="none"><circle cx="440" cy="700" r="4"/><circle cx="458" cy="700" r="4"/><circle cx="476" cy="700" r="4"/><line x1="444" y1="700" x2="454" y2="700"/><line x1="462" y1="700" x2="472" y2="700"/></g>
+  <text x="490" y="700" font-size="14" font-weight="600" fill="#2E2A26">CI / CD</text>
+  <text x="490" y="720" font-size="10.5" fill="#6B645C">Actions &#183; Docker Hub</text>
+  <rect x="652" y="666" width="210" height="88" rx="12" fill="#FFFFFF" stroke="#DCC9A6" stroke-width="1.5"/>
+  <g stroke="#B87333" stroke-width="2" fill="none"><rect x="672" y="688" width="30" height="24" rx="2"/><line x1="687" y1="688" x2="687" y2="712"/></g>
+  <text x="716" y="700" font-size="14" font-weight="600" fill="#2E2A26">Storybook</text>
+  <text x="716" y="720" font-size="10.5" fill="#6B645C">Sanctified Bronze</text>
+  <rect x="886" y="666" width="210" height="88" rx="12" fill="#FFFFFF" stroke="#DCC9A6" stroke-width="1.5"/>
+  <g stroke="#6E7A3E" stroke-width="2" fill="none"><rect x="906" y="688" width="26" height="26" rx="5"/><path d="M912,701 L917,706 L926,695"/></g>
+  <text x="946" y="700" font-size="14" font-weight="600" fill="#2E2A26">Tests</text>
+  <text x="946" y="720" font-size="10.5" fill="#6B645C">xUnit &#183; Vitest &#183; Playwright</text>
+
+  <line x1="56" y1="838" x2="92" y2="838" stroke="#A5622A" stroke-width="2"/>
+  <text x="100" y="842" font-size="11" fill="#6B645C">runtime (HTTPS)</text>
+  <line x1="240" y1="838" x2="276" y2="838" stroke="#6E7A3E" stroke-width="2" stroke-dasharray="6 5"/>
+  <text x="284" y="842" font-size="11" fill="#6B645C">field LAN &amp; backup</text>
+  <text x="1224" y="842" font-size="11" fill="#9A8A6C" text-anchor="end">Sanctified Bronze &#183; earthtone tokens</text>
+</svg>

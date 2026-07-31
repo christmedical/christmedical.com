@@ -1,4 +1,4 @@
-.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down demo-up demo-down docker-up deploy deploy-login build ci run lockfile-sync schema-docs schema-docs-check mobile-test mobile-ios-test mobile-android-test hub-up hub-down hub-status hub-logs
+.PHONY: help setup setup-hooks install-hooks convert extract db-up db-down demo-up demo-down docker-up deploy deploy-login build ci run lockfile-sync schema-docs schema-docs-check clients-test clients-ios-test clients-android-test clients-desktop-test mobile-test mobile-ios-test mobile-android-test hub-up hub-down hub-status hub-logs
 
 # Default target
 .DEFAULT_GOAL := help
@@ -55,17 +55,35 @@ build: ## Full local CI: dotnet format, build, test; frontend lint, test, build
 
 ci: build ## Alias for build (CI parity)
 
-mobile-test: mobile-ios-test mobile-android-test ## Run iOS + Android mobile unit tests
+clients-test: clients-ios-test clients-android-test clients-desktop-test ## Run iOS + Android + desktop client unit tests
 
-mobile-ios-test: ## Run iOS ChristMedicalKit unit tests (SwiftPM; no Simulator required)
+clients-ios-test: ## Run iOS ChristMedicalKit unit tests (SwiftPM; no Simulator required)
 	@echo "$(BLUE)iOS unit tests (SwiftPM)...$(NC)"
-	cd "$(ROOT_DIR)/mobile/ios" && swift test
+	cd "$(ROOT_DIR)/clients/ios" && swift test
 	@echo "$(GREEN)iOS unit tests passed.$(NC)"
 
-mobile-android-test: ## Run Android unit tests (requires JDK 11+ and Android SDK)
+clients-android-test: ## Run Android unit tests (requires JDK 11+ and Android SDK)
 	@echo "$(BLUE)Android unit tests...$(NC)"
-	cd "$(ROOT_DIR)/mobile/android" && ./gradlew testDebugUnitTest --quiet
+	cd "$(ROOT_DIR)/clients/android" && ./gradlew testDebugUnitTest --quiet
 	@echo "$(GREEN)Android unit tests passed.$(NC)"
+
+clients-desktop-test: ## Run Electron desktop config unit tests (Node; no GUI required)
+	@echo "$(BLUE)Desktop (Electron) unit tests...$(NC)"
+	cd "$(ROOT_DIR)/clients/desktop" && npm ci && npm test
+	@echo "$(GREEN)Desktop unit tests passed.$(NC)"
+
+# Back-compat aliases (renamed mobile/* → clients/*)
+mobile-test: ## Deprecated alias for clients-test
+	@echo "$(YELLOW)make mobile-test is renamed to make clients-test$(NC)"
+	@$(MAKE) clients-test
+
+mobile-ios-test: ## Deprecated alias for clients-ios-test
+	@echo "$(YELLOW)make mobile-ios-test is renamed to make clients-ios-test$(NC)"
+	@$(MAKE) clients-ios-test
+
+mobile-android-test: ## Deprecated alias for clients-android-test
+	@echo "$(YELLOW)make mobile-android-test is renamed to make clients-android-test$(NC)"
+	@$(MAKE) clients-android-test
 
 hub-up: ## Start field hub (API + Postgres) via hub/christmedical-hub
 	@bash "$(ROOT_DIR)/hub/christmedical-hub" start

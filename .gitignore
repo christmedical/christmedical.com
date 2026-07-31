@@ -262,18 +262,21 @@ test-results/
 playwright-report/
 playwright/.cache/
 
-# Mobile (iOS / Android)
-# ======================
+# Clients (iOS / Android / Electron desktop)
+# =========================================
 
-mobile/ios/**/xcuserdata/
-mobile/ios/**/DerivedData/
-mobile/ios/**/*.xcuserstate
-mobile/ios/.build/
-mobile/android/.gradle/
-mobile/android/**/build/
-mobile/android/local.properties
-mobile/android/*.iml
-mobile/android/captures/
+clients/ios/**/xcuserdata/
+clients/ios/**/DerivedData/
+clients/ios/**/*.xcuserstate
+clients/ios/.build/
+clients/android/.gradle/
+clients/android/**/build/
+clients/android/local.properties
+clients/android/*.iml
+clients/android/captures/
+clients/desktop/node_modules/
+clients/desktop/release/
+clients/desktop/dist/
 *.apk
 *.aab
 *.ipa

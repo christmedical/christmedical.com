@@ -4,9 +4,9 @@
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/architecture-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="docs/assets/architecture-light.svg">
-    <img alt="Christ Medical architecture" src="docs/assets/architecture-dark.svg" width="100%">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/architecture-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="docs/assets/architecture-light.png">
+    <img alt="Christ Medical architecture" src="docs/assets/architecture-dark.png" width="100%">
   </picture>
 </p>
 

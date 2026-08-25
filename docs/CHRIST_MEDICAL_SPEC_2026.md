@@ -88,7 +88,7 @@ Carried from the 2016 deck (page 16, never resolved) plus new ones:
 
 ## 9. Delivery plan (maps to the roadmap checklist)
 
-1. Auth v1 (in flight)
+1. Auth v1 (**done** — login/JWT/tenant; require-auth on mutating routes still open)
 2. Delete Dotmim + reconcile docs to this spec (Jules)
 3. Write outbox + idempotent server writes (Section 6)
 4. Audit trail v1 (thin: who/what/when on PHI and spiritual fields)

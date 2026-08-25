@@ -209,7 +209,9 @@ When you push a git tag like `v0.1.0`, the workflow **Publish demo images (Docke
 - `${DOCKERHUB_USERNAME}/christmedical-web:<tag>`
 - `${DOCKERHUB_USERNAME}/christmedical-demo-db:<tag>`
 
-Secrets required:
+If `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN` are **not** set as GitHub Actions secrets, the workflow **skips publish** (success) instead of failing login — so docs/release tags stay green. Set the secrets (or `make deploy` locally) when you want Hub images.
+
+Secrets required for an actual push:
 
 | Secret | Purpose |
 |--------|---------|

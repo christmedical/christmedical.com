@@ -1,12 +1,35 @@
 name: Publish demo images (Docker Hub)
 
+# Runs on version tags. Skips cleanly when DOCKERHUB_* secrets are unset
+# so tagging for docs/releases does not paint the commit red.
+
 on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 jobs:
+  check-creds:
+    runs-on: ubuntu-latest
+    outputs:
+      configured: ${{ steps.check.outputs.configured }}
+    steps:
+      - id: check
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::DOCKERHUB_USERNAME / DOCKERHUB_TOKEN not configured; publish will skip."
+          fi
+
   publish:
+    needs: check-creds
+    if: needs.check-creds.outputs.configured == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -29,7 +52,11 @@ jobs:
       - name: Compute image tag
         id: meta
         run: |
-          echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=manual-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Build & push API image
         uses: docker/build-push-action@v6
@@ -62,4 +89,3 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/christmedical-demo-db:${{ steps.meta.outputs.tag }}
             ${{ secrets.DOCKERHUB_USERNAME }}/christmedical-demo-db:latest
-

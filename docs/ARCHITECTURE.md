@@ -1,98 +1,82 @@
 # Christ Medical: Application Architecture
 
-This document defines the high-level architecture for the Christ Medical mission system, transitioning from a legacy MS Access database to a modern, occasionally-connected Web/PWA and Desktop ecosystem.
+Canonical product decisions live in [`CHRIST_MEDICAL_SPEC_2026.md`](CHRIST_MEDICAL_SPEC_2026.md). This file is the **as-built** stack map.
 
-## 1. System Overview
+## 1. System overview
 
-The system is designed to support medical missions in Belize, where internet connectivity is intermittent. Data is entered locally on laptops (Electron) or iPads (PWA) and synchronized to a central cloud server when a connection is available.
-
----
-
-## 2. Technical Stack
-
-| Layer                 | Technology                  | Hosting / Environment |
-| :-------------------- | :-------------------------- | :-------------------- |
-| **Frontend**          | React (Vite) + Tailwind CSS | Vercel                |
-| **Desktop Wrapper**   | Electron                    | Local (Intel MBP)     |
-| **API**               | .NET 8/9 (C#) + EF Core     | Railway               |
-| **Database**          | PostgreSQL                  | Railway               |
-| **Local Persistence** | IndexedDB (via Dexie.js)    | Browser/Electron      |
+Mission clinic EMR for short-term trips (Belize first). **Mostly connected** (Starlink at sites; brief blips; nightly refresh). PostgreSQL is the single source of truth. Clients talk HTTP to the .NET API — there is **no** Dotmim / SQLite replica / Dexie sync engine.
 
 ---
 
-## 3. Database & Persistence
+## 2. Technical stack
 
-The application utilizes a **Local-First** persistence model to ensure reliability during medical missions in areas with intermittent internet connectivity.
-
-- **Primary Store:** A centralized **PostgreSQL** instance hosted on **Railway**.
-- **Local Store:** **IndexedDB** (via Dexie.js) serves as the local cache on iPads (PWA) and Laptops (Electron).
-- **Synchronization:** Data is synchronized using a **Store and Forward** pattern. Records are authored locally with unique UUIDs and pushed to the Railway API during the "Finish Trip" phase when a connection is detected.
-
-> Detailed schema definitions, entity relationship diagrams (ERD), and data flow charts are documented in [Database Architecture](DATABASE.md).
-
----
-
-## 4. Data Migration Pipeline (ETL)
-
-To move data from the legacy Access DB into the refactored schema, we use a three-stage process:
-
-1.  **Extract:** `mdbtools` exports `.accdb` to CSV and a `staging_schema.sql` file.
-2.  **Stage:** A C# utility loads raw CSV data into "Staging Tables" in Postgres that mirror the original Access structure.
-3.  **Refactor:** An EF Core-driven ETL service maps staging data to the final Production Schema, handling:
-    - Normalization of specialized visits (Gyn, Eye, Chiro) into a unified `Treatments` model.
-    - Conversion of Access `-1/0` values to Booleans.
-    - Generation of the new Patient ID format: `Location-Trip-Machine-AutoSync#`.
+| Layer | Technology | Hosting / environment |
+| :---- | :--------- | :-------------------- |
+| **Web / PWA** | Next.js 15 (App Router), React 19, Tailwind 4 | Vercel |
+| **Native shells** | iOS (Swift), Android (Kotlin), Desktop (Electron) | Thin WebView → login / tenant portal ([`clients/`](../clients/)) |
+| **Field hub** | Docker Compose: API + Postgres | Clinic machines ([`hub/`](../hub/)) |
+| **API** | ASP.NET Core 9, Dapper, Npgsql | Railway (and hub) |
+| **Database** | PostgreSQL | Railway / hub / local |
+| **Client cache** | IndexedDB patient snapshot (read cache) | Browser / PWA |
+| **ETL** | `conversion/` + `etl-tool` (Dapper, not EF) | Local / CI |
 
 ---
 
-## 5. Synchronization Strategy
+## 3. Persistence & connectivity
 
-### "Store and Forward" Model
+- **Primary store:** PostgreSQL (Railway or field hub).
+- **PWA cache:** IndexedDB holds up to ~2000 patients per tenant after bulk `GET /api/v1/patients` — **read cache only**. Saves pause when offline; resume when online.
+- **Planned (not built):** write **outbox** with idempotent server writes + last-write-wins + audit trail (see 2026 spec §6).
+- **Removed:** Dotmim Sync (`sync/` deleted), Dexie, laptop SQLite replicas, “Finish Trip uploads the data.”
 
-- **Offline Mode:** Data entered in the field is saved to **IndexedDB**.
-- [cite_start]**Unique Identifiers:** To prevent collisions during sync, every record uses a `MachineID` and an `AutoSync#` as part of its primary key or Display ID.
-- [cite_start]**Sync Trigger:** Users manually trigger a "Finish Trip" or "Sync" action when internet is detected[cite: 101].
-- **Conflict Resolution:** The central PostgreSQL database on Railway acts as the "Source of Truth." Conflicts are resolved via "Last Write Wins" based on client-side timestamps.
-
----
-
-## 6. Deployment & Infrastructure
-
-- **Vercel:** Hosts the React PWA for easy access on mobile devices/iPads.
-- **Railway:** Hosts the C# API and the PostgreSQL instance.
-- **GitHub:** Source control and CI/CD pipeline (ChristMedical organization).
+Schema detail: [`DATABASE.md`](DATABASE.md), generated tables: [`schema/`](schema/).
 
 ---
 
-## 7. Security & Roles
+## 4. Data migration (ETL)
 
-- [cite_start]**Admin:** Full access to Settings (Users, Locations, Diagnosis, Prescriptions)[cite: 12, 408].
-- [cite_start]**User:** Access to search, patient profiles, printing, and flagging treatments for spiritual/medical follow-up[cite: 13, 409].
+Legacy Access → Postgres:
 
----
-
-## 8. Authentication & Security
-
-### JWT Strategy
-
-- **Provider:** ASP.NET Core Identity + JwtBearer.
-- **Storage:** JWTs are stored in `IndexedDB` to persist across app restarts on iPad/Electron.
-- **Claims:** Tokens include `sub` (UserID), `role` (Admin/User), and `machine_id`.
-- **Expiration:** Set to 7 days to cover the duration of a standard mission trip without requiring constant re-authentication in low-connectivity zones.
-
-### Offline Authentication (Business Rule)
-
-- **Initial Login:** Requires internet to validate credentials against Railway and fetch a JWT.
-- **Cached Session:** If a valid JWT exists in local storage, the app allows full access to search and data entry regardless of internet status.
-- **Roles:** Frontend routing is restricted based on JWT claims (e.g., hiding "Settings" for `User` role).
+1. **Extract:** `mdbtools` → CSV + staging SQL.
+2. **Stage:** load Access-shaped staging tables.
+3. **Refactor:** `conversion/etl-tool` maps staging → production schema (Dapper / SQL).
 
 ---
 
-## 9. Sync & Concurrency Control
+## 5. Connectivity model (2026)
 
-To support "Occasionally Connected" operations, the production schema implements a multi-master metadata strategy:
+| Mode | Behavior |
+| ---- | -------- |
+| Online | JWT session; API reads/writes Postgres |
+| Brief blip | UI blocks mutating saves; read from IndexedDB cache where available |
+| Catch-up | Future outbox drains when stable (not implemented yet) |
 
-- **Global Unique IDs (UUID):** All primary keys use UUIDs generated at the edge (Client) to prevent ID collisions when multiple workstations sync to Railway.
-- **Audit Timestamps:** Every table includes `created_at` and `updated_at` (UTC) to handle "Last Write Wins" conflict resolution.
-- **Sync Status:** A `server_synced_at` timestamp tracks when a record successfully reached the Railway cloud.
-- [cite_start]**Origin Tracking:** A `device_id` field identifies the specific hardware (Laptop/iPad) that authored the record, fulfilling the requirement for tracking the "Machine" in the Patient ID.
+Conflict policy when outbox lands: **last-write-wins** + audit log. No multi-master DB sync.
+
+---
+
+## 6. Deployment
+
+- **Vercel:** Next.js PWA / marketing / login hostnames.
+- **Railway:** API + Postgres (production).
+- **Hub:** Compose stack for clinic servers (`make hub-up` / `christmedical-hub`).
+- **GitHub Actions:** lint/build/test + deploy jobs.
+
+---
+
+## 7. Auth & roles (v1)
+
+- **Login:** `api/v1/auth/login` + optional `select-tenant`; JWT Bearer (≈12h access).
+- **Roles in token:** `admin` / `coordinator` / `clinician`.
+- **Tenant:** JWT `tenant_id` claim; patient routes validate claim vs query/header when present.
+- **Open:** anonymous API still allowed when no JWT; require-auth on mutating routes is next security work.
+
+---
+
+## 8. Client topology
+
+```
+Browser / PWA  ──HTTP──►  API  ──►  PostgreSQL
+Native shells  ──load──►  login / tenant portal (same PWA)
+Field hub      ──Compose─► API + Postgres (clinic LAN)
+```

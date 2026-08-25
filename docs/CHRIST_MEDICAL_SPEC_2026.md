@@ -89,7 +89,7 @@ Carried from the 2016 deck (page 16, never resolved) plus new ones:
 ## 9. Delivery plan (maps to the roadmap checklist)
 
 1. Auth v1 (**done** — login/JWT/tenant; require-auth on mutating routes still open)
-2. Delete Dotmim + reconcile docs to this spec (Jules)
+2. Delete Dotmim + reconcile docs to this spec (**done** — `sync/` removed; ARCHITECTURE/DATABASE/README aligned)
 3. Write outbox + idempotent server writes (Section 6)
 4. Audit trail v1 (thin: who/what/when on PHI and spiritual fields)
 5. Clinical depth: coded diagnoses UI, treatments + flag/follow-up queue, prescriptions with statuses and copy-forward, formulary settings

@@ -45,8 +45,8 @@ Railway IDs wired in CI:
 
 The Next.js app lives in **`frontend/`** (monorepo root is .NET + docs + ETL).
 
-**Git deploys:** In Vercel → Project → **Settings → General → Root Directory**, set **`frontend`**.
-The repo also ships root `vercel.json` + `package.json` (`vercel-build`) so builds succeed if Root Directory is the repo root.
+**Git deploys:** Disabled via `git.deploymentEnabled: false` in root and `frontend/vercel.json` — production ships from **CI** (`vercel deploy --prod` in `.github/workflows/ci.yml`). That avoids a second, often-failing Vercel GitHub App build on every push while Root Directory / monorepo settings drift.
+If you re-enable Git deploys later, set Vercel → Project → **Settings → General → Root Directory** to **`frontend`**.
 
 **CI deploys:** `.github/workflows/ci.yml` runs `vercel deploy --prod` from `frontend/` (no root-directory issue).
 

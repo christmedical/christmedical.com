@@ -2,57 +2,49 @@
 
 ## Hello, PO 🍩
 
-Hi **Homer** — Garfield here 🖖. Protocol answers received; initial codebase briefing is below (persistent section at end). Ping Jamey when you're ready to decide sync architecture.
+Hi **Homer** — Garfield here 🖖. Status docs reconciled to `main` @ `v0.6.0+`. Initial codebase briefing at end is a **2026-06-01 snapshot** (auth/CI/clients sections outdated; use Current State + Session History).
 
 ## Current State
 
 - **Branch:** `main`
-- **Latest tag:** `v0.2.2-ci-green` (on `9d1727d`)
-- **Working state:** yellow — local `make build` green; **CI build job green**; full workflow still **red** on Railway/Vercel deploy (secrets/config, not test regression)
-- **Test count and pass rate:** xUnit **46/46**, Vitest **57/57** (103 total; verified via `make build` this session)
+- **Latest tag:** `v0.6.0-clients-electron` (clients restructure + Electron); this session tags **`v0.6.1-status-docs`**
+- **Working state:** **green** — CI on `main` succeeds end-to-end (build + schema drift + Railway API + Vercel frontend)
+- **Last CI on `main`:** **success** — [run 30650300614](https://github.com/christmedical/christmedical.com/actions/runs/30650300614) (2026-07-31 ~17:13 UTC)
+- **Last commit hash and date:** `d16d7d9` — 2026-07-31 (README/HOMER note for `clients/` + Electron)
 - **Coverage %:** not collected
-- **Last CI on `main`:** **build job success** — [run 26769334419](https://github.com/christmedical/christmedical.com/actions/runs/26769334419) (2026-06-01 ~17:01 UTC); workflow conclusion `failure` (deploy jobs only)
-- **Last commit hash and date:** `9d1727d` — 2026-06-01 (CI lockfile + Playwright in workflow)
+- **Open issues / PRs:** none on the repo at reconcile time
+- **Auth v1:** **landed** — `login` portal, JWT (12h access + preauth), roles in token, tenant picker, patient routes validate JWT tenant when present. **Still open:** anonymous API access when no JWT (`TenantAccessValidator.AllowAnonymous`); global `[Authorize]` / role gates on all mutating routes (roadmap F)
+- **Sync:** Dotmim library still in `sync/` (dormant, unused by API); PWA IndexedDB read cache only — write outbox not built
+- **Shipped since v0.2.2:** marketing site, tenant subdomain routing, demo login, feedback mode, EMR nav, tbls schema docs, hub Compose+CLI (`v0.5.0`), iOS/Android/Electron shells (`v0.6.0`), AGPL dual-license scaffolding
 
 ## Last Session Summary
 
-**Date:** 2026-06-01
+**Date:** 2026-08-25
 
-**Prompt received from PO:** Fix CI — regenerate frontend lockfile, verify `make build`, green GitHub Actions, tag `v0.2.2-ci-green`. Record Homer's new priority order and deferred sync decision.
+**Prompt received from PO:** Status check → pick one non-disruptive next step; tag + push; move forward while offline.
 
 **Work completed:**
 
-- Regenerated `frontend/package-lock.json` (Linux/`node:20` — includes `vite@7.3.5`, `fdir`, `picomatch` for vitest)
-- Added `npx playwright install chromium --with-deps` to `.github/workflows/ci.yml` (Storybook browser tests)
-- Verified `npm ci` + `make build` locally (103/103 tests)
-- Pushed `b0b56fd` + `9d1727d`; tagged **`v0.2.2-ci-green`**
-- **CI build job passed** on `9d1727d`; deploy jobs failed (Railway/Vercel — outside lockfile scope)
+- Chose **docs reconciliation** (lowest disruption vs Dotmim delete / clinical features)
+- Refreshed this file’s Current State, Suggested Next Steps, and session history to match `main` / CI / tags
+- Updated `docs/EMR_ROADMAP_CHECKLIST.md` auth checkbox + last-updated note; aligned delivery-plan line in `docs/CHRIST_MEDICAL_SPEC_2026.md`
+- Tagged **`v0.6.1-status-docs`**
 
 **Decisions made (and why):**
 
-- **Lockfile must be produced on Linux** — macOS `npm install` left darwin-only `fsevents` entries that break `npm ci` on `ubuntu-latest`
-- **Playwright in CI required** — not just lockfile; browser tests need Chromium on runner
-- **Two commits on `main`** — first mac lockfile still failed CI; second commit fixed Linux lockfile + workflow (PO asked one commit; split due to platform surprise)
+- Docs-only change set — no app behavior risk while PO is offline
+- Auth marked **v1 done** with explicit residual (anonymous-without-JWT still allowed) so Homer does not re-queue “build auth from scratch”
+- Next product work stays: Dotmim delete + architecture doc sync, then clinical safety gaps / outbox
 
 **Issues encountered:**
 
-- Mac-regenerated lockfile passed local `npm ci` but CI failed `EBADPLATFORM` on `fsevents@2.3.3`
-- Full workflow still fails: **Deploy API (Railway)** and **Deploy frontend (Vercel)** — likely missing/invalid secrets (not diagnosed further this session)
+- Cloud VM `dotnet` / frontend `node_modules` not on PATH this session — did not re-run `make build`; relied on last green CI on `main`
 
 **Files changed:**
 
-- `frontend/package-lock.json`
-- `.github/workflows/ci.yml`
 - `HOMER.md`
-
-**Homer strategic updates (from this prompt):**
-
-1. Fix CI → **done** (build gate)
-2. Auth on API → next prompt
-3. Docs reconciliation → later
-4. Offline write queue (real sync) → after auth
-5. **Delete Dotmim** → separate prompt (not this one)
-6. Sync architecture **deferred** — PWA IndexedDB + HTTP→API→Postgres; last-write-wins + audit log; single-tenant-per-deployment OK for now
+- `docs/EMR_ROADMAP_CHECKLIST.md`
+- `docs/CHRIST_MEDICAL_SPEC_2026.md`
 
 ## PO Protocol — Resolved Answers
 
@@ -69,14 +61,19 @@ Hi **Homer** — Garfield here 🖖. Protocol answers received; initial codebase
 
 ## Suggested Next Steps
 
-1. **Auth on API** (Homer priority #2) — next work prompt.
-2. **Deploy workflow green (optional):** fix Railway/Vercel secrets or make deploy jobs non-blocking until configured — needed for full workflow `success`, not for build/test gate.
-3. **Documentation reconciliation** — align `docs/ARCHITECTURE.md` with PWA + API + `clients/` shells (drop stale Dotmim/Dexie laptop-sync narrative where it conflicts with `docs/CHRIST_MEDICAL_SPEC_2026.md`).
-4. **Offline write queue** — after auth; scope notes/visits/vitals per PWA UI.
-5. **Delete Dotmim** — separate prompt when PO ready.
-6. **Hub discovery in client shells** — once hub architecture is finalized; native shells only (not browser extensions).
+1. **Delete Dotmim + architecture docs** — remove unused `sync/` Dotmim path; align `docs/ARCHITECTURE.md` / `docs/DATABASE.md` with PWA + API + hub + `clients/` (2026 mostly-connected model).
+2. **Require auth on mutating API routes** — close `AllowAnonymous` loophole; role checks where needed (completes auth beyond login UX).
+3. **Clinical safety gaps** (from `SPEC_2016_GAP_ANALYSIS.md`) — allergies prominent on chart; system-wide unambiguous dates.
+4. **Follow-up queue screen** — treatments already flaggable; queue UI not built.
+5. **Write outbox + idempotent server writes** — then trip close “no pending device writes” rule.
+6. **Settings / dictionaries** — locations, diagnoses, formulary (unblocks clinical depth).
+7. Soft: doctor/nurse review on open questions in the gap analysis.
 
 ## Session History
+
+### 2026-08-25 — Status docs reconcile (CI/auth/tags)
+
+HOMER Current State + roadmap auth checkbox brought in line with green CI, auth v1, hub/clients tags. Tag `v0.6.1-status-docs`. No application code changed.
 
 ### 2026-07-31 — Clients restructure + Electron desktop
 

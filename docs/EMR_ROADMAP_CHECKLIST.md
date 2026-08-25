@@ -21,7 +21,7 @@ Living checklist for the **electronic medical records** and **spiritual / gospel
 - [x] Patient chart notes: spiritual + medical/surgical/family/allergies + gospel fields (PATCH, last-write-wins)
 - [x] Home dashboard (spiritual + documentation footprint metrics)
 - [x] Connectivity: pause saves when offline; resume when online
-- [ ] **Authentication & authorization** — real sign-in, roles (e.g. clinician vs coordinator), **tenant-scoped** sessions *(security-critical; can start minimal for demo)*
+- [x] **Authentication & authorization (v1)** — login portal, JWT (12h), roles in token, tenant picker, patient routes enforce JWT tenant when present; **remaining:** require auth on mutating APIs (anonymous still allowed without JWT), MFA / session posture (section F)
 - [ ] **Audit trail** — who changed what on PHI/spiritual fields, when *(even a thin v1 helps before wide rollout)*
 - [ ] Session timeout + device posture expectations for clinic iPads *(align with security section)*
 
@@ -95,4 +95,4 @@ Living checklist for the **electronic medical records** and **spiritual / gospel
 
 ---
 
-*Last updated: 2026-05-08 — section D environment matrix marked done (README); section E help manual marked aligned with current UI; ETL tool `bin/obj` gitignored on develop; B encounters/vitals v1 still the baseline (no flowsheet/trends yet).*
+*Last updated: 2026-08-25 — section A auth v1 checked (login/JWT/tenant; anonymous-without-JWT still open under F); hub + clients shells shipped; CI deploy path green on main. B encounters/vitals v1 still the baseline (no flowsheet/trends yet).*

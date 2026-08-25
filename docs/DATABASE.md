@@ -1,12 +1,13 @@
 # Database Architecture
 
-This document details the persistence layer for the Christ Medical mission system. The architecture is built to support high-reliability data entry in low-connectivity environments through a local-first synchronization strategy.
+This document details the persistence layer for the Christ Medical mission system. PostgreSQL is the **single source of truth**. Clients are mostly connected; brief offline is handled with a PWA read cache and (planned) write outbox — not multi-master sync.
 
 ## Persistence Model
 
-- [**Primary Store (Cloud):** A centralized **PostgreSQL** instance hosted on **Railway** serves as the global source of truth[cite: 441, 443, 458].
-- **Local Store (Client):** **IndexedDB** (via Dexie.js) or **SQLite** provides high-performance local caching for iPads (PWA) and Laptops (Electron)[cite: 451, 452].
-- **Synchronization:** Implements a **Store and Forward** pattern. Data is authored locally with client-generated UUIDs and reconciled with the Railway API via a "Finish Trip" manual sync once a connection is detected[cite: 101, 440].
+- **Primary store (cloud / hub):** A centralized **PostgreSQL** instance (Railway production, or the field hub Compose stack) is the global source of truth.
+- **Client cache:** The Next.js PWA uses **IndexedDB** as a **read-only patient snapshot** (bulk list after online fetch). Mutating saves require connectivity today.
+- **Planned catch-up:** A write **outbox** with idempotent API writes and last-write-wins (see [`CHRIST_MEDICAL_SPEC_2026.md`](CHRIST_MEDICAL_SPEC_2026.md) §6). **Not** Dotmim, Dexie, or SQLite replicas.
+- **Removed:** Dotmim Sync library and laptop↔hub database replication path.
 
 ---
 

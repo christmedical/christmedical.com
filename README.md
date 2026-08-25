@@ -29,12 +29,11 @@
 | Area | Path | Notes |
 |------|------|--------|
 | HTTP API | `api/` | ASP.NET Core 9, Railway-ready (`Dockerfile`) |
-| Mission sync | `sync/` | Dotmim sync helpers for laptop ↔ hub |
 | ETL | `conversion/etl-tool/` | Staging → Postgres clinical migration; **`bin/` / `obj/` are gitignored** (build with `dotnet build` / `make build`) |
 | UI | `frontend/` | Next.js 15 PWA on **Vercel** — sidebar **EMR workflow** (`/queue` → discharge + `/dashboard`); **Patient search** and **Patient list** under the same shell; **Storybook** (`npm run storybook`) |
 | Clients | `clients/` | **iOS (Swift)** + **Android (Kotlin)** + **Desktop (Electron)** shells → `https://login.christmedical.com/`; Linux/browsers use the PWA; see [`clients/README.md`](clients/README.md) |
 | Field hub | `hub/` | Docker Compose **API + Postgres** for clinic machines; Linux CLI `christmedical-hub`; see [`hub/README.md`](hub/README.md) |
-| Tests | `tests/`, `frontend/**/*.test.*`, `clients/**` | .NET xUnit under `tests/`; **Vitest** + **Testing Library** in `frontend/`; XCTest / JUnit / Node for client shells |
+| Tests | `tests/`, `frontend/**/*.test.*`, `clients/**` | .NET xUnit under `tests/` (`api.test`, `etl.test`); **Vitest** + **Testing Library** in `frontend/`; XCTest / JUnit / Node for client shells |
 | Help (draft) | `docs/HELP_MANUAL.md` | Staff-facing help; keep updated as features ship |
 
 ---

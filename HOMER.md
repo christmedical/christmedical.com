@@ -2,49 +2,46 @@
 
 ## Hello, PO 🍩
 
-Hi **Homer** — Garfield here 🖖. Status docs reconciled to `main` @ `v0.6.0+`. Initial codebase briefing at end is a **2026-06-01 snapshot** (auth/CI/clients sections outdated; use Current State + Session History).
+Hi **Homer** — Garfield here 🖖. Status docs + Dotmim removal on `main` @ `v0.6.2+`. Initial codebase briefing at end is a **2026-06-01 snapshot** (auth/CI/clients/sync sections outdated; use Current State + Session History).
 
 ## Current State
 
 - **Branch:** `main`
-- **Latest tag:** `v0.6.1-status-docs` (this reconcile); prior feature tag `v0.6.0-clients-electron`
-- **Working state:** **green** — CI on `main` succeeds end-to-end (build + schema drift + Railway API + Vercel frontend)
-- **Last CI on `main`:** **success** — [run 30650300614](https://github.com/christmedical/christmedical.com/actions/runs/30650300614) (2026-07-31 ~17:13 UTC); post-merge CI for this tag expected green (docs-only)
-- **Last commit hash and date:** `c511ec5` — 2026-08-25 (HOMER/roadmap status reconcile, PR #36)
+- **Latest tag:** `v0.6.2-drop-dotmim` (this change); prior `v0.6.1-status-docs`
+- **Working state:** **green** expected — CI on `main` was green before this; Dotmim removal drops unused projects from the solution
+- **Last CI on `main`:** check latest Actions run after merge
 - **Coverage %:** not collected
-- **Open issues / PRs:** none on the repo at reconcile time
-- **Auth v1:** **landed** — `login` portal, JWT (12h access + preauth), roles in token, tenant picker, patient routes validate JWT tenant when present. **Still open:** anonymous API access when no JWT (`TenantAccessValidator.AllowAnonymous`); global `[Authorize]` / role gates on all mutating routes (roadmap F)
-- **Sync:** Dotmim library still in `sync/` (dormant, unused by API); PWA IndexedDB read cache only — write outbox not built
-- **Shipped since v0.2.2:** marketing site, tenant subdomain routing, demo login, feedback mode, EMR nav, tbls schema docs, hub Compose+CLI (`v0.5.0`), iOS/Android/Electron shells (`v0.6.0`), AGPL dual-license scaffolding
+- **Auth v1:** **landed** — login/JWT/tenant; **Still open:** anonymous API when no JWT; require-auth on mutating routes
+- **Sync:** **Dotmim removed** (`sync/` + `tests/sync.test` deleted). PWA IndexedDB **read cache** only; write outbox not built
+- **Shipped since v0.2.2:** marketing, tenant routing, demo login, feedback, EMR nav, tbls schema docs, hub (`v0.5.0`), clients (`v0.6.0`), AGPL, status docs (`v0.6.1`), Dotmim delete (`v0.6.2`)
 
 ## Last Session Summary
 
 **Date:** 2026-08-25
 
-**Prompt received from PO:** Status check → pick one non-disruptive next step; tag + push; move forward while offline.
+**Prompt received from PO:** Push tag; keep moving (Dotmim delete + architecture docs); stay under ~50% token budget.
 
 **Work completed:**
 
-- Chose **docs reconciliation** (lowest disruption vs Dotmim delete / clinical features)
-- Refreshed this file’s Current State, Suggested Next Steps, and session history to match `main` / CI / tags
-- Updated `docs/EMR_ROADMAP_CHECKLIST.md` auth checkbox + last-updated note; aligned delivery-plan line in `docs/CHRIST_MEDICAL_SPEC_2026.md`
-- Tagged **`v0.6.1-status-docs`**
+- Confirmed `v0.6.1-status-docs` already on `origin`
+- Deleted `sync/` (Dotmim) and `tests/sync.test`; removed both from `christmedical.com.sln`
+- Rewrote `docs/ARCHITECTURE.md`; updated `docs/DATABASE.md` persistence, README layout table, 2026 spec delivery plan
+- Updated this HOMER status / next steps
 
 **Decisions made (and why):**
 
-- Docs-only change set — no app behavior risk while PO is offline
-- Auth marked **v1 done** with explicit residual (anonymous-without-JWT still allowed) so Homer does not re-queue “build auth from scratch”
-- Next product work stays: Dotmim delete + architecture doc sync, then clinical safety gaps / outbox
+- Delete unused Dotmim now — it was never wired to the API and contradicted the 2026 mostly-connected model
+- Skipped require-auth in this pass (more behavior risk; next priority)
+- Native Electron/iOS/Android shells stay — they load the portal; they are not the old local-first Electron+Dexie stack
 
 **Issues encountered:**
 
-- Cloud VM `dotnet` / frontend `node_modules` not on PATH this session — did not re-run `make build`; relied on last green CI on `main`
+- Cloud VM still missing `dotnet` on PATH — rely on CI for build verification
 
 **Files changed:**
 
-- `HOMER.md`
-- `docs/EMR_ROADMAP_CHECKLIST.md`
-- `docs/CHRIST_MEDICAL_SPEC_2026.md`
+- Deleted: `sync/**`, `tests/sync.test/**`
+- `christmedical.com.sln`, `README.md`, `docs/ARCHITECTURE.md`, `docs/DATABASE.md`, `docs/CHRIST_MEDICAL_SPEC_2026.md`, `HOMER.md`
 
 ## PO Protocol — Resolved Answers
 
@@ -61,15 +58,18 @@ Hi **Homer** — Garfield here 🖖. Status docs reconciled to `main` @ `v0.6.0+
 
 ## Suggested Next Steps
 
-1. **Delete Dotmim + architecture docs** — remove unused `sync/` Dotmim path; align `docs/ARCHITECTURE.md` / `docs/DATABASE.md` with PWA + API + hub + `clients/` (2026 mostly-connected model).
-2. **Require auth on mutating API routes** — close `AllowAnonymous` loophole; role checks where needed (completes auth beyond login UX).
-3. **Clinical safety gaps** (from `SPEC_2016_GAP_ANALYSIS.md`) — allergies prominent on chart; system-wide unambiguous dates.
-4. **Follow-up queue screen** — treatments already flaggable; queue UI not built.
-5. **Write outbox + idempotent server writes** — then trip close “no pending device writes” rule.
-6. **Settings / dictionaries** — locations, diagnoses, formulary (unblocks clinical depth).
-7. Soft: doctor/nurse review on open questions in the gap analysis.
+1. **Require auth on mutating API routes** — close `AllowAnonymous` loophole; role checks where needed.
+2. **Clinical safety gaps** (from `SPEC_2016_GAP_ANALYSIS.md`) — allergies prominent on chart; system-wide unambiguous dates.
+3. **Follow-up queue screen** — treatments already flaggable; queue UI not built.
+4. **Write outbox + idempotent server writes** — then trip close “no pending device writes” rule.
+5. **Settings / dictionaries** — locations, diagnoses, formulary (unblocks clinical depth).
+6. Soft: doctor/nurse review on open questions in the gap analysis.
 
 ## Session History
+
+### 2026-08-25 — Delete Dotmim + architecture docs
+
+Removed `sync/` Dotmim library and `tests/sync.test`. Rewrote ARCHITECTURE.md; DATABASE/README/spec delivery plan aligned to mostly-connected PWA+API model. Tag `v0.6.2-drop-dotmim`.
 
 ### 2026-08-25 — Status docs reconcile (CI/auth/tags)
 
@@ -111,7 +111,7 @@ Removed failing CI/branch-protection README badges; squash-merged PR #14 to `mai
 
 ## Initial Codebase Briefing for Homer
 
-*Read-only survey as of 2026-06-01. Repo ~35+ commits of active EMR/dashboard work on top of conversion foundation.*
+*Read-only survey as of 2026-06-01. **Historical.** Sections on Dotmim/`sync/`, “no auth”, and CI yellow are obsolete — see Current State above. Repo ~35+ commits of active EMR/dashboard work on top of conversion foundation at that time.*
 
 ### 1. Codebase State
 

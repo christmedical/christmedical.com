@@ -7,10 +7,10 @@ Hi **Homer** — Garfield here 🖖. Status docs reconciled to `main` @ `v0.6.0+
 ## Current State
 
 - **Branch:** `main`
-- **Latest tag:** `v0.6.0-clients-electron` (clients restructure + Electron); this session tags **`v0.6.1-status-docs`**
+- **Latest tag:** `v0.6.1-status-docs` (this reconcile); prior feature tag `v0.6.0-clients-electron`
 - **Working state:** **green** — CI on `main` succeeds end-to-end (build + schema drift + Railway API + Vercel frontend)
-- **Last CI on `main`:** **success** — [run 30650300614](https://github.com/christmedical/christmedical.com/actions/runs/30650300614) (2026-07-31 ~17:13 UTC)
-- **Last commit hash and date:** `d16d7d9` — 2026-07-31 (README/HOMER note for `clients/` + Electron)
+- **Last CI on `main`:** **success** — [run 30650300614](https://github.com/christmedical/christmedical.com/actions/runs/30650300614) (2026-07-31 ~17:13 UTC); post-merge CI for this tag expected green (docs-only)
+- **Last commit hash and date:** `c511ec5` — 2026-08-25 (HOMER/roadmap status reconcile, PR #36)
 - **Coverage %:** not collected
 - **Open issues / PRs:** none on the repo at reconcile time
 - **Auth v1:** **landed** — `login` portal, JWT (12h access + preauth), roles in token, tenant picker, patient routes validate JWT tenant when present. **Still open:** anonymous API access when no JWT (`TenantAccessValidator.AllowAnonymous`); global `[Authorize]` / role gates on all mutating routes (roadmap F)
